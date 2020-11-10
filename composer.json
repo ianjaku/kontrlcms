@@ -1,0 +1,19 @@
+{
+    "name": "invacto/simplecms",
+    "description": "A simple CMS",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Invacto",
+            "email": "ian@invacto.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "invacto\\HelloWorld\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}
