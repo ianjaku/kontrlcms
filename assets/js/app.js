@@ -179,7 +179,8 @@ function uploadDropboxImage(file) {
     }).then(response => {
         // Success!!
         response.json().then(response => {
-            if (imageDropboxImageEl.tagName === "img") {
+            console.log(imageDropboxImageEl.tagName);
+            if (imageDropboxImageEl.tagName.toLowerCase() === "img") {
                 imageDropboxImageEl.src = response.url;
             } else {
                 imageDropboxImageEl.style.backgroundImage = `url('${response.url}')`
