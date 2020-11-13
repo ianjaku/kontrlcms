@@ -50,7 +50,7 @@ class SimpleCMS {
         }, ["is_safe" => ["html"], "needs_context" => true]);
         $this->twig->addFunction($textFunction);
 
-        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue, $alt, $other) {
+        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue, $alt, $other = "") {
             $src = $this->findSnippet($context, $name, null);
             if ($src == null) {
                 $src = $defaultValue;
@@ -58,7 +58,7 @@ class SimpleCMS {
                 $src = '/storage/' . $src;
             }
             return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
-        }, ["is_safe" => ["html"], "needs_context" => true]));
+        }, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
 
         $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue) {
             $src = $this->findSnippet($context, $name, null);
