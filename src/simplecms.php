@@ -58,7 +58,7 @@ class SimpleCMS {
                 $src = '/storage/' . $src;
             }
             return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
-        }, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
+        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue) {
             $src = $this->findSnippet($context, $name, null);
