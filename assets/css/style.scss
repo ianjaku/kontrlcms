@@ -1,0 +1,12 @@
+@import "image-editor";
+@import "text-editor";
+@import "adminbar";
+
+html {
+    margin-top: 50px !important;
+}
+
+body.simplecms__no-scroll {
+    overflow: hidden;
+}
+

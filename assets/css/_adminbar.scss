@@ -1,0 +1,65 @@
+/* SimpleCMS */
+
+.simplecms__adminbar {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background: #000;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 0 40px;
+  z-index: 10006;
+  border-bottom: 1px solid white;
+}
+
+.simplecms__adminbar__logo {
+  color: white;
+  font-weight: bold;
+  font-family: "Trebuchet MS", sans-serif;
+  letter-spacing: 0.02em;
+  font-size: 18px;
+}
+
+.simplecms__adminbar__edit-button {
+  padding: 5px 15px;
+  color: white;
+  background: #3854A6;
+  font-weight: bold;
+  font-family: "Trebuchet MS", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.simplecms__adminbar__edit-button:hover {
+  background: #5874C6;
+}
+
+.simplecms__adminbar__save-button {
+  padding: 5px 15px;
+  color: white;
+  background: #5874C6;
+  font-weight: bold;
+  font-family: "Trebuchet MS", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+}
+
+.simplecms__adminbar__save-button:hover {
+  background: #3854A6;
+}

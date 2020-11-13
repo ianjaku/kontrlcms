@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <meta charset="UTF-8"> -->
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Spectral:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/app.js" defer></script>
+    <title>Some title</title>
+    {{ head() }}
+</head>
+<body>
+
+    <div aria-hidden class="home__blob1" style="background-image: url('/img/blob1.svg')"></div>
+    <div aria-hidden class="home__blob2" style="background-image: url('/img/blob2.svg')"></div>
+    <div aria-hidden class="home__blob3" style="background-image: url('/img/blob3.svg')"></div>
+    <div aria-hidden class="home__blob4" style="background-image: url('/img/blob4.svg')"></div>
+
+    <nav class="mobile-nav" id="mobile-nav">
+        <ul class="mobile-nav__list">
+            <li>
+                <a class="mobile-nav__link" href="">Home</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Wat doen we</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Loopbaan coaching</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Perfectionisme coaching</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Hypnose</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Wij we zijn</a>
+            </li>
+            <li>
+                <a class="mobile-nav__link" href="">Waar we voor staan</a>
+            </li>
+        </ul>
+    </nav>
+
+    <header class="main-menu container">
+        <div class="logo">
+            <img src="/img/logo.png" alt="IJK Coaching logo">
+        </div>
+        <div class="hamburger main-menu__hamburger" id="mobile-nav__open">
+            <div class="hamburger__slice"></div>
+            <div class="hamburger__slice"></div>
+            <div class="hamburger__slice"></div>
+        </div>
+        <nav class="main-menu__nav">
+            <ul class="main-menu__list">
+                <li class="main-menu__list-item">
+                    <a class="main-menu__link main-menu__link--active" href="">Home</a>
+                </li>
+                <li class="main-menu__list-item">
+                    <a class="main-menu__link" href="">Over ons</a>
+                </li>
+                <li class="main-menu__list-item">
+                    <a class="main-menu__link" href="">Loopbaan</a>
+                </li>
+                <li class="main-menu__list-item">
+                    <a class="main-menu__link" href="">Perfectionisme</a>
+                </li>
+                <li class="main-menu__list-item">
+                    <a class="main-menu__link" href="">Hypnose</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero" style="background-image: url('/img/hero.jpg')">
+        <div class="hero__gradient"></div>
+        <div class="hero__content">
+            {% block hero %}{% endblock %}
+        </div>
+    </div>
+
+        {% block content %}{% endblock %}
+
+    <footer class="footer container">
+        <div class="logo footer__logo">
+            <img src="/img/biglogo.svg" alt="">
+        </div>
+        <nav class="footer__nav">
+            <ul class="footer__list">
+                <li class="footer__list-item">
+                    <a class="footer__link footer__link--active" href="">Home</a>
+                </li>
+                <li class="footer__list-item">
+                    <a class="footer__link" href="">Over ons</a>
+                </li>
+                <li class="footer__list-item">
+                    <a class="footer__link" href="">Loopbaan</a>
+                </li>
+                <li class="footer__list-item">
+                    <a class="footer__link" href="">Perfectionisme</a>
+                </li>
+                <li class="footer__list-item">
+                    <a class="footer__link" href="">Hypnose</a>
+                </li>
+            </ul>
+        </nav>
+        <ul class="footer__socials">
+            <li class="footer__social">
+                <a class="footer__social-link" href="" style="background-image: url('/img/fb.svg')"></a>
+            </li>
+            <li class="footer__social">
+                <a class="footer__social-link" href="" style="background-image: url('/img/instagram.svg')"></a>
+            </li>
+            <li class="footer__social">
+                <a class="footer__social-link" href="" style="background-image: url('/img/twitter.svg')"></a>
+            </li>
+        </ul>
+        <div class="footer__copy">
+            ©
+            <span class="from-tablet">
+        Challenge Empowering Yourself 2020.
+      </span>
+            All rights reserved.
+        </div>
+    </footer>
+
+    {{ foot() }}
+
+</body>
+</html>

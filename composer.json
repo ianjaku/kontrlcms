@@ -12,8 +12,16 @@
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "invacto\\HelloWorld\\": "src/"
+      "invacto\\SimpleCMS\\": "src/",
+      "invacto\\SimpleCMSExample\\": "example/"
     }
   },
-  "require": {}
+  "require": {
+    "php": "^7.1",
+    "twig/twig": "^3.1",
+    "slim/slim": "^4.5",
+    "slim/psr7": "^1.2",
+    "ext-pdo": "*",
+    "ext-json": "*"
+  }
 }
