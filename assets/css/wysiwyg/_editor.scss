@@ -1,0 +1,10 @@
+@import "prosemirror";
+@import "menubar";
+@import "blockmenu";
+
+.simplecms__editor {
+  position: relative;
+  display: block;
+  padding: 0;
+  margin: 0;
+}

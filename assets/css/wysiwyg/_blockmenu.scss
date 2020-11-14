@@ -1,0 +1,26 @@
+.simplecms__editor__blockmenu {
+  //display: none;
+  position: absolute;
+  left: -50px;
+  width: 20px;
+  height:  20px;
+  //background-color: red;
+  border-right: 4px solid black;
+  padding-right: 5px;
+
+  &::after {
+    display: block;
+    position: static;
+    font-size: 18px;
+    font-family: "Trebuchet MS", sans-serif;
+    font-weight: bold;
+  }
+
+  &[data-simplecms-node-type="heading"]::after {
+    content: 'H1';
+  }
+
+  &[data-simplecms-node-type="paragraph"]::after {
+    content: 'P';
+  }
+}

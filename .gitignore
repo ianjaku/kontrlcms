@@ -1,3 +1,4 @@
 .idea
 vendor
 assets/node_modules
+example/public/storage

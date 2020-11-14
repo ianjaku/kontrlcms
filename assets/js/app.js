@@ -1,4 +1,11 @@
 import "../css/style.scss";
+import Editor from "./editor/editor";
+
+const editors = document.querySelectorAll(".simplecms__editor");
+Array.from(editors).forEach(el => {
+    new Editor(el)
+});
+
 
 const EDIT_CLASS = "simplecms--edit";
 let editing = false;
