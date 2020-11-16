@@ -111,6 +111,10 @@ class Authenticator {
         return $this->getCurrentUser() !== false;
     }
 
+    public function logout() {
+        session_destroy();
+    }
+
     private function createEncoderFactory() {
         $defaultEncoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
         $encoders = [

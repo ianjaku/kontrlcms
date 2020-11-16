@@ -25,7 +25,7 @@
   font-size: 18px;
 }
 
-.simplecms__adminbar__edit-button {
+.simplecms__adminbar__button {
   padding: 5px 15px;
   color: white;
   background: #3854A6;
@@ -38,28 +38,34 @@
   outline: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-right: 10px;
+
+  &:hover {
+    background: #5874C6;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
-.simplecms__adminbar__edit-button:hover {
-  background: #5874C6;
-}
-
-.simplecms__adminbar__save-button {
-  padding: 5px 15px;
-  color: white;
-  background: #5874C6;
-  font-weight: bold;
-  font-family: "Trebuchet MS", sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 14px;
-  border: none;
-  outline: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: none;
-}
-
-.simplecms__adminbar__save-button:hover {
-  background: #3854A6;
-}
+//
+//.simplecms__adminbar__save-button {
+//  padding: 5px 15px;
+//  color: white;
+//  background: #5874C6;
+//  font-weight: bold;
+//  font-family: "Trebuchet MS", sans-serif;
+//  text-transform: uppercase;
+//  letter-spacing: 0.02em;
+//  font-size: 14px;
+//  border: none;
+//  outline: none;
+//  border-radius: 5px;
+//  cursor: pointer;
+//  display: none;
+//}
+//
+//.simplecms__adminbar__save-button:hover {
+//  background: #3854A6;
+//}

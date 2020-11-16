@@ -286,6 +286,10 @@ class SimpleCMS {
 
 
         });
+        $this->app->post("/simplecms/logout", function (Request $request, Response $response, $args = []) {
+            $this->authenticator->logout();
+            return $this->redirect($response, "/");
+        });
     }
 
     private function updateOrCreateSnippet(string $page, string $name, string $value) {

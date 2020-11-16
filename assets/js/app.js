@@ -23,8 +23,8 @@ function disableEditors() {
 }
 
 
-const editButton = document.querySelector(".simplecms__adminbar__edit-button");
-const saveButton = document.querySelector(".simplecms__adminbar__save-button");
+const editButton = document.querySelector(".simplecms__adminbar__button--edit");
+const saveButton = document.querySelector(".simplecms__adminbar__button--save");
 
 editButton.addEventListener("click", () => {
     // Start editing
