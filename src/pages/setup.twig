@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SimpleCMS - Login</title>
+    <link rel="stylesheet" href="/simplecms/style">
+</head>
+<body>
+
+<div class="simplecms__auth-box">
+    <div class="simplecms__auth-box__box">
+        <h1 class="simplecms__auth-box__title">Install SimpleCMS</h1>
+        <form action="/simplecms/setup" method="POST" class="simplecms__auth-box__form">
+
+            <div class="simplecms__auth-box__group">
+                <label for="db_host" class="simplecms__auth-box__label">Database URL</label>
+                <input type="text" class="simplecms__auth-box__input" id="db_host" name="db_host" value="localhost">
+            </div>
+
+            <div class="simplecms__auth-box__group">
+                <label for="db_port" class="simplecms__auth-box__label">Database Port</label>
+                <input type="text" class="simplecms__auth-box__input" id="db_port" name="db_port" value="3306">
+            </div>
+
+            <div class="simplecms__auth-box__group">
+                <label for="db_name" class="simplecms__auth-box__label">Database Name</label>
+                <input type="text" class="simplecms__auth-box__input" id="db_name" name="db_name">
+            </div>
+
+            <div class="simplecms__auth-box__group">
+                <label for="db_user" class="simplecms__auth-box__label">Database User</label>
+                <input type="text" class="simplecms__auth-box__input" id="db_user" name="db_user">
+            </div>
+
+            <div class="simplecms__auth-box__group">
+                <label for="db_password" class="simplecms__auth-box__label">Database Password</label>
+                <input type="password" class="simplecms__auth-box__input" id="db_password" name="db_password">
+            </div>
+
+            <hr class="simplecms__auth-box__hr">
+
+            <div class="simplecms__auth-box__group">
+                <label for="admin_email" class="simplecms__auth-box__label">Admin Email</label>
+                <input type="email" class="simplecms__auth-box__input" id="admin_email" name="admin_email">
+            </div>
+
+            <div class="simplecms__auth-box__group">
+                <label for="admin_password" class="simplecms__auth-box__label">Admin Password</label>
+                <input type="password" class="simplecms__auth-box__input" id="admin_password" name="admin_password">
+            </div>
+
+            <button type="submit" class="simplecms__auth-box__submit">Setup</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

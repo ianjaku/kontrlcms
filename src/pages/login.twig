@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SimpleCMS - Login</title>
+    <link rel="stylesheet" href="/simplecms/style">
+</head>
+<body>
+
+    <div class="simplecms__auth-box">
+        <div class="simplecms__auth-box__box">
+            <h1 class="simplecms__auth-box__title">Sign in</h1>
+            <form action="/simplecms/login" class="simplecms__auth-box__form">
+                <div class="simplecms__auth-box__group">
+                    <label for="email" class="simplecms__auth-box__label">Email</label>
+                    <input type="text" class="simplecms__auth-box__input" id="email" name="email">
+                </div>
+
+                <div class="simplecms__auth-box__group">
+                    <label for="password" class="simplecms__auth-box__label">Password</label>
+                    <input type="password" class="simplecms__auth-box__input" id="password" name="password">
+                </div>
+
+                <button type="submit" class="simplecms__auth-box__submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
