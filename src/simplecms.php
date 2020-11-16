@@ -3,16 +3,14 @@
 namespace invacto\SimpleCMS;
 
 
-use Exception;
+use Dotenv\Dotenv;
+use invacto\SimpleCMS\auth\Authenticator;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
@@ -38,15 +36,35 @@ class SimpleCMS {
      */
     private $imageDirectory;
 
-    public function __construct(string $viewDirectory, string $imageDirectory)
+    /**
+     * @var Authenticator
+     */
+    private $authenticator;
+
+    /**
+     * @var string
+     */
+    private $appDir;
+
+//    public function __construct(string $viewDirectory, string $imageDirectory)
+    public function __construct($appDir)
     {
-        $this->imageDirectory = $imageDirectory;
-        $fileSystemLoader = new FilesystemLoader($viewDirectory);
+        $this->appDir = $appDir;
+
+        $dotenv = Dotenv::createImmutable($appDir);
+        $dotenv->safeLoad();
+
+        $this->imageDirectory = $appDir . "/public/storage";
+        $fileSystemLoader = new FilesystemLoader($appDir . "/views");
         $this->twig = new Environment($fileSystemLoader, []);
 
         $textFunction = new TwigFunction('text', function($context, $name, $defaultText = "") {
             $text = $this->findSnippet($context, $name, $defaultText);
-            return '<span class="simplecms__editable" data-name="'.$name.'"  spellcheck="false">' . $text . '</span>';
+            if ($this->authenticator->hasUser()) {
+                return '<span class="simplecms__editable" data-name="' . $name . '"  spellcheck="false">' . $text . '</span>';
+            } else {
+                return $text;
+            }
         }, ["is_safe" => ["html"], "needs_context" => true]);
         $this->twig->addFunction($textFunction);
 
@@ -57,7 +75,11 @@ class SimpleCMS {
             } else {
                 $src = '/storage/' . $src;
             }
-            return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
+            if ($this->authenticator->hasUser()) {
+                return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
+            } else {
+                return '<img src="'.$src.'" alt="'.$alt.'"">';
+            }
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
@@ -67,27 +89,39 @@ class SimpleCMS {
             } else {
                 $src = '/storage/' . $src;
             }
-            return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
+
+            if ($this->authenticator->hasUser()) {
+                return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
+            } else {
+                return 'style="background-image: url(\''.$src.'\')"';
+            }
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
             $text = $this->findSnippet($context, $name, $defaultValue);
-//            return $text;
-            return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
+            if ($this->authenticator->hasUser()) {
+                return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
+            } else {
+                return $text;
+            }
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('head', function($context) {
+            if (!$this->authenticator->hasUser()) return "";
+
             $pageFile = $context['__pageFile'];
             return "
-            <script lang='js'>
-                const PAGE_NAME = '$pageFile';
-            </script>
-            <link rel='stylesheet' href='/simplecms/style' type='text/css'>
-            <script src='/simplecms/script' defer></script>
+                <script lang='js'>
+                    const PAGE_NAME = '$pageFile';
+                </script>
+                <link rel='stylesheet' href='/simplecms/style' type='text/css'>
+                <script src='/simplecms/script' defer></script>
             ";
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction("foot", function() {
+            if (!$this->authenticator->hasUser()) return "";
+
             $popupHtml = file_get_contents(__DIR__ . '/foot.html');
             return $popupHtml;
         }, ["is_safe" => ["html"]]));
@@ -96,12 +130,16 @@ class SimpleCMS {
         $this->app->addBodyParsingMiddleware();
 
         // TODO: "Get settings from environment variables or some shit"
+        // TODO: throw error when environment variables are not set
         $this->db = new Database(
-            "localhost",
-            "simplecms",
-            "root",
-            "root"
+            $_ENV["DB_HOST"] . ":" . $_ENV["DB_PORT"],
+            $_ENV["DB_NAME"],
+            $_ENV["DB_USER"],
+            $_ENV["DB_PASS"]
         );
+
+        // TODO: Get a secret key from environment variables or $cms->setSecret("...")
+        $this->authenticator = new Authenticator("SecretKey", $this->db);
 
         $this->createEditEndpoints();
     }
@@ -179,12 +217,74 @@ class SimpleCMS {
 
                 return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
             }
+            return $this->JSON($response, ["error" => "Failed to upload file"]);
+        });
 
-//            return $this->JS
+        $this->app->get("/simplecms/login", function (Request $request, Response $response, $args = []) {
+            return $this->renderLibraryPage($response, "login.twig");
+        });
+        $this->app->post("/simplecms/login", function (Request $request, Response $response, $args = []) {
+            $params = $request->getParsedBody();
 
-//            $res = json_encode($files['file']);
-//            $response->getBody()->write($res);
-//            return $response->withHeader('Content-Type', 'application/json');
+            $email = $params['email'];
+            $password = $params['password'];
+
+            $user = $this->authenticator->login($email, $password);
+
+            if ($user === false) {
+                return $this->renderLibraryPage($response, "login.twig", ["error" => "Invalid email or password"]);
+            }
+
+//            $user->serialize();
+
+//            return $this->JSON($response, ["user" => $user, "token" => $user->__serialize()]);
+
+
+            // TODO: save authed user to cookie or something
+
+            return $this->redirect($response, "/");
+//            return $this->renderSimplecmsPage($response, __DIR__ . "/pages/login.html");
+//            return $this->renderLibraryPage($response, "login.twig", ["error" => "Invalid email or password"]);
+        });
+
+        $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
+//            if (key_exists("SIMPLECMS_PROD", $_ENV)) {
+//                $response->getBody()->write("Page unavailable");
+//                return $response;
+//            }
+            $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
+            $existingUsersCount = $existingUsers[0]["count"];
+
+            if ((int)$existingUsersCount !== 0) {
+                $response->getBody()->write("Page unavailable");
+                return $response;
+            }
+
+            return $this->renderLibraryPage($response, "setup.twig");
+        });
+        $this->app->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
+            $params = $request->getParsedBody();
+            $this->authenticator->register($params["admin_email"], $params["admin_password"]);
+
+
+
+            // Test if db connection works
+//            $this->db->setConnectionData(
+//                $params["db_host"] . ":" . $params["db_port"],
+//                $params["db_name"],
+//                $params["db_user"],
+//                $params["db_password"]
+//            );
+//
+//            if (!$this->db->testConnection()); {
+//                return $this->renderLibraryPage($response, "setup.twig", ["error" => "Couldn't connect to the database"]);
+//            }
+
+            // Create .env file
+//            $dotenvPath = $this->appDir . "/.env";
+
+
+
         });
     }
 
@@ -223,17 +323,32 @@ class SimpleCMS {
 
     private function render($page, $context = []) {
         return $this->twig->load($page)->render($context);
-//        try {
-//        } catch (LoaderError $e) {
-//        } catch (RuntimeError $e) {
-//        } catch (SyntaxError $e) {
-//        }
+    }
+
+    private function renderLibraryPage(Response $response, $page, $context = []) {
+        $fileSystemLoader = new FilesystemLoader(__DIR__ . "/pages");
+        $twig = new Environment($fileSystemLoader, []);
+        $pageData = $twig->load($page)->render($context);
+        $response->getBody()->write($pageData);
+        return $response;
     }
 
     private function JSON(Response $response, $data) {
         $res = json_encode($data);
         $response->getBody()->write($res);
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function renderSimplecmsPage(Response $response, $path, $type = "text/html") {
+        $page = file_get_contents($path);
+        $response->getBody()->write($page);
+        return $response->withHeader('Content-Type', $type);
+    }
+
+    private function redirect($response, $to) {
+        return $response
+            ->withHeader('Location', $to)
+            ->withStatus(302);
     }
 
 }

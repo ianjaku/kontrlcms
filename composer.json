@@ -22,6 +22,8 @@
     "slim/slim": "^4.5",
     "slim/psr7": "^1.2",
     "ext-pdo": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "symfony/security-core": "^5.1",
+    "vlucas/phpdotenv": "^5.2"
   }
 }

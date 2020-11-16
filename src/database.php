@@ -2,6 +2,7 @@
 
 namespace invacto\SimpleCMS;
 
+use Exception;
 use PDO;
 use PDOStatement;
 
@@ -18,9 +19,7 @@ class Database {
 
     public function __construct($host, $name, $username, $password, $type = "mysql")
     {
-        $this->connectionString = "$type:host=$host;dbname=$name";
-        $this->username = $username;
-        $this->password = $password;
+        $this->setConnectionData($host, $name, $username, $password, $type);
     }
 
     /**
@@ -62,8 +61,23 @@ class Database {
         $this->query($query, $parameters);
     }
 
+    public function setConnectionData($host, $name, $username, $password, $type = "mysql") {
+        $this->connectionString = "$type:host=$host;dbname=$name";
+        $this->username = $username;
+        $this->password = $password;
+    }
+
+    public function testConnection() {
+        try {
+            $this->connect();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     private function connect() {
-        $this->db = new PDO($this->connectionString, $this->username, $this->password);
+        $this->db = new PDO($this->connectionString, $this->username, $this->password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
     }
 
     private function ensureConnected() {

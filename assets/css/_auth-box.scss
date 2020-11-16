@@ -1,0 +1,89 @@
+$ff: "-apple-system", "Helvetica", "Ubuntu", sans-serif;
+
+.simplecms__auth-box {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 450px;
+  padding-top: 50px;
+}
+
+.simplecms__auth-box__box {
+  background-color: white;
+
+  @media (min-width: 600px) {
+    border-radius: 4px;
+    padding: 40px;
+    box-shadow: rgba(60, 66, 87, 0.12) 0 7px 14px 0, rgba(0, 0, 0, 0.12) 0 3px 6px 0;
+  }
+}
+
+.simplecms__auth-box__title {
+  font-size: 24px;
+  font-weight: normal;
+  margin: 0 0 25px;
+  padding: 0;
+  color: #1a1f36;
+  font-family: $ff;
+}
+
+.simplecms__auth-box__form {
+  margin: 0;
+  padding: 0;
+}
+
+.simplecms__auth-box__group {
+  margin-top: 10px;
+}
+
+.simplecms__auth-box__label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #3c4257;
+  font-family: $ff;
+  display: block;
+  padding-bottom: 3px;
+}
+
+.simplecms__auth-box__input {
+  color: #3c4257;
+  border: 1px solid rgba(#3c4257, 0.4);
+  border-radius: 4px;
+  font-family: $ff;
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.simplecms__auth-box__submit {
+  border-radius: 4px;
+  background-color: #3854A6;
+  color: white;
+  font-family: $ff;
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.simplecms__auth-box__hr {
+  width: 20%;
+  color: rgba(#3854A6, 0.2);
+  margin: 30px auto 20px;
+}
+
+.simplecms__auth-box__error {
+  font-family: $ff;
+  font-size: 14px;
+  color: #99534B;
+  background-color: rgba(#99534B, 0.2);
+  border: 1px solid #99534B;
+  border-radius: 4px;
+  width: 100%;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  margin: 10px 0 20px;
+}
