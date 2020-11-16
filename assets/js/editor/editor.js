@@ -22,6 +22,9 @@ class Editor {
         contentEl.innerHTML = this.el.innerHTML;
         this.el.innerHTML = "";
 
+        // A list of functions that have to be called when readOnly changes
+        this.readonlyListeners = [];
+
         this.state = EditorState.create({
             schema,
             plugins: [
@@ -31,7 +34,7 @@ class Editor {
                 dropCursor(),
                 gapCursor(),
                 buildInputRules(schema),
-                BlockMenuPlugin(),
+                BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
                     fetch('/simplecms/update', {
                         method: 'POST',
@@ -49,6 +52,11 @@ class Editor {
             doc: DOMParser.fromSchema(schema).parse(contentEl)
         });
         this.view = new EditorView(el, {state: this.state});
+    }
+
+    setReadOnly(value) {
+        this.readonlyListeners.forEach(rol => rol(value));
+        this.view.dom.contentEditable = (value ? "true" : "false");
     }
 
 }

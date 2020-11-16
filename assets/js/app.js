@@ -1,14 +1,27 @@
 import "../css/style.scss";
 import Editor from "./editor/editor";
 
-const editors = document.querySelectorAll(".simplecms__editor");
-Array.from(editors).forEach(el => {
-    new Editor(el)
-});
-
 
 const EDIT_CLASS = "simplecms--edit";
 let editing = false;
+
+
+const editorEls = document.querySelectorAll(".simplecms__editor");
+const editors = [];
+Array.from(editorEls).forEach(el => {
+    const editor = new Editor(el);
+    editor.setReadOnly(editing);
+    editors.push(editor);
+});
+
+function enableEditors() {
+    editors.forEach(e => e.setReadOnly(true))
+}
+
+function disableEditors() {
+    editors.forEach(e => e.setReadOnly(false))
+}
+
 
 const editButton = document.querySelector(".simplecms__adminbar__edit-button");
 const saveButton = document.querySelector(".simplecms__adminbar__save-button");
@@ -19,6 +32,7 @@ editButton.addEventListener("click", () => {
     document.body.classList.add(EDIT_CLASS);
     repositionEditIcons();
     makeContentEditable();
+    enableEditors();
     editButton.style.display = "none";
     saveButton.style.display = "block";
     console.log("Started editing");
@@ -29,6 +43,7 @@ saveButton.addEventListener("click", () => {
     editing = false;
     document.body.classList.remove(EDIT_CLASS);
     makeNonContentEditable();
+    disableEditors();
     editButton.style.display = "block";
     saveButton.style.display = "none";
     console.log("Stopped editing")

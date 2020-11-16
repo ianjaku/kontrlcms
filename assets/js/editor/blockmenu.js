@@ -7,7 +7,7 @@ import {setBlockType} from "prosemirror-commands";
 
 class BlockMenu {
 
-    constructor(view) {
+    constructor(view, readonlyListeners) {
         this.view = view;
 
         this.blockmenuEl = document.createElement("div");
@@ -31,6 +31,14 @@ class BlockMenu {
 
         view.dom.parentNode.appendChild(this.blockmenuEl);
         this.hide();
+
+        readonlyListeners.push(val => {
+            if (val) {
+                //
+            } else {
+                this.hide();
+            }
+        })
 
         // view.dom.addEventListener("blur", () => {
         //     this.hide()
@@ -142,8 +150,8 @@ class BlockMenu {
 
 }
 
-export const BlockMenuPlugin = () => {
+export const BlockMenuPlugin = (readonlyListeners) => {
     return new Plugin({
-        view(editorView) { return new BlockMenu(editorView); }
+        view(editorView) { return new BlockMenu(editorView, readonlyListeners); }
     });
 };
