@@ -286,7 +286,7 @@ class SimpleCMS {
 
 
         });
-        $this->app->post("/simplecms/logout", function (Request $request, Response $response, $args = []) {
+        $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
             return $this->redirect($response, "/");
         });

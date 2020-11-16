@@ -25,6 +25,12 @@
   font-size: 18px;
 }
 
+.simplecms__adminbar__buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
 .simplecms__adminbar__button {
   padding: 5px 15px;
   color: white;
@@ -47,6 +53,10 @@
 
   &:last-child {
     margin-right: 0;
+  }
+
+  &--save {
+    display: none;
   }
 }
 

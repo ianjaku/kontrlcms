@@ -87,6 +87,7 @@ class Authenticator {
             session_start();
 
             $_SESSION["username"] = $user->getUsername();
+            $_SESSION["role"] = "ADMIN";
 
             return true;
         } catch (AuthenticationException $e) {
@@ -101,6 +102,8 @@ class Authenticator {
 
         session_start();
 
+        if ($_SESSION["role"] !== "ADMIN") return false;
+
         $username = $_SESSION["username"];
         if ($username == null) return false;
 
@@ -112,7 +115,9 @@ class Authenticator {
     }
 
     public function logout() {
+        setcookie (session_id(), "", time() - 3600);
         session_destroy();
+        session_write_close();
     }
 
     private function createEncoderFactory() {
