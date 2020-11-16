@@ -44,13 +44,13 @@ class SimpleCMS {
         $fileSystemLoader = new FilesystemLoader($viewDirectory);
         $this->twig = new Environment($fileSystemLoader, []);
 
-        $textFunction = new TwigFunction('text', function($context, $name, $defaultText) {
+        $textFunction = new TwigFunction('text', function($context, $name, $defaultText = "") {
             $text = $this->findSnippet($context, $name, $defaultText);
             return '<span class="simplecms__editable" data-name="'.$name.'"  spellcheck="false">' . $text . '</span>';
         }, ["is_safe" => ["html"], "needs_context" => true]);
         $this->twig->addFunction($textFunction);
 
-        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue, $alt, $other = "") {
+        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
             $src = $this->findSnippet($context, $name, null);
             if ($src == null) {
                 $src = $defaultValue;
@@ -60,7 +60,7 @@ class SimpleCMS {
             return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
-        $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue) {
+        $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
             $src = $this->findSnippet($context, $name, null);
             if ($src == null) {
                 $src = $defaultValue;
@@ -68,6 +68,12 @@ class SimpleCMS {
                 $src = '/storage/' . $src;
             }
             return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
+        }, ["is_safe" => ["html"], "needs_context" => true]));
+
+        $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
+            $text = $this->findSnippet($context, $name, $defaultValue);
+//            return $text;
+            return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('head', function($context) {

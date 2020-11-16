@@ -1,26 +1,92 @@
 .simplecms__editor__blockmenu {
   //display: none;
   position: absolute;
-  left: -50px;
-  width: 20px;
+  left: -80px;
+  width: 50px;
   height:  20px;
   //background-color: red;
-  border-right: 4px solid black;
-  padding-right: 5px;
+  border-right: 1px solid black;
+  z-index: 10000;
 
-  &::after {
+  //&::after {
+  //  display: block;
+  //  position: static;
+  //  font-size: 18px;
+  //  font-family: "Trebuchet MS", sans-serif;
+  //  font-weight: bold;
+  //}
+  //
+  //&[data-simplecms-node-type="heading"]::after {
+  //  content: 'H1';
+  //}
+  //
+  //&[data-simplecms-node-type="paragraph"]::after {
+  //  content: 'P';
+  //}
+}
+
+.simplecms__editor__blockmenu-text {
+  font-size: 18px;
+  font-family: "Andale", "Trebuchet MS", sans-serif;
+  font-weight: bold;
+  text-align: right;
+  margin-right: 5px;
+  cursor: pointer;
+  user-select: none;
+  padding-right: 10px;
+  padding-bottom: 5px;
+
+  &:hover {
+    color: #3854A6;
+  }
+}
+
+.simplecms__editor__blockmenu-dropdown {
+  position: absolute;
+  top: 40px;
+  left: 5px;
+  width: 200px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: rgba(60, 66, 87, 0.12) 0 7px 14px 0, rgba(0, 0, 0, 0.12) 0 3px 6px 0;
+  padding: 20px 0;
+  box-sizing: border-box;
+  z-index: 10001;
+  display: none;
+
+  &--active {
     display: block;
-    position: static;
-    font-size: 18px;
-    font-family: "Trebuchet MS", sans-serif;
-    font-weight: bold;
   }
+}
 
-  &[data-simplecms-node-type="heading"]::after {
-    content: 'H1';
-  }
+.simplecms__editor__blockmenu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-  &[data-simplecms-node-type="paragraph"]::after {
-    content: 'P';
+.simplecms__editor__blockmenu-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 40px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ddd;
   }
+}
+
+.simplecms__editor__blockmenu-type {
+  //font-family: "Trebuchet MS", sans-serif;
+  font-family: "Andale", "Trebuchet MS", sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.simplecms__editor__blockmenu-name {
+  font-family: "Trebuchet MS", sans-serif;
+  font-weight: normal;
+  font-size: 16px;
 }

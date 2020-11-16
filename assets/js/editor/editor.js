@@ -9,6 +9,8 @@ import {dropCursor} from "prosemirror-dropcursor";
 import {gapCursor} from "prosemirror-gapcursor";
 import {buildInputRules} from "./inputrules";
 import {BlockMenuPlugin} from "./blockmenu";
+import {AutoSavePlugin} from "./autosave";
+
 
 class Editor {
 
@@ -29,14 +31,24 @@ class Editor {
                 dropCursor(),
                 gapCursor(),
                 buildInputRules(schema),
-                BlockMenuPlugin()
+                BlockMenuPlugin(),
+                AutoSavePlugin(data => {
+                    fetch('/simplecms/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            page: PAGE_NAME,
+                            name: this.name,
+                            value: data
+                        })
+                    })
+                })
             ],
             doc: DOMParser.fromSchema(schema).parse(contentEl)
         });
         this.view = new EditorView(el, {state: this.state});
-
-        // this.menubar = new Menubar();
-        // el.appendChild(this.menubar.createMenuEl(this.name))
     }
 
 }
