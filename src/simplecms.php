@@ -185,6 +185,8 @@ class SimpleCMS {
         });
 
         $this->app->post("/simplecms/update", function (Request $request, Response $response, array $args) {
+            if (!$this->authenticator->hasUser()) return "";
+
             $params = $request->getParsedBody();
 
             $this->updateOrCreateSnippet(
@@ -199,6 +201,8 @@ class SimpleCMS {
         })->add(new JsonBodyParserMiddleware());
 
         $this->app->post("/simplecms/upload", function (Request $request, Response $response, $args = []) {
+            if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
+
             $params = $request->getParsedBody();
 
             $page = $params['page'];
@@ -207,13 +211,21 @@ class SimpleCMS {
             $uploadedFile = $files['file'];
 
             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                 $filename = $this->moveUploadedFile($this->imageDirectory, $uploadedFile);
+                $filename = $this->moveUploadedFile($this->imageDirectory, $uploadedFile);
 
-                $this->updateOrCreateSnippet(
+                $existingImageSnippet = $this->updateOrCreateSnippet(
                     $page,
                     $name,
                     $filename
                 );
+
+                if ($existingImageSnippet !== null) {
+                    $previousFileName = $existingImageSnippet["value"];
+                    $totalPath = $this->imageDirectory . "/" . $previousFileName;
+                    if (file_exists($totalPath)) {
+                        unlink($totalPath);
+                    }
+                }
 
                 return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
             }
@@ -308,8 +320,15 @@ class SimpleCMS {
         $stmt2 = null;
         if (!$snippetExists) {
             $this->db->insert("INSERT INTO snippets (name, page, value) VALUES (:name, :page, :value)", $queryParams);
+            return null;
         } else {
+            $previousValues = $this->db->select(
+            "SELECT * FROM snippets where name = :name AND page = :page",
+                [":name" => $name, ":page" => $page]
+            );
             $this->db->update("UPDATE snippets SET value = :value WHERE name = :name AND page = :page", $queryParams);
+            if (sizeof($previousValues) === 0) return null;
+            return $previousValues[0];
         }
     }
 
@@ -324,6 +343,10 @@ class SimpleCMS {
         $uploadedFile->moveTo($path);
 
         return $filename;
+    }
+
+    private function removeUploadedFile(string $directory) {
+
     }
 
     private function render($page, $context = []) {
@@ -354,6 +377,11 @@ class SimpleCMS {
         return $response
             ->withHeader('Location', $to)
             ->withStatus(302);
+    }
+
+    private function unauthorized(Response $response) {
+        return $response
+            ->withStatus(401);
     }
 
 }
