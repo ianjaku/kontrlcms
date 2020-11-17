@@ -288,6 +288,7 @@ class SimpleCMS {
         });
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
+//            return $this->renderLibraryPage($response, "login.twig");
             return $this->redirect($response, "/");
         });
     }

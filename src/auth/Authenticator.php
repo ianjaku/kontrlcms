@@ -115,7 +115,8 @@ class Authenticator {
     }
 
     public function logout() {
-        setcookie (session_id(), "", time() - 3600);
+        $_SESSION = [];
+        setcookie( session_name(), "", time()-3600, "/" );
         session_destroy();
         session_write_close();
     }
