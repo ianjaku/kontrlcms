@@ -35,7 +35,6 @@ editButton.addEventListener("click", () => {
     enableEditors();
     editButton.style.display = "none";
     saveButton.style.display = "block";
-    console.log("Started editing");
 });
 
 saveButton.addEventListener("click", () => {
@@ -46,7 +45,6 @@ saveButton.addEventListener("click", () => {
     disableEditors();
     editButton.style.display = "block";
     saveButton.style.display = "none";
-    console.log("Stopped editing")
 });
 
 function debounce(func, wait, immediate) {
@@ -201,7 +199,6 @@ function uploadDropboxImage(file) {
     }).then(response => {
         // Success!!
         response.json().then(response => {
-            console.log(imageDropboxImageEl.tagName);
             if (imageDropboxImageEl.tagName.toLowerCase() === "img") {
                 imageDropboxImageEl.src = response.url;
             } else {
@@ -210,8 +207,7 @@ function uploadDropboxImage(file) {
             hideImageDropbox();
         })
     }).catch(err => {
-        // Booo!!, failure
-        console.log("Failed image upload", err)
+        // TODO: Show an error or smthng
     })
 }
 
@@ -243,7 +239,6 @@ bgImageEls.forEach(bgImageEl => {
     const boundingBox = bgImageEl.getBoundingClientRect();
     newItem.style.top = elementTopOffset(bgImageEl) + 'px';
     newItem.style.right = boundingBox.right - boundingBox.width + 'px';
-    console.log(elementTopOffset(bgImageEl));
     newItem.innerHTML = editIcon();
 
     newItem.addEventListener("click", () => {
@@ -265,6 +260,10 @@ function repositionEditIcons() {
         icon.iconEl.style.right = boundingBox.right - boundingBox.width + 'px';
     })
 }
+
+window.addEventListener("resize", debounce(() => {
+    repositionEditIcons();
+}, 250));
 
 function editIcon(theClass = "") {
     return `

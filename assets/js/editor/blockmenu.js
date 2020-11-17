@@ -76,7 +76,6 @@ class BlockMenu {
     }
 
     setSelectedBlockType(typeName) {
-        console.log("Change to " + typeName);
         const state = this.view.state;
         const schema = state.schema;
 
@@ -114,7 +113,6 @@ class BlockMenu {
         const offsetTop = parseFloat(style.marginTop) + parseFloat(style.paddingTop) + (parseFloat(style.borderWidth) || 0);
 
         const height = style.height;
-        console.log(height);
 
         let editorPos = this.blockmenuEl.offsetParent.getBoundingClientRect();
 
