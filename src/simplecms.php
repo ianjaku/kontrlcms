@@ -144,6 +144,26 @@ class SimpleCMS {
         $this->createEditEndpoints();
     }
 
+    public function page($path, $pageFile) {
+        $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile) {
+            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page", [":page" => $pageFile]);
+
+            $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
+            $response->getBody()->write($html);
+            return $response;
+        });
+    }
+
+    public function redirect($from, $to) {
+        $this->app->get($from, function (Request $request, Response $response, array $args) use ($to) {
+            return $this->sendRedirect($response, $to);
+        });
+    }
+
+    public function run() {
+        $this->app->run();
+    }
+
     private function findSnippet($context, $name, $defaultValue) {
         $snippets = $context['__snippets'];
 
@@ -155,20 +175,6 @@ class SimpleCMS {
             }
         }
         return $value;
-    }
-
-    public function page($path, $pageFile) {
-        $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile) {
-            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page", [":page" => $pageFile]);
-
-            $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
-            $response->getBody()->write($html);
-            return $response;
-        });
-    }
-
-    public function run() {
-        $this->app->run();
     }
 
     private function createEditEndpoints() {
@@ -254,7 +260,7 @@ class SimpleCMS {
 
             // TODO: save authed user to cookie or something
 
-            return $this->redirect($response, "/");
+            return $this->sendRedirect($response, "/");
 //            return $this->renderSimplecmsPage($response, __DIR__ . "/pages/login.html");
 //            return $this->renderLibraryPage($response, "login.twig", ["error" => "Invalid email or password"]);
         });
@@ -301,7 +307,7 @@ class SimpleCMS {
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
 //            return $this->renderLibraryPage($response, "login.twig");
-            return $this->redirect($response, "/");
+            return $this->sendRedirect($response, "/");
         });
     }
 
@@ -373,7 +379,7 @@ class SimpleCMS {
         return $response->withHeader('Content-Type', $type);
     }
 
-    private function redirect($response, $to) {
+    private function sendRedirect($response, $to) {
         return $response
             ->withHeader('Location', $to)
             ->withStatus(302);
