@@ -58,6 +58,21 @@
   &--save {
     display: none;
   }
+
+  &--logout {
+    background: transparent;
+    padding: 0;
+
+    svg {
+      font-size: inherit;
+      width: 14px;
+    }
+
+    &:hover {
+      background: transparent;
+      //color: #3854A6;
+    }
+  }
 }
 
 //

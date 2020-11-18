@@ -44,8 +44,7 @@ class Authenticator {
     }
 
     public function register($username, $password) {
-        $salt = "test";
-
+        $salt = bin2hex(random_bytes(32));
 
         $encoderFactory = $this->createEncoderFactory();
 

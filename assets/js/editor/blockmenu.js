@@ -2,8 +2,9 @@
     The menu that gets shown at the side of a block
  */
 
-import {Plugin} from "prosemirror-state";
+import {Plugin, Selection} from "prosemirror-state";
 import {setBlockType} from "prosemirror-commands";
+import {TextSelection, NodeSelection} from "prosemirror-state/src";
 
 class BlockMenu {
 
@@ -24,25 +25,14 @@ class BlockMenu {
             this.dropdownEl.classList.toggle("simplecms__editor__blockmenu-dropdown--active")
         });
 
-        // this.blockmenuAngleEl = document.createElement("div");
-        // this.blockmenuAngleEl.classList.add("simplecms__editor__blockmenu-angle");
-        // this.blockmenuAngleEl.innerHTML = "v";
-        // this.blockmenuEl.appendChild(this.blockmenuAngleEl);
-
         view.dom.parentNode.appendChild(this.blockmenuEl);
         this.hide();
 
         readonlyListeners.push(val => {
-            if (val) {
-                //
-            } else {
+            if (!val) {
                 this.hide();
             }
         })
-
-        // view.dom.addEventListener("blur", () => {
-        //     this.hide()
-        // });
     }
 
     createDropdown() {
@@ -62,6 +52,10 @@ class BlockMenu {
                     <div class="simplecms__editor__blockmenu-type">P</div>
                     <div class="simplecms__editor__blockmenu-name">Paragraph</div>
                 </li>
+                <li class="simplecms__editor__blockmenu-item" data-simplecms-type="image">
+                    <div class="simplecms__editor__blockmenu-type">IMG</div>
+                    <div class="simplecms__editor__blockmenu-name">Image</div>
+                </li>
             </ul>
         `;
         const itemEls = dropdownEl.querySelectorAll(".simplecms__editor__blockmenu-item");
@@ -80,9 +74,23 @@ class BlockMenu {
         const schema = state.schema;
 
         const commands = {
-            "h1": setBlockType(schema.nodes.heading, { level: 1 }),
-            "h2": setBlockType(schema.nodes.heading, { level: 2 }),
-            "paragraph": setBlockType(schema.nodes.paragraph)
+            "h1": this.setAnyBlockType(schema.nodes.heading, { level: 1 }),
+            "h2": this.setAnyBlockType(schema.nodes.heading, { level: 2 }),
+            "paragraph": this.setAnyBlockType(schema.nodes.paragraph),
+            "image": (state, dispatch) => {
+                const tr = state.tr;
+
+                if (!tr.selection.node) {
+                    const resolvedPos = state.doc.resolve(tr.selection.from);
+                    const startPos = state.doc.resolve(resolvedPos.start());
+                    const newSelection = new NodeSelection(startPos);
+                    tr.setSelection(newSelection)
+                }
+
+                const imageNode = schema.nodes.image.createAndFill({ src: "https://via.placeholder.com/150", alt: "" });
+                tr.replaceSelectionWith(imageNode);
+                dispatch(tr);
+            }
         };
 
         const command = commands[typeName];
@@ -90,42 +98,63 @@ class BlockMenu {
         command(state, this.view.dispatch);
     }
 
+    setAnyBlockType(blockType, attrs = {}) {
+        const sbt = setBlockType(blockType, attrs);
+        return (state, dispatch) => {
+            if (state.selection.node) {
+                // remove node and create new field
+                let tr = state.tr;
+                const newNode = blockType.createAndFill(attrs);
+                tr.replaceSelectionWith(newNode);
+                dispatch(tr);
+            } else {
+                sbt(state, dispatch);
+            }
+        };
+    }
+
     update(view, lastState) {
         const state = view.state;
 
         if (lastState && lastState.doc.eq(state.doc) && lastState.selection.eq(state.selection)) return;
 
-        // if (!state.selection.empty) {
-        //     this.hide();
-        //     return;
-        // }
+        if (!state.selection.empty && !state.selection.node) return;
 
         // Get currently selected node
         this.show();
-        const resolvedPos = state.doc.resolve(state.selection.from);
-        const topLevelNode = resolvedPos.node(1);
-        const nodePos = view.coordsAtPos(resolvedPos.start());
-        const nodeEl = view.domAtPos(resolvedPos.start()).node;
-        const nodeType = topLevelNode.type;
-        this.setNodeText(topLevelNode);
+        let selectedNode;
+        let nodePos;
+        let nodeEl;
+
+        if (state.selection.node) {
+            // Node selection
+            selectedNode = state.selection.node;
+            nodePos = view.coordsAtPos(state.selection.from);
+            nodeEl = view.nodeDOM(state.selection.from);
+        } else {
+            // Text selection
+            const resolvedPos = state.doc.resolve(state.selection.from);
+            selectedNode = resolvedPos.node(1);
+            nodePos = view.coordsAtPos(resolvedPos.start());
+            nodeEl = view.domAtPos(resolvedPos.start()).node;
+        }
+
+        this.setNodeText(selectedNode);
 
         const style = window.getComputedStyle(nodeEl);
-        const offsetTop = parseFloat(style.marginTop) + parseFloat(style.paddingTop) + (parseFloat(style.borderWidth) || 0);
+        const editorPos = this.blockmenuEl.offsetParent.getBoundingClientRect();
 
-        const height = style.height;
-
-        let editorPos = this.blockmenuEl.offsetParent.getBoundingClientRect();
-
-        // this.blockmenuEl.style.bottom = (box.bottom - coords.top - offsetTop) + "px";
-        // this.blockmenuEl.style.bottom = (box.bottom - coords.bottom) + "px";
         this.blockmenuEl.style.top = (nodePos.top - editorPos.top) + "px";
         this.blockmenuEl.style.height = style.height;
     }
 
     setNodeText(node) {
+        if (node == null) return;
+
         const nodeTypeTranslators = {
             "heading": (node) => `H${node.attrs.level}`,
-            "paragraph": () => "P"
+            "paragraph": () => "P",
+            "image": () => "IMG"
         };
 
         const translator = nodeTypeTranslators[node.type.name];

@@ -24,6 +24,60 @@ export let nodes = {
     },
     text: {
         group: "inline"
+    },
+    // figure: {
+    //     attrs: {
+    //         src: {},
+    //         alt: {default: null}
+    //     },
+    //     content: "inline*",
+    //     group: "block",
+    //     draggable: true,
+    //     parseDOM: [
+    //         {
+    //             tag: "figure",
+    //             getAttrs(dom) {
+    //                 const imageEl = dom.querySelector("img");
+    //                 return {
+    //                     src: imageEl.getAttribute("src"),
+    //                     alt: imageEl.getAttribute("alt")
+    //                 }
+    //             }
+    //         }
+    //     ],
+    //     toDOM(node) {
+    //         let {src, alt} = node.attrs;
+    //         return [
+    //             "figure",
+    //             {},
+    //             ["img", {src, alt}],
+    //             ["figcaption", 0]
+    //         ]
+    //     }
+    // }
+    image: {
+        inline: false,
+        attrs: {
+            src: {},
+            alt: {default: null}
+        },
+        group: "block",
+        draggable: true,
+        parseDOM: [
+            {
+                tag: "img[src]",
+                getAttrs(dom) {
+                    return {
+                        src: dom.getAttribute("src"),
+                        alt: dom.getAttribute("alt")
+                    }
+                }
+            }
+        ],
+        toDOM(node) {
+            let {src, alt} = node.attrs;
+            return ["img", {src, alt}]
+        }
     }
 };
 

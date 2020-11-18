@@ -4,6 +4,7 @@ namespace invacto\SimpleCMS;
 
 use Exception;
 use PDO;
+use PDOException;
 use PDOStatement;
 
 class Database {
@@ -84,6 +85,39 @@ class Database {
         if ($this->db === null) {
             $this->connect();
         }
+    }
+
+    public function doTablesExist() {
+        try {
+            $this->db->query("SELECT * FROM users LIMIT 1");
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function setup() {
+        $this->ensureConnected();
+        if ($this->doTablesExist()) {
+            return;
+        }
+        $this->query("
+            CREATE TABLE users (
+                id int NOT NULL AUTO_INCREMENT,
+                email varchar(255) NOT NULl,
+                password varchar(255) NOT NULl,
+                salt varchar(255) NOT NULL,
+                PRIMARY KEY (id)
+            );
+
+            CREATE TABLE snippets (
+                id int NOT NULL AUTO_INCREMENT,
+                page varchar(255) NOT NULL,
+                name varchar(255) NOT NULL,
+                value text NOT NULL,
+                PRIMARY KEY (id)
+            );
+        ");
     }
 
 }

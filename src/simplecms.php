@@ -270,20 +270,36 @@ class SimpleCMS {
 //                $response->getBody()->write("Page unavailable");
 //                return $response;
 //            }
-            $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
-            $existingUsersCount = $existingUsers[0]["count"];
+            try {
+                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
+                $existingUsersCount = $existingUsers[0]["count"];
 
-            if ((int)$existingUsersCount !== 0) {
-                $response->getBody()->write("Page unavailable");
-                return $response;
+                if ((int)$existingUsersCount !== 0) {
+                    $response->getBody()->write("Page unavailable");
+                    return $response;
+                }
+            } catch (\PDOException $e) {
             }
 
             return $this->renderLibraryPage($response, "setup.twig");
         });
         $this->app->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
+
+            try {
+                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
+                $existingUsersCount = $existingUsers[0]["count"];
+
+                if ((int)$existingUsersCount !== 0) {
+                    $response->getBody()->write("Page unavailable");
+                    return $response;
+                }
+            } catch (\PDOException $e) {
+                $this->db->setup();
+            }
             $this->authenticator->register($params["admin_email"], $params["admin_password"]);
 
+            return $this->sendRedirect($response, "/");
 
 
             // Test if db connection works

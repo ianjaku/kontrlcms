@@ -3,7 +3,8 @@ import Editor from "./editor/editor";
 
 
 const EDIT_CLASS = "simplecms--edit";
-let editing = false;
+// TODO: turn to false
+let editing = true;
 
 
 const editorEls = document.querySelectorAll(".simplecms__editor");
