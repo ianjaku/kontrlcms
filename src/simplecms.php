@@ -46,7 +46,6 @@ class SimpleCMS {
      */
     private $appDir;
 
-//    public function __construct(string $viewDirectory, string $imageDirectory)
     public function __construct($appDir)
     {
         $this->appDir = $appDir;
@@ -253,23 +252,12 @@ class SimpleCMS {
                 return $this->renderLibraryPage($response, "login.twig", ["error" => "Invalid email or password"]);
             }
 
-//            $user->serialize();
-
-//            return $this->JSON($response, ["user" => $user, "token" => $user->__serialize()]);
-
-
             // TODO: save authed user to cookie or something
 
             return $this->sendRedirect($response, "/");
-//            return $this->renderSimplecmsPage($response, __DIR__ . "/pages/login.html");
-//            return $this->renderLibraryPage($response, "login.twig", ["error" => "Invalid email or password"]);
         });
 
         $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
-//            if (key_exists("SIMPLECMS_PROD", $_ENV)) {
-//                $response->getBody()->write("Page unavailable");
-//                return $response;
-//            }
             try {
                 $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
                 $existingUsersCount = $existingUsers[0]["count"];
@@ -300,29 +288,9 @@ class SimpleCMS {
             $this->authenticator->register($params["admin_email"], $params["admin_password"]);
 
             return $this->sendRedirect($response, "/");
-
-
-            // Test if db connection works
-//            $this->db->setConnectionData(
-//                $params["db_host"] . ":" . $params["db_port"],
-//                $params["db_name"],
-//                $params["db_user"],
-//                $params["db_password"]
-//            );
-//
-//            if (!$this->db->testConnection()); {
-//                return $this->renderLibraryPage($response, "setup.twig", ["error" => "Couldn't connect to the database"]);
-//            }
-
-            // Create .env file
-//            $dotenvPath = $this->appDir . "/.env";
-
-
-
         });
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
-//            return $this->renderLibraryPage($response, "login.twig");
             return $this->sendRedirect($response, "/");
         });
     }
@@ -365,10 +333,6 @@ class SimpleCMS {
         $uploadedFile->moveTo($path);
 
         return $filename;
-    }
-
-    private function removeUploadedFile(string $directory) {
-
     }
 
     private function render($page, $context = []) {

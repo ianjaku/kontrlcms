@@ -90,6 +90,14 @@ class BlockMenu {
                 const imageNode = schema.nodes.image.createAndFill({ src: "https://via.placeholder.com/150", alt: "" });
                 tr.replaceSelectionWith(imageNode);
                 dispatch(tr);
+
+                const lastKnownPosition = tr.selection;
+                setTimeout(() => {
+                    const imageNode = schema.nodes.image.createAndFill({ src: "https://picsum.photos/200/300", alt: "" });
+                    const tr = this.view.state.tr.replaceWith(lastKnownPosition.from, lastKnownPosition.to, imageNode);
+                    this.view.dispatch(tr);
+                    // dispatch(tr);
+                }, 250);
             }
         };
 

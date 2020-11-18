@@ -523,6 +523,8 @@ var BlockMenu = /*#__PURE__*/function () {
   }, {
     key: "setSelectedBlockType",
     value: function setSelectedBlockType(typeName) {
+      var _this3 = this;
+
       var state = this.view.state;
       var schema = state.schema;
       var commands = {
@@ -549,6 +551,18 @@ var BlockMenu = /*#__PURE__*/function () {
           });
           tr.replaceSelectionWith(imageNode);
           dispatch(tr);
+          var lastKnownPosition = tr.selection;
+          setTimeout(function () {
+            var imageNode = schema.nodes.image.createAndFill({
+              src: "https://picsum.photos/200/300",
+              alt: ""
+            });
+
+            var tr = _this3.view.state.tr.replaceWith(lastKnownPosition.from, lastKnownPosition.to, imageNode);
+
+            _this3.view.dispatch(tr); // dispatch(tr);
+
+          }, 250);
         }
       };
       var command = commands[typeName];
