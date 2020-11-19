@@ -1,15 +1,19 @@
-import schema from "./schema";
+import {schema} from "./schema";
 import {EditorState} from "prosemirror-state";
 import {EditorView} from "prosemirror-view";
 import {history, undo, redo} from "prosemirror-history";
 import {keymap} from "prosemirror-keymap";
 import {baseKeymap} from "prosemirror-commands";
-import {DOMParser} from "prosemirror-model";
+import {DOMParser, Schema} from "prosemirror-model";
 import {dropCursor} from "prosemirror-dropcursor";
 import {gapCursor} from "prosemirror-gapcursor";
 import {buildInputRules} from "./inputrules";
 import {BlockMenuPlugin} from "./blockmenu";
 import {AutoSavePlugin} from "./autosave";
+import {addListNodes} from "prosemirror-schema-list";
+import {buildKeymap} from "./keymap";
+import {menuBar} from "prosemirror-menu";
+import {buildMenuItems} from "./menubar";
 
 
 class Editor {
@@ -25,16 +29,26 @@ class Editor {
         // A list of functions that have to be called when readOnly changes
         this.readonlyListeners = [];
 
+        const mySchema = new Schema({
+            nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+            marks: schema.spec.marks
+        });
+
         this.state = EditorState.create({
-            schema,
+            mySchema,
             plugins: [
-                history(),
-                keymap({"Mod-z": undo, "Mod-y": redo}),
+                buildInputRules(schema),
+                // keymap({"Mod-z": undo, "Mod-y": redo}),
+                keymap(buildKeymap(mySchema)),
                 keymap(baseKeymap),
+                history(),
                 dropCursor(),
                 gapCursor(),
-                buildInputRules(schema),
-                BlockMenuPlugin(this.readonlyListeners),
+                menuBar({
+                    floating: true,
+                    content: buildMenuItems(mySchema).myMenu
+                }),
+                // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
                     fetch('/simplecms/update', {
                         method: 'POST',
@@ -49,7 +63,7 @@ class Editor {
                     })
                 })
             ],
-            doc: DOMParser.fromSchema(schema).parse(contentEl)
+            doc: DOMParser.fromSchema(mySchema).parse(contentEl)
         });
         this.view = new EditorView(el, {state: this.state});
     }

@@ -20,38 +20,6 @@
 {#    <img style="max-width: 600px; border-radius: 10px;" src="/img/quote1.jpg" alt="">#}
 {#    {{ img("test_img", "/img/quote1.jpg", "First quote", 'style="max-width: 600px; border-radius: 10px"') }}#}
 
-    <section class="info-block">
-        <div class="info-block__image" {{ bgImg("quote1-img", "/img/quote1.jpg") }}></div>
-        <div class="info-block__overlay"></div>
-        <h2 class="info-block__quote">
-            <!-- IJK coaching wilt via coaching en training mensen in hun kracht zetten. IJK staat dan ook in voor je kracht -->
-            {{  text("quote1", "IJK coaching zet via individuele coaching en training mensen in hun kracht zodat ze voluit kunnen leven") }}
-{#            <span class="nobr">kunnen leven.</span>#}
-        </h2>
-    </section>
-
-    <section class="info-block">
-        <div class="info-block__image" style="background-image: url('/img/mission.jpg')"></div>
-        <div class="info-block__overlay"></div>
-        <div class="info-block__overlay"></div>
-        <div class="info-block__post">
-            <h2 class="info-block__post-title">
-                {{ text("missie", "Onze missie") }}
-            </h2>
-            <p class="info-block__post-text">
-                <!-- IJK coaching wilt via coaching en training mensen in hun kracht zetten.
-                IJK staat dan ook voor in je kracht. -->
-                {{ text("missie_text", "Via individuele coaching trajecten, begeleiden we jou om opnieuw in je kracht te staan en voluit te kunnen leven.") }}
-
-                <span class="from-tablet">
-                    {{ text("missie_text2", "Soms zit je vast in je hoofd, zijn er blokkades waar je tegenaan loopt, herken je bepaalde patronen die je tegenhouden, dan gaan we hiermee aan de slag") }}
-{#                    <span class="nobr">aan de slag.</span>#}
-                </span>
-            </p>
-            <a href="" class="button info-block__post-button">{{ text("missie_knop", "Lees meer over ons") }}</a>
-        </div>
-    </section>
-
     <div class="double-info-block">
 
         <section class="info-block">
@@ -69,11 +37,23 @@
         </section>
 
         <section class="info-block">
-            <div class="info-block__image" style="background-image: url('/img/mission.jpg')"></div>
-            <div class="info-block__overlay"></div>
+            <!-- <div class="info-block__image" style="background-image: url('img/mission.jpg')"></div> -->
+            <!-- <div class="info-block__overlay"></div> -->
+            <div class="info-block__bg-color"></div>
+            <div class="info-block__center-text">
+                <h2 class="info-block__center-text__title">
+                    {{ text("center-text__title", "Focus on perfectionism") }}
+                </h2>
+                <a href="" class="button button--accent2 info-block__center-text__button">
+                    {{ text("center-text__button", "Perfectionisme") }}
+                </a>
+            </div>
         </section>
 
     </div>
+
+{#    <img src="/img/orange.jpg" alt="">#}
+    {{ img("testImage", "/img/orange.jpg", "") }}
 
     <section class="info-block info-block--free">
 {#      style="background-image: url('/img/orange.jpg')"  #}
