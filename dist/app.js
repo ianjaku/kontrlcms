@@ -1034,6 +1034,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _prompt__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./prompt */ "./js/editor/prompt.js");
 /* harmony import */ var _popups_image_popup__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../popups/image_popup */ "./js/popups/image_popup.js");
 /* harmony import */ var _util_uploader__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../util/uploader */ "./js/util/uploader.js");
+/* harmony import */ var _popups_simple_popup__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../popups/simple_popup */ "./js/popups/simple_popup.js");
+
 
 
 
@@ -1157,23 +1159,34 @@ function linkItem(markType) {
       if (markActive(state, markType)) {
         Object(prosemirror_commands__WEBPACK_IMPORTED_MODULE_2__["toggleMark"])(markType)(state, dispatch);
         return true;
-      }
+      } // openPrompt({
+      //     title: "Create a link",
+      //     fields: {
+      //         href: new TextField({
+      //             label: "Link target",
+      //             required: true
+      //         }),
+      //         title: new TextField({label: "Title"})
+      //     },
+      //     callback(attrs) {
+      //         toggleMark(markType, attrs)(view.state, view.dispatch)
+      //         view.focus()
+      //     }
+      // })
 
-      Object(_prompt__WEBPACK_IMPORTED_MODULE_4__["openPrompt"])({
-        title: "Create a link",
-        fields: {
-          href: new _prompt__WEBPACK_IMPORTED_MODULE_4__["TextField"]({
-            label: "Link target",
-            required: true
-          }),
-          title: new _prompt__WEBPACK_IMPORTED_MODULE_4__["TextField"]({
-            label: "Title"
-          })
-        },
-        callback: function callback(attrs) {
-          Object(prosemirror_commands__WEBPACK_IMPORTED_MODULE_2__["toggleMark"])(markType, attrs)(view.state, view.dispatch);
-          view.focus();
-        }
+
+      Object(_popups_simple_popup__WEBPACK_IMPORTED_MODULE_7__["default"])("Create link", "Where would you like the link to redirect to", [{
+        type: "text",
+        label: "Link location",
+        name: "link"
+      }], function (_ref) {
+        var link = _ref.link;
+        if (link === "") return;
+        Object(prosemirror_commands__WEBPACK_IMPORTED_MODULE_2__["toggleMark"])(markType, {
+          href: link,
+          title: ""
+        })(view.state, view.dispatch);
+        view.focus();
       });
     }
   });
@@ -1936,6 +1949,113 @@ fileInputEl.addEventListener("change", function (e) {
 });
 /* harmony default export */ __webpack_exports__["default"] = (function (callback) {
   currentCallback = callback;
+  showPopup();
+});
+
+/***/ }),
+
+/***/ "./js/popups/simple_popup.js":
+/*!***********************************!*\
+  !*** ./js/popups/simple_popup.js ***!
+  \***********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+// Generic popup which can be used for most simple prompts
+var popupEl = document.querySelector(".simplecms__simple-popup");
+var rowsEl = document.querySelector(".simplecms__simple-popup__rows");
+var titleEl = document.querySelector(".simplecms__simple-popup__title");
+var subTitleEl = document.querySelector(".simplecms__simple-popup__sub-title");
+var formEl = document.querySelector(".simplecms__simple-popup__content");
+var activeClass = "simplecms__simple-popup--visible";
+var currentCallback = null;
+var currentData = {};
+
+function showPopup() {
+  popupEl.classList.add(activeClass);
+  document.body.classList.add("simplecms__no-scroll");
+}
+
+function hidePopup() {
+  popupEl.classList.remove(activeClass);
+  document.body.classList.remove("simplecms__no-scroll");
+}
+
+function setTitle(title, subTitle) {
+  titleEl.innerText = title;
+  subTitleEl.innerText = subTitle;
+}
+
+function createRowEl(row) {
+  var id = "simplecms__popup__" + row.type;
+  var rowEl = document.createElement("div");
+  rowEl.classList.add("simplecms__simple-popup__row");
+  var labelEl = document.createElement("label");
+  labelEl.classList.add("simplecms__simple-popup__label");
+  labelEl.innerText = row.label;
+  labelEl["for"] = row.name;
+  labelEl.id = id;
+  rowEl.appendChild(labelEl);
+
+  if (["text", "email", "password"].includes(row.type)) {
+    var inputEl = document.createElement("input");
+    inputEl.classList.add("simplecms__simple-popup__input");
+    inputEl.type = row.type;
+    inputEl.name = row.name;
+    inputEl.id = id;
+    inputEl.placeholder = row.placeholder || "";
+    rowEl.appendChild(inputEl);
+    inputEl.addEventListener("input", function (e) {
+      currentData[row.name] = inputEl.value;
+    });
+  }
+
+  return rowEl;
+}
+
+function setRows(rows) {
+  var rowEls = rows.map(function (r) {
+    return createRowEl(r);
+  });
+  rowsEl.innerHTML = "";
+  rowsEl.append.apply(rowsEl, _toConsumableArray(rowEls));
+  return rowEls;
+}
+
+formEl.addEventListener("submit", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (currentCallback == null) return;
+  hidePopup();
+  currentCallback(currentData);
+});
+/**
+ * @param title
+ * @param subTitle
+ * @param rows the rows to show in the popup, format [{type: "text", label: "", name: "", placeholder: ""}]
+ * @param callback
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = (function (title, subTitle, rows, callback) {
+  currentData = {};
+  currentCallback = callback;
+  setTitle(title, subTitle);
+  var rowEls = setRows(rows);
+  rowEls[0].focus();
   showPopup();
 });
 

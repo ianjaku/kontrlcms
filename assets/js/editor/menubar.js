@@ -5,6 +5,7 @@ import {wrapInList} from "prosemirror-schema-list"
 import {TextField, openPrompt} from "./prompt"
 import imagePopup from "../popups/image_popup";
 import {uploadAnyImage} from "../util/uploader";
+import simplePopup from "../popups/simple_popup";
 
 // import "prosemirror-menu/style/menu.css";
 
@@ -99,20 +100,32 @@ function linkItem(markType) {
                 toggleMark(markType)(state, dispatch)
                 return true
             }
-            openPrompt({
-                title: "Create a link",
-                fields: {
-                    href: new TextField({
-                        label: "Link target",
-                        required: true
-                    }),
-                    title: new TextField({label: "Title"})
-                },
-                callback(attrs) {
-                    toggleMark(markType, attrs)(view.state, view.dispatch)
-                    view.focus()
+            // openPrompt({
+            //     title: "Create a link",
+            //     fields: {
+            //         href: new TextField({
+            //             label: "Link target",
+            //             required: true
+            //         }),
+            //         title: new TextField({label: "Title"})
+            //     },
+            //     callback(attrs) {
+            //         toggleMark(markType, attrs)(view.state, view.dispatch)
+            //         view.focus()
+            //     }
+            // })
+            simplePopup(
+                "Create link",
+                "Where would you like the link to redirect to",
+                [
+                    {type: "text", label: "Link location", name: "link"}
+                ],
+                ({link}) => {
+                    if (link === "") return;
+                    toggleMark(markType, { href: link, title: "" })(view.state, view.dispatch);
+                    view.focus();
                 }
-            })
+            );
         }
     })
 }
