@@ -256,7 +256,7 @@ class SimpleCMS {
         $this->app->post("/simplecms/login", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
-            $email = $params['email'];
+            $email = strtolower($params['email']);
             $password = $params['password'];
 
             $user = $this->authenticator->login($email, $password);
@@ -298,7 +298,8 @@ class SimpleCMS {
             } catch (\PDOException $e) {
                 $this->db->setup();
             }
-            $this->authenticator->register($params["admin_email"], $params["admin_password"]);
+            $email = strtolower($params["admin_email"]);
+            $this->authenticator->register($email, $params["admin_password"]);
 
             return $this->sendRedirect($response, "/");
         });
