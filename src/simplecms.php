@@ -159,6 +159,28 @@ class SimpleCMS {
         });
     }
 
+//    public function get($path, $callback) {
+//        $this->app->get($path, function (Request $request, Response $response, array $args = []) use ($callback) {
+//            $callback();
+//        });
+//    }
+
+    public function handleRequest(string $type, string $path, $callback) {
+        $this->app->map(
+            [strtoupper($type)],
+            $path,
+            function (Request $request, Response $response, array $args = []) use ($callback) {
+                $helpers = new RequestHelper($request, $response);
+                $res = $callback($helpers);
+                if ($res instanceof Response) {
+                    return $res;
+                }
+                $response->getBody()->write($res);
+                return $response;
+            }
+        );
+    }
+
     public function run() {
         $this->app->run();
     }
@@ -386,5 +408,4 @@ class SimpleCMS {
         return $response
             ->withStatus(401);
     }
-
 }
