@@ -27,7 +27,12 @@ class Editor {
         this.el.innerHTML = "";
 
         // A list of functions that have to be called when readOnly changes
-        this.readonlyListeners = [];
+        this.readonlyListeners = [
+            (val) => {
+                if (val) this.el.classList.remove("simplecms__editor--readonly");
+                else this.el.classList.add("simplecms__editor--readonly");
+            }
+        ];
 
         const mySchema = new Schema({
             nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
@@ -46,7 +51,7 @@ class Editor {
                 gapCursor(),
                 menuBar({
                     floating: true,
-                    content: buildMenuItems(mySchema).myMenu
+                    content: buildMenuItems(mySchema)
                 }),
                 // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
