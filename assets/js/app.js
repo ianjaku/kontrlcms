@@ -1,5 +1,7 @@
 import "../css/style.scss";
 import Editor from "./editor/editor";
+import imagePopup from "./popups/image_popup";
+import {uploadSnippetImage} from "./util/uploader";
 
 
 const EDIT_CLASS = "simplecms--edit";
@@ -113,104 +115,80 @@ function makeNonContentEditable() {
     })
 }
 
-let imageDropboxImageName = "";
-let imageDropboxImageEl = "";
-const imagePopupEl = document.querySelector(".simplecms__img-popup");
-const imageDropboxEl = document.querySelector(".simplecms__img-popup__dropbox");
-const fileInputEl = document.querySelector(".simplecms__img-popup__file-input");
-const fileBrowserButtonEl = document.querySelector(".simplecms__img-popup__dropbox-button");
-const imageDropboxBgEl = document.querySelector(".simplecms__img-popup__bg");
-
-const highlightClass = "simplecms__img-popup__dropbox--highlighted";
-const showClass = "simplecms__img-popup--visible";
-
-function showImageDropbox(name, el) {
-    imageDropboxImageName = name;
-    imageDropboxImageEl = el;
-    imagePopupEl.classList.add(showClass);
-    document.body.classList.add("simplecms__no-scroll");
-}
-
-function hideImageDropbox() {
-    imagePopupEl.classList.remove(showClass)
-    document.body.classList.remove("simplecms__no-scroll");
-}
-
-function highlightDropbox() {
-    imageDropboxEl.classList.add(highlightClass);
-}
-
-function unhighlightDropbox() {
-    imageDropboxEl.classList.remove(highlightClass);
-}
-
-fileBrowserButtonEl.addEventListener("click", e => {
-    fileInputEl.click();
-});
-
-fileInputEl.addEventListener("change", e => {
-    const files = e.target.files;
-    if (files.length === 0) return;
-
-    uploadDropboxImage(files[0]);
-});
-
-imageDropboxBgEl.addEventListener("click", () => {
-    hideImageDropbox();
-});
-
-imagePopupEl.addEventListener("dragenter", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    highlightDropbox();
-}, false);
-imagePopupEl.addEventListener("dragover", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    highlightDropbox();
-}, false);
-imagePopupEl.addEventListener("dravleave", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    unhighlightDropbox();
-}, false);
-imagePopupEl.addEventListener("drop", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    unhighlightDropbox();
-
-    let dataTransfer = e.dataTransfer;
-    let files = dataTransfer.files;
-
-    if (files.length === 0) return;
-
-    uploadDropboxImage(files[0])
-
-}, false);
-
-function uploadDropboxImage(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('page', PAGE_NAME);
-    formData.append('name', imageDropboxImageName);
-
-    fetch(`/simplecms/upload`, {
-        method: "POST",
-        body: formData
-    }).then(response => {
-        // Success!!
-        response.json().then(response => {
-            if (imageDropboxImageEl.tagName.toLowerCase() === "img") {
-                imageDropboxImageEl.src = response.url;
-            } else {
-                imageDropboxImageEl.style.backgroundImage = `url('${response.url}')`
-            }
-            hideImageDropbox();
-        })
-    }).catch(err => {
-        // TODO: Show an error or smthng
-    })
-}
+// let imageDropboxImageName = "";
+// let imageDropboxImageEl = "";
+// const imagePopupEl = document.querySelector(".simplecms__img-popup");
+// const imageDropboxEl = document.querySelector(".simplecms__img-popup__dropbox");
+// const fileInputEl = document.querySelector(".simplecms__img-popup__file-input");
+// const fileBrowserButtonEl = document.querySelector(".simplecms__img-popup__dropbox-button");
+// const imageDropboxBgEl = document.querySelector(".simplecms__img-popup__bg");
+//
+// const highlightClass = "simplecms__img-popup__dropbox--highlighted";
+// const showClass = "simplecms__img-popup--visible";
+//
+// function showImageDropbox(name, el) {
+//     imageDropboxImageName = name;
+//     imageDropboxImageEl = el;
+//     imagePopupEl.classList.add(showClass);
+//     document.body.classList.add("simplecms__no-scroll");
+// }
+//
+// function hideImageDropbox() {
+//     imagePopupEl.classList.remove(showClass)
+//     document.body.classList.remove("simplecms__no-scroll");
+// }
+//
+// function highlightDropbox() {
+//     imageDropboxEl.classList.add(highlightClass);
+// }
+//
+// function unhighlightDropbox() {
+//     imageDropboxEl.classList.remove(highlightClass);
+// }
+//
+// fileBrowserButtonEl.addEventListener("click", e => {
+//     fileInputEl.click();
+// });
+//
+// fileInputEl.addEventListener("change", e => {
+//     const files = e.target.files;
+//     if (files.length === 0) return;
+//
+//     uploadDropboxImage(files[0]);
+// });
+//
+// imageDropboxBgEl.addEventListener("click", () => {
+//     hideImageDropbox();
+// });
+//
+// imagePopupEl.addEventListener("dragenter", e => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     highlightDropbox();
+// }, false);
+// imagePopupEl.addEventListener("dragover", e => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     highlightDropbox();
+// }, false);
+// imagePopupEl.addEventListener("dravleave", e => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     unhighlightDropbox();
+// }, false);
+// imagePopupEl.addEventListener("drop", e => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     unhighlightDropbox();
+//
+//     let dataTransfer = e.dataTransfer;
+//     let files = dataTransfer.files;
+//
+//     if (files.length === 0) return;
+//
+//     uploadDropboxImage(files[0])
+//
+// }, false);
 
 const imageElements = document.querySelectorAll('[data-simplecms-img]');
 for (let el of imageElements) {
@@ -221,7 +199,12 @@ for (let el of imageElements) {
         e.stopPropagation();
         const name = e.target.dataset['simplecmsImg'];
         const el = e.target;
-        showImageDropbox(name, el);
+
+        imagePopup((imgFile) => {
+            uploadSnippetImage(imgFile, name, PAGE_NAME, (url) => {
+                el.src = url
+            });
+        })
     });
 }
 
@@ -243,7 +226,11 @@ bgImageEls.forEach(bgImageEl => {
     newItem.innerHTML = editIcon();
 
     newItem.addEventListener("click", () => {
-        showImageDropbox(name, bgImageEl);
+        imagePopup((imgFile) => {
+            uploadSnippetImage(imgFile, name, PAGE_NAME, (url) => {
+                bgImageEl.style.backgroundImage = `url('${url}')`
+            });
+        })
     });
 
     document.body.appendChild(newItem);

@@ -236,6 +236,19 @@ class SimpleCMS {
             }
             return $this->JSON($response, ["error" => "Failed to upload file"]);
         });
+        $this->app->post("/simplecms/upload/{purpose}", function (Request $request, Response $response, $args = []) {
+            if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
+
+            $files = $request->getUploadedFiles();
+            $uploadedFile = $files['file'];
+
+            if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+                $filename = $this->moveUploadedFile($this->imageDirectory, $uploadedFile, $args['purpose']);
+
+                return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
+            }
+            return $this->JSON($response, ["error" => "Failed to upload file"]);
+        });
 
         $this->app->get("/simplecms/login", function (Request $request, Response $response, $args = []) {
             return $this->renderLibraryPage($response, "login.twig");
@@ -322,12 +335,15 @@ class SimpleCMS {
         }
     }
 
-    private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile)
+    private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile, string $prefix = null)
     {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
 
         $basename = bin2hex(random_bytes(32));
         $filename = sprintf('%s.%0.8s', $basename, $extension);
+        if ($prefix != null) {
+            $filename = $prefix . "-" . $filename;
+        }
 
         $path = $directory . DIRECTORY_SEPARATOR . $filename;
         $uploadedFile->moveTo($path);
