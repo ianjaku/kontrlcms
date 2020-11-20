@@ -664,6 +664,45 @@ var BlockMenuPlugin = function BlockMenuPlugin(readonlyListeners) {
 
 /***/ }),
 
+/***/ "./js/editor/changeimageplugin.js":
+/*!****************************************!*\
+  !*** ./js/editor/changeimageplugin.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var prosemirror_state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! prosemirror-state */ "./node_modules/prosemirror-state/dist/index.es.js");
+/* harmony import */ var _popups_image_popup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../popups/image_popup */ "./js/popups/image_popup.js");
+/* harmony import */ var _util_uploader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/uploader */ "./js/util/uploader.js");
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  return new prosemirror_state__WEBPACK_IMPORTED_MODULE_0__["Plugin"]({
+    props: {
+      handleDoubleClick: function handleDoubleClick(view, pos, event) {
+        if (event.target.tagName !== "IMG") return false;
+        Object(_popups_image_popup__WEBPACK_IMPORTED_MODULE_1__["default"])(function (imgFile) {
+          Object(_util_uploader__WEBPACK_IMPORTED_MODULE_2__["uploadAnyImage"])(imgFile, "wysiwyg", function (url) {
+            var attrs = {
+              src: url,
+              alt: ""
+            };
+            var nodeType = view.state.schema.nodes.image;
+            view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
+          });
+        }); // TODO: return true and select the image ourselves
+
+        return false;
+      }
+    }
+  });
+});
+
+/***/ }),
+
 /***/ "./js/editor/editor.js":
 /*!*****************************!*\
   !*** ./js/editor/editor.js ***!
@@ -689,11 +728,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _keymap__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./keymap */ "./js/editor/keymap.js");
 /* harmony import */ var prosemirror_menu__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! prosemirror-menu */ "./node_modules/prosemirror-menu/dist/index.es.js");
 /* harmony import */ var _menubar__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./menubar */ "./js/editor/menubar.js");
+/* harmony import */ var _changeimageplugin__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./changeimageplugin */ "./js/editor/changeimageplugin.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 
 
 
@@ -737,7 +778,7 @@ var Editor = /*#__PURE__*/function () {
       Object(prosemirror_keymap__WEBPACK_IMPORTED_MODULE_4__["keymap"])(Object(_keymap__WEBPACK_IMPORTED_MODULE_13__["buildKeymap"])(mySchema)), Object(prosemirror_keymap__WEBPACK_IMPORTED_MODULE_4__["keymap"])(prosemirror_commands__WEBPACK_IMPORTED_MODULE_5__["baseKeymap"]), Object(prosemirror_history__WEBPACK_IMPORTED_MODULE_3__["history"])(), Object(prosemirror_dropcursor__WEBPACK_IMPORTED_MODULE_7__["dropCursor"])(), Object(prosemirror_gapcursor__WEBPACK_IMPORTED_MODULE_8__["gapCursor"])(), Object(prosemirror_menu__WEBPACK_IMPORTED_MODULE_14__["menuBar"])({
         floating: true,
         content: Object(_menubar__WEBPACK_IMPORTED_MODULE_15__["buildMenuItems"])(mySchema)
-      }), // BlockMenuPlugin(this.readonlyListeners),
+      }), Object(_changeimageplugin__WEBPACK_IMPORTED_MODULE_16__["default"])(), // BlockMenuPlugin(this.readonlyListeners),
       Object(_autosave__WEBPACK_IMPORTED_MODULE_11__["AutoSavePlugin"])(function (data) {
         fetch('/simplecms/update', {
           method: 'POST',

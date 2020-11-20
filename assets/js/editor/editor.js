@@ -14,6 +14,7 @@ import {addListNodes} from "prosemirror-schema-list";
 import {buildKeymap} from "./keymap";
 import {menuBar} from "prosemirror-menu";
 import {buildMenuItems} from "./menubar";
+import changeImagePlugin from "./changeimageplugin";
 
 
 class Editor {
@@ -53,6 +54,7 @@ class Editor {
                     floating: true,
                     content: buildMenuItems(mySchema)
                 }),
+                changeImagePlugin(),
                 // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
                     fetch('/simplecms/update', {
