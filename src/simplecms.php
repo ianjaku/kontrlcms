@@ -10,6 +10,7 @@ use Slim\App;
 use Slim\Factory\AppFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Middleware\BodyParsingMiddleware;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
@@ -46,6 +47,11 @@ class SimpleCMS {
      */
     private $appDir;
 
+    /**
+     * @var BodyParsingMiddleware
+     */
+    private $bodyParser;
+
     public function __construct($appDir)
     {
         $this->appDir = $appDir;
@@ -56,6 +62,8 @@ class SimpleCMS {
         $this->imageDirectory = $appDir . "/public/storage";
         $fileSystemLoader = new FilesystemLoader($appDir . "/views");
         $this->twig = new Environment($fileSystemLoader, []);
+
+        $this->bodyParser = new BodyParsingMiddleware();
 
         $textFunction = new TwigFunction('text', function($context, $name, $defaultText = "") {
             $text = $this->findSnippet($context, $name, $defaultText);
@@ -126,7 +134,7 @@ class SimpleCMS {
         }, ["is_safe" => ["html"]]));
 
         $this->app = AppFactory::create();
-        $this->app->addBodyParsingMiddleware();
+//        $this->app->addBodyParsingMiddleware();
 
         // TODO: "Get settings from environment variables or some shit"
         // TODO: throw error when environment variables are not set
@@ -178,11 +186,15 @@ class SimpleCMS {
                 $response->getBody()->write($res);
                 return $response;
             }
-        );
+        )->add($this->bodyParser);
     }
 
     public function run() {
         $this->app->run();
+    }
+
+    public function loadTemplate(string $templatePath, $context = []) {
+        return $this->twig->load($templatePath)->render($context);
     }
 
     private function findSnippet($context, $name, $defaultValue) {
@@ -225,7 +237,8 @@ class SimpleCMS {
             $res = json_encode(["success" => true]);
             $response->getBody()->write($res);
             return $response->withHeader('Content-Type', 'application/json');
-        })->add(new JsonBodyParserMiddleware());
+        })->add($this->bodyParser);
+//        })->add(new JsonBodyParserMiddleware());
 
         $this->app->post("/simplecms/upload", function (Request $request, Response $response, $args = []) {
             if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
@@ -257,7 +270,7 @@ class SimpleCMS {
                 return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
             }
             return $this->JSON($response, ["error" => "Failed to upload file"]);
-        });
+        })->add($this->bodyParser);
         $this->app->post("/simplecms/upload/{purpose}", function (Request $request, Response $response, $args = []) {
             if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
 
@@ -270,7 +283,7 @@ class SimpleCMS {
                 return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
             }
             return $this->JSON($response, ["error" => "Failed to upload file"]);
-        });
+        })->add($this->bodyParser);
 
         $this->app->get("/simplecms/login", function (Request $request, Response $response, $args = []) {
             return $this->renderLibraryPage($response, "login.twig");
@@ -290,7 +303,7 @@ class SimpleCMS {
             // TODO: save authed user to cookie or something
 
             return $this->sendRedirect($response, "/");
-        });
+        })->add($this->bodyParser);
 
         $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
             try {
@@ -305,7 +318,7 @@ class SimpleCMS {
             }
 
             return $this->renderLibraryPage($response, "setup.twig");
-        });
+        })->add($this->bodyParser);
         $this->app->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
@@ -324,7 +337,7 @@ class SimpleCMS {
             $this->authenticator->register($email, $params["admin_password"]);
 
             return $this->sendRedirect($response, "/");
-        });
+        })->add($this->bodyParser);
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
             return $this->sendRedirect($response, "/");

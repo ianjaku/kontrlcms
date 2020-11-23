@@ -3,12 +3,20 @@
 namespace invacto\SimpleCMS;
 
 
+use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class RequestHelper
 {
+    /**
+     * @var Request $request
+     */
     private $request;
+
+    /**
+     * @var Response $response
+     */
     private $response;
 
     public function __construct(Request $request, Response $response)

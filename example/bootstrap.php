@@ -12,8 +12,17 @@ $cms->page("/", "home.twig");
 
 
 $cms->page("/about", "about.twig");
-//$cms->handleRequest("GET", "/about/test", function (RequestHelper $helpers) {
-//    return $helpers->redirect("/about");
+$cms->handleRequest("GET", "/about/test", function (RequestHelper $helpers) {
+    $helpers->sendMail("ian@invacto.com", "test", "test");
+
+    return $helpers->redirect("/about");
+});
+
+$cms->useSimpleMailer("ian@invacto.com");
+
+//$cms->mailWith($cms->createSMTPMailer("yourhost", "username", "password", 465, ""));
+//
+//$cms->mailWith(function ($to, $msg, $meta, callable $loadTemplate) {
 //});
 
 $cms->redirect("/login", "/simplecms/login");
