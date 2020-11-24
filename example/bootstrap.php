@@ -18,13 +18,6 @@ $cms->handleRequest("GET", "/about/test", function (RequestHelper $helpers) {
     return $helpers->redirect("/about");
 });
 
-$cms->useSimpleMailer("ian@invacto.com");
-
-//$cms->mailWith($cms->createSMTPMailer("yourhost", "username", "password", 465, ""));
-//
-//$cms->mailWith(function ($to, $msg, $meta, callable $loadTemplate) {
-//});
-
 $cms->redirect("/login", "/simplecms/login");
 
 $cms->run();
