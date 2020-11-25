@@ -117,6 +117,13 @@ class Database {
                 value text NOT NULL,
                 PRIMARY KEY (id)
             );
+
+            CREATE TABLE user_tokens (
+                id int NOT NULL AUTO_INCREMENT,
+                token varchar(255) NOT NULL,
+                inserted_at timestamp NOT NULL,
+                PRIMARY KEY (id)
+            );
         ");
     }
 

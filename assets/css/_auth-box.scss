@@ -27,6 +27,15 @@ $ff: "-apple-system", "Helvetica", "Ubuntu", sans-serif;
   font-family: $ff;
 }
 
+.simplecms__auth-box__sub-title {
+  font-size: 16px;
+  font-weight: normal;
+  font-family: $ff;
+  padding: 15px 0;
+  color: #1a1f36;
+  line-height: 140%;
+}
+
 .simplecms__auth-box__form {
   margin: 0;
   padding: 0;
@@ -54,6 +63,7 @@ $ff: "-apple-system", "Helvetica", "Ubuntu", sans-serif;
   width: 100%;
   padding: 8px 16px;
   box-sizing: border-box;
+  overflow-x: auto;
 }
 
 .simplecms__auth-box__submit {

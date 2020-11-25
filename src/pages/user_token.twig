@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/simplecms/style">
+</head>
+<body>
+
+<div class="simplecms__auth-box">
+    <div class="simplecms__auth-box__box">
+        <h1 class="simplecms__auth-box__title">Create new user</h1>
+        {% if error %}
+            <div class="simplecms__auth-box__error">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form action="{{ BASE_URL }}/" method="GET" class="simplecms__auth-box__form">
+            <div class="simplecms__auth-box__group">
+                <a href="{{ BASE_URL }}/users/new/{{ token }}" class="simplecms__auth-box__label">
+                    Click here to create a new user
+                </a>
+            </div>
+
+            <button type="submit" class="simplecms__auth-box__submit">Login</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

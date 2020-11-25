@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/simplecms/style">
+</head>
+<body>
+
+    <div class="simplecms__auth-box">
+        <div class="simplecms__auth-box__box">
+            <h1 class="simplecms__auth-box__title">Create a new user</h1>
+            {% if error %}
+                <div class="simplecms__auth-box__error">
+                    {{ error }}
+                </div>
+            {% endif %}
+            <form action="/simplecms/login" method="POST" class="simplecms__auth-box__form">
+                <div class="simplecms__auth-box__group">
+                    <label for="email" class="simplecms__auth-box__label">Email</label>
+                    <input type="email" class="simplecms__auth-box__input" id="email" name="email" required>
+                </div>
+
+                <div class="simplecms__auth-box__group">
+                    <label for="password" class="simplecms__auth-box__label">Password</label>
+                    <input type="password" class="simplecms__auth-box__input" id="password" name="password" required>
+                </div>
+
+                <div class="simplecms__auth-box__group">
+                    <label for="re_password" class="simplecms__auth-box__label">Repeat re_password</label>
+                    <input type="password" class="simplecms__auth-box__input" id="re_password" name="re_password" required>
+                </div>
+
+                <input type="hidden" name="token" value="{{ token }}">
+                <button type="submit" class="simplecms__auth-box__submit">Create</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

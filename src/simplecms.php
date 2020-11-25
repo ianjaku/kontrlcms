@@ -75,6 +75,12 @@ class SimpleCMS {
         }, ["is_safe" => ["html"], "needs_context" => true]);
         $this->twig->addFunction($textFunction);
 
+        if (isset($_ENV["BASE_URL"])) {
+            $this->twig->addGlobal("BASE_URL", $_ENV["BASE_URL"]);
+        } else {
+            $this->twig->addGlobal("BASE_URL", "");
+        }
+
         $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
             $src = $this->findSnippet($context, $name, null);
             if ($src == null) {
@@ -342,6 +348,53 @@ class SimpleCMS {
             $this->authenticator->logout();
             return $this->sendRedirect($response, "/");
         });
+
+        $this->app->get("/simplecms/user_tokens/new", function (Request $request, Response $response, $args = []) {
+            if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
+
+            // Create user token
+            $token = bin2hex(random_bytes(32));
+            $params = [":token" => $token, ":inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")];
+            $this->db->insert("INSERT INTO user_tokens (token, inserted_at) VALUES (:token, :inserted_at)", $params);
+
+            return $this->renderLibraryPage($response, "user_token.twig", ["token" => $token]);
+        });
+        $this->app->get("/simplecms/users/new/{token}", function (Request $request, Response $response, $args) {
+            // Check if token exists
+            $token = $args["token"];
+
+            $params = [":token" => $token];
+            $exists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
+
+            if (!$exists) {
+                return $this->unauthorized($response);
+            }
+
+            return $this->renderLibraryPage($response, "new_user.twig", ["token" => $token]);
+        });
+        $this->app->post("/simplecms/users/new", function (Request $request, Response $response, $args) {
+            $data = $request->getParsedBody();
+
+            if ($data["password"] !== $data["re_password"]) {
+                return $this->renderLibraryPage(
+                    $response,
+                    "new_user.twig",
+                    ["token" => $data["token"], "error" => "Passwords do not match"]
+                );
+            }
+
+            $params = [":token" => $data["token"]];
+            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token");
+            if (!$tokenExists) {
+                return $this->unauthorized($response);
+            }
+
+            $this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
+
+            $this->authenticator->register($params["email"], $params["password"]);
+
+            return $this->sendRedirect($response, "/simplecms/login");
+        })->add($this->bodyParser);
     }
 
     private function updateOrCreateSnippet(string $page, string $name, string $value) {
