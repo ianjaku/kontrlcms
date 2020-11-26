@@ -199,9 +199,30 @@ class SimpleCMS {
         $this->app->run();
     }
 
+    public function setTemplateVariable(string $name, $value) {
+        $this->twig->addGlobal($name, $value);
+    }
+
     public function loadTemplate(string $templatePath, $context = []) {
         return $this->twig->load($templatePath)->render($context);
     }
+
+//    public function generateSiteMap() {
+//        $this->app->get("/robots.txt", function (Request $request, Response $response, $args = []) {
+//            $sitemapUrl = $_ENV["BASE_URL"] . "/sitemap.xml";
+//            $response->getBody()->write("
+//# Auth
+//User-agent: *
+//Disallow: /simplecms/
+//
+//Sitemap: $sitemapUrl
+//            ");
+//        });
+//
+//        $this->app->get("/sitemap.xml", function (Request $request, Response $response, $args = []) {
+//
+//        });
+//    }
 
     private function findSnippet($context, $name, $defaultValue) {
         $snippets = $context['__snippets'];
