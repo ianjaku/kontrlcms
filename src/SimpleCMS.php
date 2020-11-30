@@ -140,9 +140,7 @@ class SimpleCMS {
         }, ["is_safe" => ["html"]]));
 
         $this->app = AppFactory::create();
-//        $this->app->addBodyParsingMiddleware();
 
-        // TODO: "Get settings from environment variables or some shit"
         // TODO: throw error when environment variables are not set
         $this->db = new Database(
             $_ENV["DB_HOST"] . ":" . $_ENV["DB_PORT"],
@@ -151,8 +149,8 @@ class SimpleCMS {
             $_ENV["DB_PASS"]
         );
 
-        // TODO: Get a secret key from environment variables or $cms->setSecret("...")
-        $this->authenticator = new Authenticator("SecretKey", $this->db);
+        // TODO: throw error when environment variables are not set
+        $this->authenticator = new Authenticator($_ENV["secret"], $this->db);
 
         $this->createEditEndpoints();
     }
@@ -172,12 +170,6 @@ class SimpleCMS {
             return $this->sendRedirect($response, $to);
         });
     }
-
-//    public function get($path, $callback) {
-//        $this->app->get($path, function (Request $request, Response $response, array $args = []) use ($callback) {
-//            $callback();
-//        });
-//    }
 
     public function handleRequest(string $type, string $path, $callback) {
         $this->app->map(
