@@ -3,6 +3,15 @@ import Editor from "./editor/editor";
 import imagePopup from "./popups/image_popup";
 import {uploadSnippetImage} from "./util/uploader";
 
+import simplePopup from "./popups/simple_popup";
+const rows = [
+    {type: "file", label: "Image", name: "img"},
+    {type: "text", label: "Image SEO description", name: "desc"}
+];
+simplePopup("Test", "Test", rows, () => {
+    console.log("Callback")
+});
+
 
 const EDIT_CLASS = "simplecms--edit";
 // TODO: turn to false

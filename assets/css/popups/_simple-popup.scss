@@ -100,3 +100,55 @@
   font-family: "Trebuchet MS", sans-serif;
   color: white;
 }
+
+// File Box
+
+.simplecms__simple-popup__file-box {
+  padding-top: 40%;
+  background-color: rgba(#3854A6, 0.1);
+  border: 2px solid rgba(#3854A6, 0.2);
+  position: relative;
+  border-radius: 15px;
+  //opacity: 0.8;
+  cursor: pointer;
+  margin-top: 10px;
+
+  &:hover,
+  &--active{
+    background-color: rgba(#3854A6, 0.2);
+    border: 2px solid rgba(#3854A6, 0.5);
+  }
+}
+
+.simplecms__simple-popup__file-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(#3854A6, 0.6);
+  margin: 0;
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+
+.simplecms__simple-popup__file-box:hover .simplecms__simple-popup__file-text,
+.simplecms__simple-popup__file-box--active .simplecms__simple-popup__file-text {
+  color: rgba(#3854A6, 1);
+}
+
+.simplecms__simple-popup__file-input {
+  display: none;
+}
+
+.simplecms__simple-popup__file-preview {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  border-radius: 10px;
+}

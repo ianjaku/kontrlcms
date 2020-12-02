@@ -96,6 +96,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_editor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./editor/editor */ "./js/editor/editor.js");
 /* harmony import */ var _popups_image_popup__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./popups/image_popup */ "./js/popups/image_popup.js");
 /* harmony import */ var _util_uploader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./util/uploader */ "./js/util/uploader.js");
+/* harmony import */ var _popups_simple_popup__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./popups/simple_popup */ "./js/popups/simple_popup.js");
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -106,6 +107,19 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 
 
+
+var rows = [{
+  type: "file",
+  label: "Image",
+  name: "img"
+}, {
+  type: "text",
+  label: "Image SEO description",
+  name: "desc"
+}];
+Object(_popups_simple_popup__WEBPACK_IMPORTED_MODULE_4__["default"])("Test", "Test", rows, function () {
+  console.log("Callback");
+});
 var EDIT_CLASS = "simplecms--edit"; // TODO: turn to false
 
 var editing = false;
@@ -1890,6 +1904,7 @@ fileInputEl.addEventListener("change", function (e) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var prosemirror_model_src_node__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! prosemirror-model/src/node */ "./node_modules/prosemirror-model/src/node.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -1903,6 +1918,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 // Generic popup which can be used for most simple prompts
+
 var popupEl = document.querySelector(".simplecms__simple-popup");
 var rowsEl = document.querySelector(".simplecms__simple-popup__rows");
 var titleEl = document.querySelector(".simplecms__simple-popup__title");
@@ -1929,7 +1945,7 @@ function setTitle(title, subTitle) {
 }
 
 function createRowEl(row) {
-  var id = "simplecms__popup__" + row.type;
+  var id = "simplecms__popup__" + row.name;
   var rowEl = document.createElement("div");
   rowEl.classList.add("simplecms__simple-popup__row");
   var labelEl = document.createElement("label");
@@ -1940,19 +1956,106 @@ function createRowEl(row) {
   rowEl.appendChild(labelEl);
 
   if (["text", "email", "password"].includes(row.type)) {
-    var inputEl = document.createElement("input");
-    inputEl.classList.add("simplecms__simple-popup__input");
-    inputEl.type = row.type;
-    inputEl.name = row.name;
-    inputEl.id = id;
-    inputEl.placeholder = row.placeholder || "";
-    rowEl.appendChild(inputEl);
-    inputEl.addEventListener("input", function (e) {
-      currentData[row.name] = inputEl.value;
-    });
+    rowEl.appendChild(createInputRow(row, id));
+  }
+
+  if (row.type === "file") {
+    rowEl.appendChild(createFileRow(row, id));
   }
 
   return rowEl;
+}
+
+function createInputRow(row, id) {
+  var inputEl = document.createElement("input");
+  inputEl.classList.add("simplecms__simple-popup__input");
+  inputEl.type = row.type;
+  inputEl.name = row.name;
+  inputEl.id = id;
+  inputEl.placeholder = row.placeholder || "";
+  inputEl.addEventListener("input", function (e) {
+    currentData[row.name] = inputEl.value;
+  });
+  return inputEl;
+}
+
+function readImageFromFile(file) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      return resolve(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function createFileRow(row, id) {
+  var state = {
+    alt: null,
+    imageFile: null
+  };
+
+  function selectFile(file) {
+    state.imageFile = file;
+    readImageFromFile(file).then(function (imgData) {
+      previewEl.style.display = "";
+      textEl.style.display = "none";
+      previewEl.src = imgData;
+    });
+  }
+
+  var boxEl = document.createElement("div");
+  boxEl.classList.add("simplecms__simple-popup__file-box");
+  var textEl = document.createElement("p");
+  textEl.classList.add("simplecms__simple-popup__file-text");
+  textEl.appendChild(document.createTextNode("Drop Image"));
+  boxEl.appendChild(textEl);
+  var inputEl = document.createElement("input");
+  inputEl.type = "file";
+  inputEl.id = id;
+  inputEl.classList.add("simplecms__simple-popup__file-input");
+  boxEl.appendChild(inputEl);
+  var previewEl = document.createElement("img");
+  previewEl.classList.add("simplecms__simple-popup__file-preview");
+  previewEl.style.display = "none";
+  boxEl.appendChild(previewEl);
+  boxEl.addEventListener("click", function () {
+    inputEl.click();
+  });
+  inputEl.addEventListener("change", function (e) {
+    var files = e.target.files;
+    if (files.length === 0) return;
+    var file = files[0];
+    selectFile(file);
+  });
+  var highlightClass = "simplecms__simple-popup__file-box--active";
+  boxEl.addEventListener("dragenter", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    boxEl.classList.add(highlightClass);
+  });
+  boxEl.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    boxEl.classList.add(highlightClass);
+  });
+  boxEl.addEventListener("dragleave", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    boxEl.classList.remove(highlightClass);
+  });
+  boxEl.addEventListener("drop", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    boxEl.classList.remove(highlightClass);
+    var dataTransfer = e.dataTransfer;
+    var files = dataTransfer.files;
+    if (files.length === 0) return;
+    selectFile(files[0]);
+  });
+  return boxEl;
 }
 
 function setRows(rows) {
@@ -25357,6 +25460,1507 @@ function doc(options) {
 
 
 //# sourceMappingURL=index.es.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/comparedeep.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/comparedeep.js ***!
+  \***********************************************************/
+/*! exports provided: compareDeep */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "compareDeep", function() { return compareDeep; });
+function compareDeep(a, b) {
+  if (a === b) return true
+  if (!(a && typeof a == "object") ||
+      !(b && typeof b == "object")) return false
+  let array = Array.isArray(a)
+  if (Array.isArray(b) != array) return false
+  if (array) {
+    if (a.length != b.length) return false
+    for (let i = 0; i < a.length; i++) if (!compareDeep(a[i], b[i])) return false
+  } else {
+    for (let p in a) if (!(p in b) || !compareDeep(a[p], b[p])) return false
+    for (let p in b) if (!(p in a)) return false
+  }
+  return true
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/diff.js":
+/*!****************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/diff.js ***!
+  \****************************************************/
+/*! exports provided: findDiffStart, findDiffEnd */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findDiffStart", function() { return findDiffStart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findDiffEnd", function() { return findDiffEnd; });
+function findDiffStart(a, b, pos) {
+  for (let i = 0;; i++) {
+    if (i == a.childCount || i == b.childCount)
+      return a.childCount == b.childCount ? null : pos
+
+    let childA = a.child(i), childB = b.child(i)
+    if (childA == childB) { pos += childA.nodeSize; continue }
+
+    if (!childA.sameMarkup(childB)) return pos
+
+    if (childA.isText && childA.text != childB.text) {
+      for (let j = 0; childA.text[j] == childB.text[j]; j++)
+        pos++
+      return pos
+    }
+    if (childA.content.size || childB.content.size) {
+      let inner = findDiffStart(childA.content, childB.content, pos + 1)
+      if (inner != null) return inner
+    }
+    pos += childA.nodeSize
+  }
+}
+
+function findDiffEnd(a, b, posA, posB) {
+  for (let iA = a.childCount, iB = b.childCount;;) {
+    if (iA == 0 || iB == 0)
+      return iA == iB ? null : {a: posA, b: posB}
+
+    let childA = a.child(--iA), childB = b.child(--iB), size = childA.nodeSize
+    if (childA == childB) {
+      posA -= size; posB -= size
+      continue
+    }
+
+    if (!childA.sameMarkup(childB)) return {a: posA, b: posB}
+
+    if (childA.isText && childA.text != childB.text) {
+      let same = 0, minSize = Math.min(childA.text.length, childB.text.length)
+      while (same < minSize && childA.text[childA.text.length - same - 1] == childB.text[childB.text.length - same - 1]) {
+        same++; posA--; posB--
+      }
+      return {a: posA, b: posB}
+    }
+    if (childA.content.size || childB.content.size) {
+      let inner = findDiffEnd(childA.content, childB.content, posA - 1, posB - 1)
+      if (inner) return inner
+    }
+    posA -= size; posB -= size
+  }
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/fragment.js":
+/*!********************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/fragment.js ***!
+  \********************************************************/
+/*! exports provided: Fragment */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Fragment", function() { return Fragment; });
+/* harmony import */ var _diff__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./diff */ "./node_modules/prosemirror-model/src/diff.js");
+
+
+// ::- A fragment represents a node's collection of child nodes.
+//
+// Like nodes, fragments are persistent data structures, and you
+// should not mutate them or their content. Rather, you create new
+// instances whenever needed. The API tries to make this easy.
+class Fragment {
+  constructor(content, size) {
+    this.content = content
+    // :: number
+    // The size of the fragment, which is the total of the size of its
+    // content nodes.
+    this.size = size || 0
+    if (size == null) for (let i = 0; i < content.length; i++)
+      this.size += content[i].nodeSize
+  }
+
+  // :: (number, number, (node: Node, start: number, parent: Node, index: number) → ?bool, ?number)
+  // Invoke a callback for all descendant nodes between the given two
+  // positions (relative to start of this fragment). Doesn't descend
+  // into a node when the callback returns `false`.
+  nodesBetween(from, to, f, nodeStart = 0, parent) {
+    for (let i = 0, pos = 0; pos < to; i++) {
+      let child = this.content[i], end = pos + child.nodeSize
+      if (end > from && f(child, nodeStart + pos, parent, i) !== false && child.content.size) {
+        let start = pos + 1
+        child.nodesBetween(Math.max(0, from - start),
+                           Math.min(child.content.size, to - start),
+                           f, nodeStart + start)
+      }
+      pos = end
+    }
+  }
+
+  // :: ((node: Node, pos: number, parent: Node) → ?bool)
+  // Call the given callback for every descendant node. The callback
+  // may return `false` to prevent traversal of a given node's children.
+  descendants(f) {
+    this.nodesBetween(0, this.size, f)
+  }
+
+  // : (number, number, ?string, ?string) → string
+  textBetween(from, to, blockSeparator, leafText) {
+    let text = "", separated = true
+    this.nodesBetween(from, to, (node, pos) => {
+      if (node.isText) {
+        text += node.text.slice(Math.max(from, pos) - pos, to - pos)
+        separated = !blockSeparator
+      } else if (node.isLeaf && leafText) {
+        text += leafText
+        separated = !blockSeparator
+      } else if (!separated && node.isBlock) {
+        text += blockSeparator
+        separated = true
+      }
+    }, 0)
+    return text
+  }
+
+  // :: (Fragment) → Fragment
+  // Create a new fragment containing the combined content of this
+  // fragment and the other.
+  append(other) {
+    if (!other.size) return this
+    if (!this.size) return other
+    let last = this.lastChild, first = other.firstChild, content = this.content.slice(), i = 0
+    if (last.isText && last.sameMarkup(first)) {
+      content[content.length - 1] = last.withText(last.text + first.text)
+      i = 1
+    }
+    for (; i < other.content.length; i++) content.push(other.content[i])
+    return new Fragment(content, this.size + other.size)
+  }
+
+  // :: (number, ?number) → Fragment
+  // Cut out the sub-fragment between the two given positions.
+  cut(from, to) {
+    if (to == null) to = this.size
+    if (from == 0 && to == this.size) return this
+    let result = [], size = 0
+    if (to > from) for (let i = 0, pos = 0; pos < to; i++) {
+      let child = this.content[i], end = pos + child.nodeSize
+      if (end > from) {
+        if (pos < from || end > to) {
+          if (child.isText)
+            child = child.cut(Math.max(0, from - pos), Math.min(child.text.length, to - pos))
+          else
+            child = child.cut(Math.max(0, from - pos - 1), Math.min(child.content.size, to - pos - 1))
+        }
+        result.push(child)
+        size += child.nodeSize
+      }
+      pos = end
+    }
+    return new Fragment(result, size)
+  }
+
+  cutByIndex(from, to) {
+    if (from == to) return Fragment.empty
+    if (from == 0 && to == this.content.length) return this
+    return new Fragment(this.content.slice(from, to))
+  }
+
+  // :: (number, Node) → Fragment
+  // Create a new fragment in which the node at the given index is
+  // replaced by the given node.
+  replaceChild(index, node) {
+    let current = this.content[index]
+    if (current == node) return this
+    let copy = this.content.slice()
+    let size = this.size + node.nodeSize - current.nodeSize
+    copy[index] = node
+    return new Fragment(copy, size)
+  }
+
+  // : (Node) → Fragment
+  // Create a new fragment by prepending the given node to this
+  // fragment.
+  addToStart(node) {
+    return new Fragment([node].concat(this.content), this.size + node.nodeSize)
+  }
+
+  // : (Node) → Fragment
+  // Create a new fragment by appending the given node to this
+  // fragment.
+  addToEnd(node) {
+    return new Fragment(this.content.concat(node), this.size + node.nodeSize)
+  }
+
+  // :: (Fragment) → bool
+  // Compare this fragment to another one.
+  eq(other) {
+    if (this.content.length != other.content.length) return false
+    for (let i = 0; i < this.content.length; i++)
+      if (!this.content[i].eq(other.content[i])) return false
+    return true
+  }
+
+  // :: ?Node
+  // The first child of the fragment, or `null` if it is empty.
+  get firstChild() { return this.content.length ? this.content[0] : null }
+
+  // :: ?Node
+  // The last child of the fragment, or `null` if it is empty.
+  get lastChild() { return this.content.length ? this.content[this.content.length - 1] : null }
+
+  // :: number
+  // The number of child nodes in this fragment.
+  get childCount() { return this.content.length }
+
+  // :: (number) → Node
+  // Get the child node at the given index. Raise an error when the
+  // index is out of range.
+  child(index) {
+    let found = this.content[index]
+    if (!found) throw new RangeError("Index " + index + " out of range for " + this)
+    return found
+  }
+
+  // :: (number) → ?Node
+  // Get the child node at the given index, if it exists.
+  maybeChild(index) {
+    return this.content[index]
+  }
+
+  // :: ((node: Node, offset: number, index: number))
+  // Call `f` for every child node, passing the node, its offset
+  // into this parent node, and its index.
+  forEach(f) {
+    for (let i = 0, p = 0; i < this.content.length; i++) {
+      let child = this.content[i]
+      f(child, p, i)
+      p += child.nodeSize
+    }
+  }
+
+  // :: (Fragment) → ?number
+  // Find the first position at which this fragment and another
+  // fragment differ, or `null` if they are the same.
+  findDiffStart(other, pos = 0) {
+    return Object(_diff__WEBPACK_IMPORTED_MODULE_0__["findDiffStart"])(this, other, pos)
+  }
+
+  // :: (Fragment) → ?{a: number, b: number}
+  // Find the first position, searching from the end, at which this
+  // fragment and the given fragment differ, or `null` if they are the
+  // same. Since this position will not be the same in both nodes, an
+  // object with two separate positions is returned.
+  findDiffEnd(other, pos = this.size, otherPos = other.size) {
+    return Object(_diff__WEBPACK_IMPORTED_MODULE_0__["findDiffEnd"])(this, other, pos, otherPos)
+  }
+
+  // : (number, ?number) → {index: number, offset: number}
+  // Find the index and inner offset corresponding to a given relative
+  // position in this fragment. The result object will be reused
+  // (overwritten) the next time the function is called. (Not public.)
+  findIndex(pos, round = -1) {
+    if (pos == 0) return retIndex(0, pos)
+    if (pos == this.size) return retIndex(this.content.length, pos)
+    if (pos > this.size || pos < 0) throw new RangeError(`Position ${pos} outside of fragment (${this})`)
+    for (let i = 0, curPos = 0;; i++) {
+      let cur = this.child(i), end = curPos + cur.nodeSize
+      if (end >= pos) {
+        if (end == pos || round > 0) return retIndex(i + 1, end)
+        return retIndex(i, curPos)
+      }
+      curPos = end
+    }
+  }
+
+  // :: () → string
+  // Return a debugging string that describes this fragment.
+  toString() { return "<" + this.toStringInner() + ">" }
+
+  toStringInner() { return this.content.join(", ") }
+
+  // :: () → ?Object
+  // Create a JSON-serializeable representation of this fragment.
+  toJSON() {
+    return this.content.length ? this.content.map(n => n.toJSON()) : null
+  }
+
+  // :: (Schema, ?Object) → Fragment
+  // Deserialize a fragment from its JSON representation.
+  static fromJSON(schema, value) {
+    if (!value) return Fragment.empty
+    if (!Array.isArray(value)) throw new RangeError("Invalid input for Fragment.fromJSON")
+    return new Fragment(value.map(schema.nodeFromJSON))
+  }
+
+  // :: ([Node]) → Fragment
+  // Build a fragment from an array of nodes. Ensures that adjacent
+  // text nodes with the same marks are joined together.
+  static fromArray(array) {
+    if (!array.length) return Fragment.empty
+    let joined, size = 0
+    for (let i = 0; i < array.length; i++) {
+      let node = array[i]
+      size += node.nodeSize
+      if (i && node.isText && array[i - 1].sameMarkup(node)) {
+        if (!joined) joined = array.slice(0, i)
+        joined[joined.length - 1] = node.withText(joined[joined.length - 1].text + node.text)
+      } else if (joined) {
+        joined.push(node)
+      }
+    }
+    return new Fragment(joined || array, size)
+  }
+
+  // :: (?union<Fragment, Node, [Node]>) → Fragment
+  // Create a fragment from something that can be interpreted as a set
+  // of nodes. For `null`, it returns the empty fragment. For a
+  // fragment, the fragment itself. For a node or array of nodes, a
+  // fragment containing those nodes.
+  static from(nodes) {
+    if (!nodes) return Fragment.empty
+    if (nodes instanceof Fragment) return nodes
+    if (Array.isArray(nodes)) return this.fromArray(nodes)
+    if (nodes.attrs) return new Fragment([nodes], nodes.nodeSize)
+    throw new RangeError("Can not convert " + nodes + " to a Fragment" +
+                         (nodes.nodesBetween ? " (looks like multiple versions of prosemirror-model were loaded)" : ""))
+  }
+}
+
+const found = {index: 0, offset: 0}
+function retIndex(index, offset) {
+  found.index = index
+  found.offset = offset
+  return found
+}
+
+// :: Fragment
+// An empty fragment. Intended to be reused whenever a node doesn't
+// contain anything (rather than allocating a new empty fragment for
+// each leaf node).
+Fragment.empty = new Fragment([], 0)
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/mark.js":
+/*!****************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/mark.js ***!
+  \****************************************************/
+/*! exports provided: Mark */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Mark", function() { return Mark; });
+/* harmony import */ var _comparedeep__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./comparedeep */ "./node_modules/prosemirror-model/src/comparedeep.js");
+
+
+// ::- A mark is a piece of information that can be attached to a node,
+// such as it being emphasized, in code font, or a link. It has a type
+// and optionally a set of attributes that provide further information
+// (such as the target of the link). Marks are created through a
+// `Schema`, which controls which types exist and which
+// attributes they have.
+class Mark {
+  constructor(type, attrs) {
+    // :: MarkType
+    // The type of this mark.
+    this.type = type
+    // :: Object
+    // The attributes associated with this mark.
+    this.attrs = attrs
+  }
+
+  // :: ([Mark]) → [Mark]
+  // Given a set of marks, create a new set which contains this one as
+  // well, in the right position. If this mark is already in the set,
+  // the set itself is returned. If any marks that are set to be
+  // [exclusive](#model.MarkSpec.excludes) with this mark are present,
+  // those are replaced by this one.
+  addToSet(set) {
+    let copy, placed = false
+    for (let i = 0; i < set.length; i++) {
+      let other = set[i]
+      if (this.eq(other)) return set
+      if (this.type.excludes(other.type)) {
+        if (!copy) copy = set.slice(0, i)
+      } else if (other.type.excludes(this.type)) {
+        return set
+      } else {
+        if (!placed && other.type.rank > this.type.rank) {
+          if (!copy) copy = set.slice(0, i)
+          copy.push(this)
+          placed = true
+        }
+        if (copy) copy.push(other)
+      }
+    }
+    if (!copy) copy = set.slice()
+    if (!placed) copy.push(this)
+    return copy
+  }
+
+  // :: ([Mark]) → [Mark]
+  // Remove this mark from the given set, returning a new set. If this
+  // mark is not in the set, the set itself is returned.
+  removeFromSet(set) {
+    for (let i = 0; i < set.length; i++)
+      if (this.eq(set[i]))
+        return set.slice(0, i).concat(set.slice(i + 1))
+    return set
+  }
+
+  // :: ([Mark]) → bool
+  // Test whether this mark is in the given set of marks.
+  isInSet(set) {
+    for (let i = 0; i < set.length; i++)
+      if (this.eq(set[i])) return true
+    return false
+  }
+
+  // :: (Mark) → bool
+  // Test whether this mark has the same type and attributes as
+  // another mark.
+  eq(other) {
+    return this == other ||
+      (this.type == other.type && Object(_comparedeep__WEBPACK_IMPORTED_MODULE_0__["compareDeep"])(this.attrs, other.attrs))
+  }
+
+  // :: () → Object
+  // Convert this mark to a JSON-serializeable representation.
+  toJSON() {
+    let obj = {type: this.type.name}
+    for (let _ in this.attrs) {
+      obj.attrs = this.attrs
+      break
+    }
+    return obj
+  }
+
+  // :: (Schema, Object) → Mark
+  static fromJSON(schema, json) {
+    if (!json) throw new RangeError("Invalid input for Mark.fromJSON")
+    let type = schema.marks[json.type]
+    if (!type) throw new RangeError(`There is no mark type ${json.type} in this schema`)
+    return type.create(json.attrs)
+  }
+
+  // :: ([Mark], [Mark]) → bool
+  // Test whether two sets of marks are identical.
+  static sameSet(a, b) {
+    if (a == b) return true
+    if (a.length != b.length) return false
+    for (let i = 0; i < a.length; i++)
+      if (!a[i].eq(b[i])) return false
+    return true
+  }
+
+  // :: (?union<Mark, [Mark]>) → [Mark]
+  // Create a properly sorted mark set from null, a single mark, or an
+  // unsorted array of marks.
+  static setFrom(marks) {
+    if (!marks || marks.length == 0) return Mark.none
+    if (marks instanceof Mark) return [marks]
+    let copy = marks.slice()
+    copy.sort((a, b) => a.type.rank - b.type.rank)
+    return copy
+  }
+}
+
+// :: [Mark] The empty set of marks.
+Mark.none = []
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/node.js":
+/*!****************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/node.js ***!
+  \****************************************************/
+/*! exports provided: Node, TextNode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Node", function() { return Node; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TextNode", function() { return TextNode; });
+/* harmony import */ var _fragment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./fragment */ "./node_modules/prosemirror-model/src/fragment.js");
+/* harmony import */ var _mark__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mark */ "./node_modules/prosemirror-model/src/mark.js");
+/* harmony import */ var _replace__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./replace */ "./node_modules/prosemirror-model/src/replace.js");
+/* harmony import */ var _resolvedpos__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./resolvedpos */ "./node_modules/prosemirror-model/src/resolvedpos.js");
+/* harmony import */ var _comparedeep__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./comparedeep */ "./node_modules/prosemirror-model/src/comparedeep.js");
+
+
+
+
+
+
+const emptyAttrs = Object.create(null)
+
+// ::- This class represents a node in the tree that makes up a
+// ProseMirror document. So a document is an instance of `Node`, with
+// children that are also instances of `Node`.
+//
+// Nodes are persistent data structures. Instead of changing them, you
+// create new ones with the content you want. Old ones keep pointing
+// at the old document shape. This is made cheaper by sharing
+// structure between the old and new data as much as possible, which a
+// tree shape like this (without back pointers) makes easy.
+//
+// **Do not** directly mutate the properties of a `Node` object. See
+// [the guide](/docs/guide/#doc) for more information.
+class Node {
+  constructor(type, attrs, content, marks) {
+    // :: NodeType
+    // The type of node that this is.
+    this.type = type
+
+    // :: Object
+    // An object mapping attribute names to values. The kind of
+    // attributes allowed and required are
+    // [determined](#model.NodeSpec.attrs) by the node type.
+    this.attrs = attrs
+
+    // :: Fragment
+    // A container holding the node's children.
+    this.content = content || _fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].empty
+
+    // :: [Mark]
+    // The marks (things like whether it is emphasized or part of a
+    // link) applied to this node.
+    this.marks = marks || _mark__WEBPACK_IMPORTED_MODULE_1__["Mark"].none
+  }
+
+  // text:: ?string
+  // For text nodes, this contains the node's text content.
+
+  // :: number
+  // The size of this node, as defined by the integer-based [indexing
+  // scheme](/docs/guide/#doc.indexing). For text nodes, this is the
+  // amount of characters. For other leaf nodes, it is one. For
+  // non-leaf nodes, it is the size of the content plus two (the start
+  // and end token).
+  get nodeSize() { return this.isLeaf ? 1 : 2 + this.content.size }
+
+  // :: number
+  // The number of children that the node has.
+  get childCount() { return this.content.childCount }
+
+  // :: (number) → Node
+  // Get the child node at the given index. Raises an error when the
+  // index is out of range.
+  child(index) { return this.content.child(index) }
+
+  // :: (number) → ?Node
+  // Get the child node at the given index, if it exists.
+  maybeChild(index) { return this.content.maybeChild(index) }
+
+  // :: ((node: Node, offset: number, index: number))
+  // Call `f` for every child node, passing the node, its offset
+  // into this parent node, and its index.
+  forEach(f) { this.content.forEach(f) }
+
+  // :: (number, number, (node: Node, pos: number, parent: Node, index: number) → ?bool, ?number)
+  // Invoke a callback for all descendant nodes recursively between
+  // the given two positions that are relative to start of this node's
+  // content. The callback is invoked with the node, its
+  // parent-relative position, its parent node, and its child index.
+  // When the callback returns false for a given node, that node's
+  // children will not be recursed over. The last parameter can be
+  // used to specify a starting position to count from.
+  nodesBetween(from, to, f, startPos = 0) {
+    this.content.nodesBetween(from, to, f, startPos, this)
+  }
+
+  // :: ((node: Node, pos: number, parent: Node) → ?bool)
+  // Call the given callback for every descendant node. Doesn't
+  // descend into a node when the callback returns `false`.
+  descendants(f) {
+    this.nodesBetween(0, this.content.size, f)
+  }
+
+  // :: string
+  // Concatenates all the text nodes found in this fragment and its
+  // children.
+  get textContent() { return this.textBetween(0, this.content.size, "") }
+
+  // :: (number, number, ?string, ?string) → string
+  // Get all text between positions `from` and `to`. When
+  // `blockSeparator` is given, it will be inserted whenever a new
+  // block node is started. When `leafText` is given, it'll be
+  // inserted for every non-text leaf node encountered.
+  textBetween(from, to, blockSeparator, leafText) {
+    return this.content.textBetween(from, to, blockSeparator, leafText)
+  }
+
+  // :: ?Node
+  // Returns this node's first child, or `null` if there are no
+  // children.
+  get firstChild() { return this.content.firstChild }
+
+  // :: ?Node
+  // Returns this node's last child, or `null` if there are no
+  // children.
+  get lastChild() { return this.content.lastChild }
+
+  // :: (Node) → bool
+  // Test whether two nodes represent the same piece of document.
+  eq(other) {
+    return this == other || (this.sameMarkup(other) && this.content.eq(other.content))
+  }
+
+  // :: (Node) → bool
+  // Compare the markup (type, attributes, and marks) of this node to
+  // those of another. Returns `true` if both have the same markup.
+  sameMarkup(other) {
+    return this.hasMarkup(other.type, other.attrs, other.marks)
+  }
+
+  // :: (NodeType, ?Object, ?[Mark]) → bool
+  // Check whether this node's markup correspond to the given type,
+  // attributes, and marks.
+  hasMarkup(type, attrs, marks) {
+    return this.type == type &&
+      Object(_comparedeep__WEBPACK_IMPORTED_MODULE_4__["compareDeep"])(this.attrs, attrs || type.defaultAttrs || emptyAttrs) &&
+      _mark__WEBPACK_IMPORTED_MODULE_1__["Mark"].sameSet(this.marks, marks || _mark__WEBPACK_IMPORTED_MODULE_1__["Mark"].none)
+  }
+
+  // :: (?Fragment) → Node
+  // Create a new node with the same markup as this node, containing
+  // the given content (or empty, if no content is given).
+  copy(content = null) {
+    if (content == this.content) return this
+    return new this.constructor(this.type, this.attrs, content, this.marks)
+  }
+
+  // :: ([Mark]) → Node
+  // Create a copy of this node, with the given set of marks instead
+  // of the node's own marks.
+  mark(marks) {
+    return marks == this.marks ? this : new this.constructor(this.type, this.attrs, this.content, marks)
+  }
+
+  // :: (number, ?number) → Node
+  // Create a copy of this node with only the content between the
+  // given positions. If `to` is not given, it defaults to the end of
+  // the node.
+  cut(from, to) {
+    if (from == 0 && to == this.content.size) return this
+    return this.copy(this.content.cut(from, to))
+  }
+
+  // :: (number, ?number) → Slice
+  // Cut out the part of the document between the given positions, and
+  // return it as a `Slice` object.
+  slice(from, to = this.content.size, includeParents = false) {
+    if (from == to) return _replace__WEBPACK_IMPORTED_MODULE_2__["Slice"].empty
+
+    let $from = this.resolve(from), $to = this.resolve(to)
+    let depth = includeParents ? 0 : $from.sharedDepth(to)
+    let start = $from.start(depth), node = $from.node(depth)
+    let content = node.content.cut($from.pos - start, $to.pos - start)
+    return new _replace__WEBPACK_IMPORTED_MODULE_2__["Slice"](content, $from.depth - depth, $to.depth - depth)
+  }
+
+  // :: (number, number, Slice) → Node
+  // Replace the part of the document between the given positions with
+  // the given slice. The slice must 'fit', meaning its open sides
+  // must be able to connect to the surrounding content, and its
+  // content nodes must be valid children for the node they are placed
+  // into. If any of this is violated, an error of type
+  // [`ReplaceError`](#model.ReplaceError) is thrown.
+  replace(from, to, slice) {
+    return Object(_replace__WEBPACK_IMPORTED_MODULE_2__["replace"])(this.resolve(from), this.resolve(to), slice)
+  }
+
+  // :: (number) → ?Node
+  // Find the node directly after the given position.
+  nodeAt(pos) {
+    for (let node = this;;) {
+      let {index, offset} = node.content.findIndex(pos)
+      node = node.maybeChild(index)
+      if (!node) return null
+      if (offset == pos || node.isText) return node
+      pos -= offset + 1
+    }
+  }
+
+  // :: (number) → {node: ?Node, index: number, offset: number}
+  // Find the (direct) child node after the given offset, if any,
+  // and return it along with its index and offset relative to this
+  // node.
+  childAfter(pos) {
+    let {index, offset} = this.content.findIndex(pos)
+    return {node: this.content.maybeChild(index), index, offset}
+  }
+
+  // :: (number) → {node: ?Node, index: number, offset: number}
+  // Find the (direct) child node before the given offset, if any,
+  // and return it along with its index and offset relative to this
+  // node.
+  childBefore(pos) {
+    if (pos == 0) return {node: null, index: 0, offset: 0}
+    let {index, offset} = this.content.findIndex(pos)
+    if (offset < pos) return {node: this.content.child(index), index, offset}
+    let node = this.content.child(index - 1)
+    return {node, index: index - 1, offset: offset - node.nodeSize}
+  }
+
+  // :: (number) → ResolvedPos
+  // Resolve the given position in the document, returning an
+  // [object](#model.ResolvedPos) with information about its context.
+  resolve(pos) { return _resolvedpos__WEBPACK_IMPORTED_MODULE_3__["ResolvedPos"].resolveCached(this, pos) }
+
+  resolveNoCache(pos) { return _resolvedpos__WEBPACK_IMPORTED_MODULE_3__["ResolvedPos"].resolve(this, pos) }
+
+  // :: (number, number, union<Mark, MarkType>) → bool
+  // Test whether a given mark or mark type occurs in this document
+  // between the two given positions.
+  rangeHasMark(from, to, type) {
+    let found = false
+    if (to > from) this.nodesBetween(from, to, node => {
+      if (type.isInSet(node.marks)) found = true
+      return !found
+    })
+    return found
+  }
+
+  // :: bool
+  // True when this is a block (non-inline node)
+  get isBlock() { return this.type.isBlock }
+
+  // :: bool
+  // True when this is a textblock node, a block node with inline
+  // content.
+  get isTextblock() { return this.type.isTextblock }
+
+  // :: bool
+  // True when this node allows inline content.
+  get inlineContent() { return this.type.inlineContent }
+
+  // :: bool
+  // True when this is an inline node (a text node or a node that can
+  // appear among text).
+  get isInline() { return this.type.isInline }
+
+  // :: bool
+  // True when this is a text node.
+  get isText() { return this.type.isText }
+
+  // :: bool
+  // True when this is a leaf node.
+  get isLeaf() { return this.type.isLeaf }
+
+  // :: bool
+  // True when this is an atom, i.e. when it does not have directly
+  // editable content. This is usually the same as `isLeaf`, but can
+  // be configured with the [`atom` property](#model.NodeSpec.atom) on
+  // a node's spec (typically used when the node is displayed as an
+  // uneditable [node view](#view.NodeView)).
+  get isAtom() { return this.type.isAtom }
+
+  // :: () → string
+  // Return a string representation of this node for debugging
+  // purposes.
+  toString() {
+    if (this.type.spec.toDebugString) return this.type.spec.toDebugString(this)
+    let name = this.type.name
+    if (this.content.size)
+      name += "(" + this.content.toStringInner() + ")"
+    return wrapMarks(this.marks, name)
+  }
+
+  // :: (number) → ContentMatch
+  // Get the content match in this node at the given index.
+  contentMatchAt(index) {
+    let match = this.type.contentMatch.matchFragment(this.content, 0, index)
+    if (!match) throw new Error("Called contentMatchAt on a node with invalid content")
+    return match
+  }
+
+  // :: (number, number, ?Fragment, ?number, ?number) → bool
+  // Test whether replacing the range between `from` and `to` (by
+  // child index) with the given replacement fragment (which defaults
+  // to the empty fragment) would leave the node's content valid. You
+  // can optionally pass `start` and `end` indices into the
+  // replacement fragment.
+  canReplace(from, to, replacement = _fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].empty, start = 0, end = replacement.childCount) {
+    let one = this.contentMatchAt(from).matchFragment(replacement, start, end)
+    let two = one && one.matchFragment(this.content, to)
+    if (!two || !two.validEnd) return false
+    for (let i = start; i < end; i++) if (!this.type.allowsMarks(replacement.child(i).marks)) return false
+    return true
+  }
+
+  // :: (number, number, NodeType, ?[Mark]) → bool
+  // Test whether replacing the range `from` to `to` (by index) with a
+  // node of the given type would leave the node's content valid.
+  canReplaceWith(from, to, type, marks) {
+    if (marks && !this.type.allowsMarks(marks)) return false
+    let start = this.contentMatchAt(from).matchType(type)
+    let end = start && start.matchFragment(this.content, to)
+    return end ? end.validEnd : false
+  }
+
+  // :: (Node) → bool
+  // Test whether the given node's content could be appended to this
+  // node. If that node is empty, this will only return true if there
+  // is at least one node type that can appear in both nodes (to avoid
+  // merging completely incompatible nodes).
+  canAppend(other) {
+    if (other.content.size) return this.canReplace(this.childCount, this.childCount, other.content)
+    else return this.type.compatibleContent(other.type)
+  }
+
+  // :: ()
+  // Check whether this node and its descendants conform to the
+  // schema, and raise error when they do not.
+  check() {
+    if (!this.type.validContent(this.content))
+      throw new RangeError(`Invalid content for node ${this.type.name}: ${this.content.toString().slice(0, 50)}`)
+    this.content.forEach(node => node.check())
+  }
+
+  // :: () → Object
+  // Return a JSON-serializeable representation of this node.
+  toJSON() {
+    let obj = {type: this.type.name}
+    for (let _ in this.attrs) {
+      obj.attrs = this.attrs
+      break
+    }
+    if (this.content.size)
+      obj.content = this.content.toJSON()
+    if (this.marks.length)
+      obj.marks = this.marks.map(n => n.toJSON())
+    return obj
+  }
+
+  // :: (Schema, Object) → Node
+  // Deserialize a node from its JSON representation.
+  static fromJSON(schema, json) {
+    if (!json) throw new RangeError("Invalid input for Node.fromJSON")
+    let marks = null
+    if (json.marks) {
+      if (!Array.isArray(json.marks)) throw new RangeError("Invalid mark data for Node.fromJSON")
+      marks = json.marks.map(schema.markFromJSON)
+    }
+    if (json.type == "text") {
+      if (typeof json.text != "string") throw new RangeError("Invalid text node in JSON")
+      return schema.text(json.text, marks)
+    }
+    let content = _fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].fromJSON(schema, json.content)
+    return schema.nodeType(json.type).create(json.attrs, content, marks)
+  }
+}
+
+class TextNode extends Node {
+  constructor(type, attrs, content, marks) {
+    super(type, attrs, null, marks)
+
+    if (!content) throw new RangeError("Empty text nodes are not allowed")
+
+    this.text = content
+  }
+
+  toString() {
+    if (this.type.spec.toDebugString) return this.type.spec.toDebugString(this)
+    return wrapMarks(this.marks, JSON.stringify(this.text))
+  }
+
+  get textContent() { return this.text }
+
+  textBetween(from, to) { return this.text.slice(from, to) }
+
+  get nodeSize() { return this.text.length }
+
+  mark(marks) {
+    return marks == this.marks ? this : new TextNode(this.type, this.attrs, this.text, marks)
+  }
+
+  withText(text) {
+    if (text == this.text) return this
+    return new TextNode(this.type, this.attrs, text, this.marks)
+  }
+
+  cut(from = 0, to = this.text.length) {
+    if (from == 0 && to == this.text.length) return this
+    return this.withText(this.text.slice(from, to))
+  }
+
+  eq(other) {
+    return this.sameMarkup(other) && this.text == other.text
+  }
+
+  toJSON() {
+    let base = super.toJSON()
+    base.text = this.text
+    return base
+  }
+}
+
+function wrapMarks(marks, str) {
+  for (let i = marks.length - 1; i >= 0; i--)
+    str = marks[i].type.name + "(" + str + ")"
+  return str
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/replace.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/replace.js ***!
+  \*******************************************************/
+/*! exports provided: ReplaceError, Slice, replace */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ReplaceError", function() { return ReplaceError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Slice", function() { return Slice; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "replace", function() { return replace; });
+/* harmony import */ var _fragment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./fragment */ "./node_modules/prosemirror-model/src/fragment.js");
+
+
+// ReplaceError:: class extends Error
+// Error type raised by [`Node.replace`](#model.Node.replace) when
+// given an invalid replacement.
+
+function ReplaceError(message) {
+  let err = Error.call(this, message)
+  err.__proto__ = ReplaceError.prototype
+  return err
+}
+
+ReplaceError.prototype = Object.create(Error.prototype)
+ReplaceError.prototype.constructor = ReplaceError
+ReplaceError.prototype.name = "ReplaceError"
+
+// ::- A slice represents a piece cut out of a larger document. It
+// stores not only a fragment, but also the depth up to which nodes on
+// both side are ‘open’ (cut through).
+class Slice {
+  // :: (Fragment, number, number)
+  // Create a slice. When specifying a non-zero open depth, you must
+  // make sure that there are nodes of at least that depth at the
+  // appropriate side of the fragment—i.e. if the fragment is an empty
+  // paragraph node, `openStart` and `openEnd` can't be greater than 1.
+  //
+  // It is not necessary for the content of open nodes to conform to
+  // the schema's content constraints, though it should be a valid
+  // start/end/middle for such a node, depending on which sides are
+  // open.
+  constructor(content, openStart, openEnd) {
+    // :: Fragment The slice's content.
+    this.content = content
+    // :: number The open depth at the start.
+    this.openStart = openStart
+    // :: number The open depth at the end.
+    this.openEnd = openEnd
+  }
+
+  // :: number
+  // The size this slice would add when inserted into a document.
+  get size() {
+    return this.content.size - this.openStart - this.openEnd
+  }
+
+  insertAt(pos, fragment) {
+    let content = insertInto(this.content, pos + this.openStart, fragment, null)
+    return content && new Slice(content, this.openStart, this.openEnd)
+  }
+
+  removeBetween(from, to) {
+    return new Slice(removeRange(this.content, from + this.openStart, to + this.openStart), this.openStart, this.openEnd)
+  }
+
+  // :: (Slice) → bool
+  // Tests whether this slice is equal to another slice.
+  eq(other) {
+    return this.content.eq(other.content) && this.openStart == other.openStart && this.openEnd == other.openEnd
+  }
+
+  toString() {
+    return this.content + "(" + this.openStart + "," + this.openEnd + ")"
+  }
+
+  // :: () → ?Object
+  // Convert a slice to a JSON-serializable representation.
+  toJSON() {
+    if (!this.content.size) return null
+    let json = {content: this.content.toJSON()}
+    if (this.openStart > 0) json.openStart = this.openStart
+    if (this.openEnd > 0) json.openEnd = this.openEnd
+    return json
+  }
+
+  // :: (Schema, ?Object) → Slice
+  // Deserialize a slice from its JSON representation.
+  static fromJSON(schema, json) {
+    if (!json) return Slice.empty
+    let openStart = json.openStart || 0, openEnd = json.openEnd || 0
+    if (typeof openStart != "number" || typeof openEnd != "number")
+      throw new RangeError("Invalid input for Slice.fromJSON")
+    return new Slice(_fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].fromJSON(schema, json.content), openStart, openEnd)
+  }
+
+  // :: (Fragment, ?bool) → Slice
+  // Create a slice from a fragment by taking the maximum possible
+  // open value on both side of the fragment.
+  static maxOpen(fragment, openIsolating=true) {
+    let openStart = 0, openEnd = 0
+    for (let n = fragment.firstChild; n && !n.isLeaf && (openIsolating || !n.type.spec.isolating); n = n.firstChild) openStart++
+    for (let n = fragment.lastChild; n && !n.isLeaf && (openIsolating || !n.type.spec.isolating); n = n.lastChild) openEnd++
+    return new Slice(fragment, openStart, openEnd)
+  }
+}
+
+function removeRange(content, from, to) {
+  let {index, offset} = content.findIndex(from), child = content.maybeChild(index)
+  let {index: indexTo, offset: offsetTo} = content.findIndex(to)
+  if (offset == from || child.isText) {
+    if (offsetTo != to && !content.child(indexTo).isText) throw new RangeError("Removing non-flat range")
+    return content.cut(0, from).append(content.cut(to))
+  }
+  if (index != indexTo) throw new RangeError("Removing non-flat range")
+  return content.replaceChild(index, child.copy(removeRange(child.content, from - offset - 1, to - offset - 1)))
+}
+
+function insertInto(content, dist, insert, parent) {
+  let {index, offset} = content.findIndex(dist), child = content.maybeChild(index)
+  if (offset == dist || child.isText) {
+    if (parent && !parent.canReplace(index, index, insert)) return null
+    return content.cut(0, dist).append(insert).append(content.cut(dist))
+  }
+  let inner = insertInto(child.content, dist - offset - 1, insert)
+  return inner && content.replaceChild(index, child.copy(inner))
+}
+
+// :: Slice
+// The empty slice.
+Slice.empty = new Slice(_fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].empty, 0, 0)
+
+function replace($from, $to, slice) {
+  if (slice.openStart > $from.depth)
+    throw new ReplaceError("Inserted content deeper than insertion position")
+  if ($from.depth - slice.openStart != $to.depth - slice.openEnd)
+    throw new ReplaceError("Inconsistent open depths")
+  return replaceOuter($from, $to, slice, 0)
+}
+
+function replaceOuter($from, $to, slice, depth) {
+  let index = $from.index(depth), node = $from.node(depth)
+  if (index == $to.index(depth) && depth < $from.depth - slice.openStart) {
+    let inner = replaceOuter($from, $to, slice, depth + 1)
+    return node.copy(node.content.replaceChild(index, inner))
+  } else if (!slice.content.size) {
+    return close(node, replaceTwoWay($from, $to, depth))
+  } else if (!slice.openStart && !slice.openEnd && $from.depth == depth && $to.depth == depth) { // Simple, flat case
+    let parent = $from.parent, content = parent.content
+    return close(parent, content.cut(0, $from.parentOffset).append(slice.content).append(content.cut($to.parentOffset)))
+  } else {
+    let {start, end} = prepareSliceForReplace(slice, $from)
+    return close(node, replaceThreeWay($from, start, end, $to, depth))
+  }
+}
+
+function checkJoin(main, sub) {
+  if (!sub.type.compatibleContent(main.type))
+    throw new ReplaceError("Cannot join " + sub.type.name + " onto " + main.type.name)
+}
+
+function joinable($before, $after, depth) {
+  let node = $before.node(depth)
+  checkJoin(node, $after.node(depth))
+  return node
+}
+
+function addNode(child, target) {
+  let last = target.length - 1
+  if (last >= 0 && child.isText && child.sameMarkup(target[last]))
+    target[last] = child.withText(target[last].text + child.text)
+  else
+    target.push(child)
+}
+
+function addRange($start, $end, depth, target) {
+  let node = ($end || $start).node(depth)
+  let startIndex = 0, endIndex = $end ? $end.index(depth) : node.childCount
+  if ($start) {
+    startIndex = $start.index(depth)
+    if ($start.depth > depth) {
+      startIndex++
+    } else if ($start.textOffset) {
+      addNode($start.nodeAfter, target)
+      startIndex++
+    }
+  }
+  for (let i = startIndex; i < endIndex; i++) addNode(node.child(i), target)
+  if ($end && $end.depth == depth && $end.textOffset)
+    addNode($end.nodeBefore, target)
+}
+
+function close(node, content) {
+  if (!node.type.validContent(content))
+    throw new ReplaceError("Invalid content for node " + node.type.name)
+  return node.copy(content)
+}
+
+function replaceThreeWay($from, $start, $end, $to, depth) {
+  let openStart = $from.depth > depth && joinable($from, $start, depth + 1)
+  let openEnd = $to.depth > depth && joinable($end, $to, depth + 1)
+
+  let content = []
+  addRange(null, $from, depth, content)
+  if (openStart && openEnd && $start.index(depth) == $end.index(depth)) {
+    checkJoin(openStart, openEnd)
+    addNode(close(openStart, replaceThreeWay($from, $start, $end, $to, depth + 1)), content)
+  } else {
+    if (openStart)
+      addNode(close(openStart, replaceTwoWay($from, $start, depth + 1)), content)
+    addRange($start, $end, depth, content)
+    if (openEnd)
+      addNode(close(openEnd, replaceTwoWay($end, $to, depth + 1)), content)
+  }
+  addRange($to, null, depth, content)
+  return new _fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"](content)
+}
+
+function replaceTwoWay($from, $to, depth) {
+  let content = []
+  addRange(null, $from, depth, content)
+  if ($from.depth > depth) {
+    let type = joinable($from, $to, depth + 1)
+    addNode(close(type, replaceTwoWay($from, $to, depth + 1)), content)
+  }
+  addRange($to, null, depth, content)
+  return new _fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"](content)
+}
+
+function prepareSliceForReplace(slice, $along) {
+  let extra = $along.depth - slice.openStart, parent = $along.node(extra)
+  let node = parent.copy(slice.content)
+  for (let i = extra - 1; i >= 0; i--)
+    node = $along.node(i).copy(_fragment__WEBPACK_IMPORTED_MODULE_0__["Fragment"].from(node))
+  return {start: node.resolveNoCache(slice.openStart + extra),
+          end: node.resolveNoCache(node.content.size - slice.openEnd - extra)}
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/prosemirror-model/src/resolvedpos.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/prosemirror-model/src/resolvedpos.js ***!
+  \***********************************************************/
+/*! exports provided: ResolvedPos, NodeRange */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResolvedPos", function() { return ResolvedPos; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NodeRange", function() { return NodeRange; });
+/* harmony import */ var _mark__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mark */ "./node_modules/prosemirror-model/src/mark.js");
+
+
+// ::- You can [_resolve_](#model.Node.resolve) a position to get more
+// information about it. Objects of this class represent such a
+// resolved position, providing various pieces of context information,
+// and some helper methods.
+//
+// Throughout this interface, methods that take an optional `depth`
+// parameter will interpret undefined as `this.depth` and negative
+// numbers as `this.depth + value`.
+class ResolvedPos {
+  constructor(pos, path, parentOffset) {
+    // :: number The position that was resolved.
+    this.pos = pos
+    this.path = path
+    // :: number
+    // The number of levels the parent node is from the root. If this
+    // position points directly into the root node, it is 0. If it
+    // points into a top-level paragraph, 1, and so on.
+    this.depth = path.length / 3 - 1
+    // :: number The offset this position has into its parent node.
+    this.parentOffset = parentOffset
+  }
+
+  resolveDepth(val) {
+    if (val == null) return this.depth
+    if (val < 0) return this.depth + val
+    return val
+  }
+
+  // :: Node
+  // The parent node that the position points into. Note that even if
+  // a position points into a text node, that node is not considered
+  // the parent—text nodes are ‘flat’ in this model, and have no content.
+  get parent() { return this.node(this.depth) }
+
+  // :: Node
+  // The root node in which the position was resolved.
+  get doc() { return this.node(0) }
+
+  // :: (?number) → Node
+  // The ancestor node at the given level. `p.node(p.depth)` is the
+  // same as `p.parent`.
+  node(depth) { return this.path[this.resolveDepth(depth) * 3] }
+
+  // :: (?number) → number
+  // The index into the ancestor at the given level. If this points at
+  // the 3rd node in the 2nd paragraph on the top level, for example,
+  // `p.index(0)` is 1 and `p.index(1)` is 2.
+  index(depth) { return this.path[this.resolveDepth(depth) * 3 + 1] }
+
+  // :: (?number) → number
+  // The index pointing after this position into the ancestor at the
+  // given level.
+  indexAfter(depth) {
+    depth = this.resolveDepth(depth)
+    return this.index(depth) + (depth == this.depth && !this.textOffset ? 0 : 1)
+  }
+
+  // :: (?number) → number
+  // The (absolute) position at the start of the node at the given
+  // level.
+  start(depth) {
+    depth = this.resolveDepth(depth)
+    return depth == 0 ? 0 : this.path[depth * 3 - 1] + 1
+  }
+
+  // :: (?number) → number
+  // The (absolute) position at the end of the node at the given
+  // level.
+  end(depth) {
+    depth = this.resolveDepth(depth)
+    return this.start(depth) + this.node(depth).content.size
+  }
+
+  // :: (?number) → number
+  // The (absolute) position directly before the wrapping node at the
+  // given level, or, when `depth` is `this.depth + 1`, the original
+  // position.
+  before(depth) {
+    depth = this.resolveDepth(depth)
+    if (!depth) throw new RangeError("There is no position before the top-level node")
+    return depth == this.depth + 1 ? this.pos : this.path[depth * 3 - 1]
+  }
+
+  // :: (?number) → number
+  // The (absolute) position directly after the wrapping node at the
+  // given level, or the original position when `depth` is `this.depth + 1`.
+  after(depth) {
+    depth = this.resolveDepth(depth)
+    if (!depth) throw new RangeError("There is no position after the top-level node")
+    return depth == this.depth + 1 ? this.pos : this.path[depth * 3 - 1] + this.path[depth * 3].nodeSize
+  }
+
+  // :: number
+  // When this position points into a text node, this returns the
+  // distance between the position and the start of the text node.
+  // Will be zero for positions that point between nodes.
+  get textOffset() { return this.pos - this.path[this.path.length - 1] }
+
+  // :: ?Node
+  // Get the node directly after the position, if any. If the position
+  // points into a text node, only the part of that node after the
+  // position is returned.
+  get nodeAfter() {
+    let parent = this.parent, index = this.index(this.depth)
+    if (index == parent.childCount) return null
+    let dOff = this.pos - this.path[this.path.length - 1], child = parent.child(index)
+    return dOff ? parent.child(index).cut(dOff) : child
+  }
+
+  // :: ?Node
+  // Get the node directly before the position, if any. If the
+  // position points into a text node, only the part of that node
+  // before the position is returned.
+  get nodeBefore() {
+    let index = this.index(this.depth)
+    let dOff = this.pos - this.path[this.path.length - 1]
+    if (dOff) return this.parent.child(index).cut(0, dOff)
+    return index == 0 ? null : this.parent.child(index - 1)
+  }
+
+  // :: (number, ?number) → number
+  // Get the position at the given index in the parent node at the
+  // given depth (which defaults to `this.depth`).
+  posAtIndex(index, depth) {
+    depth = this.resolveDepth(depth)
+    let node = this.path[depth * 3], pos = depth == 0 ? 0 : this.path[depth * 3 - 1] + 1
+    for (let i = 0; i < index; i++) pos += node.child(i).nodeSize
+    return pos
+  }
+
+  // :: () → [Mark]
+  // Get the marks at this position, factoring in the surrounding
+  // marks' [`inclusive`](#model.MarkSpec.inclusive) property. If the
+  // position is at the start of a non-empty node, the marks of the
+  // node after it (if any) are returned.
+  marks() {
+    let parent = this.parent, index = this.index()
+
+    // In an empty parent, return the empty array
+    if (parent.content.size == 0) return _mark__WEBPACK_IMPORTED_MODULE_0__["Mark"].none
+
+    // When inside a text node, just return the text node's marks
+    if (this.textOffset) return parent.child(index).marks
+
+    let main = parent.maybeChild(index - 1), other = parent.maybeChild(index)
+    // If the `after` flag is true of there is no node before, make
+    // the node after this position the main reference.
+    if (!main) { let tmp = main; main = other; other = tmp }
+
+    // Use all marks in the main node, except those that have
+    // `inclusive` set to false and are not present in the other node.
+    let marks = main.marks
+    for (var i = 0; i < marks.length; i++)
+      if (marks[i].type.spec.inclusive === false && (!other || !marks[i].isInSet(other.marks)))
+        marks = marks[i--].removeFromSet(marks)
+
+    return marks
+  }
+
+  // :: (ResolvedPos) → ?[Mark]
+  // Get the marks after the current position, if any, except those
+  // that are non-inclusive and not present at position `$end`. This
+  // is mostly useful for getting the set of marks to preserve after a
+  // deletion. Will return `null` if this position is at the end of
+  // its parent node or its parent node isn't a textblock (in which
+  // case no marks should be preserved).
+  marksAcross($end) {
+    let after = this.parent.maybeChild(this.index())
+    if (!after || !after.isInline) return null
+
+    let marks = after.marks, next = $end.parent.maybeChild($end.index())
+    for (var i = 0; i < marks.length; i++)
+      if (marks[i].type.spec.inclusive === false && (!next || !marks[i].isInSet(next.marks)))
+        marks = marks[i--].removeFromSet(marks)
+    return marks
+  }
+
+  // :: (number) → number
+  // The depth up to which this position and the given (non-resolved)
+  // position share the same parent nodes.
+  sharedDepth(pos) {
+    for (let depth = this.depth; depth > 0; depth--)
+      if (this.start(depth) <= pos && this.end(depth) >= pos) return depth
+    return 0
+  }
+
+  // :: (?ResolvedPos, ?(Node) → bool) → ?NodeRange
+  // Returns a range based on the place where this position and the
+  // given position diverge around block content. If both point into
+  // the same textblock, for example, a range around that textblock
+  // will be returned. If they point into different blocks, the range
+  // around those blocks in their shared ancestor is returned. You can
+  // pass in an optional predicate that will be called with a parent
+  // node to see if a range into that parent is acceptable.
+  blockRange(other = this, pred) {
+    if (other.pos < this.pos) return other.blockRange(this)
+    for (let d = this.depth - (this.parent.inlineContent || this.pos == other.pos ? 1 : 0); d >= 0; d--)
+      if (other.pos <= this.end(d) && (!pred || pred(this.node(d))))
+        return new NodeRange(this, other, d)
+  }
+
+  // :: (ResolvedPos) → bool
+  // Query whether the given position shares the same parent node.
+  sameParent(other) {
+    return this.pos - this.parentOffset == other.pos - other.parentOffset
+  }
+
+  // :: (ResolvedPos) → ResolvedPos
+  // Return the greater of this and the given position.
+  max(other) {
+    return other.pos > this.pos ? other : this
+  }
+
+  // :: (ResolvedPos) → ResolvedPos
+  // Return the smaller of this and the given position.
+  min(other) {
+    return other.pos < this.pos ? other : this
+  }
+
+  toString() {
+    let str = ""
+    for (let i = 1; i <= this.depth; i++)
+      str += (str ? "/" : "") + this.node(i).type.name + "_" + this.index(i - 1)
+    return str + ":" + this.parentOffset
+  }
+
+  static resolve(doc, pos) {
+    if (!(pos >= 0 && pos <= doc.content.size)) throw new RangeError("Position " + pos + " out of range")
+    let path = []
+    let start = 0, parentOffset = pos
+    for (let node = doc;;) {
+      let {index, offset} = node.content.findIndex(parentOffset)
+      let rem = parentOffset - offset
+      path.push(node, index, start + offset)
+      if (!rem) break
+      node = node.child(index)
+      if (node.isText) break
+      parentOffset = rem - 1
+      start += offset + 1
+    }
+    return new ResolvedPos(pos, path, parentOffset)
+  }
+
+  static resolveCached(doc, pos) {
+    for (let i = 0; i < resolveCache.length; i++) {
+      let cached = resolveCache[i]
+      if (cached.pos == pos && cached.doc == doc) return cached
+    }
+    let result = resolveCache[resolveCachePos] = ResolvedPos.resolve(doc, pos)
+    resolveCachePos = (resolveCachePos + 1) % resolveCacheSize
+    return result
+  }
+}
+
+let resolveCache = [], resolveCachePos = 0, resolveCacheSize = 12
+
+// ::- Represents a flat range of content, i.e. one that starts and
+// ends in the same node.
+class NodeRange {
+  // :: (ResolvedPos, ResolvedPos, number)
+  // Construct a node range. `$from` and `$to` should point into the
+  // same node until at least the given `depth`, since a node range
+  // denotes an adjacent set of nodes in a single parent node.
+  constructor($from, $to, depth) {
+    // :: ResolvedPos A resolved position along the start of the
+    // content. May have a `depth` greater than this object's `depth`
+    // property, since these are the positions that were used to
+    // compute the range, not re-resolved positions directly at its
+    // boundaries.
+    this.$from = $from
+    // :: ResolvedPos A position along the end of the content. See
+    // caveat for [`$from`](#model.NodeRange.$from).
+    this.$to = $to
+    // :: number The depth of the node that this range points into.
+    this.depth = depth
+  }
+
+  // :: number The position at the start of the range.
+  get start() { return this.$from.before(this.depth + 1) }
+  // :: number The position at the end of the range.
+  get end() { return this.$to.after(this.depth + 1) }
+
+  // :: Node The parent node that the range points into.
+  get parent() { return this.$from.node(this.depth) }
+  // :: number The start index of the range in the parent node.
+  get startIndex() { return this.$from.index(this.depth) }
+  // :: number The end index of the range in the parent node.
+  get endIndex() { return this.$to.indexAfter(this.depth) }
+}
 
 
 /***/ }),
