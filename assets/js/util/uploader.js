@@ -13,7 +13,7 @@ export function uploadSnippetImage(imgFile, name, page, callback) {
             callback(response.url)
         })
     }).catch(err => {
-        // TODO: Show an error or smthng
+        // TODO: Show an error or something
     })
 }
 
