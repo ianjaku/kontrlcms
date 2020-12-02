@@ -65,15 +65,14 @@ class SimpleCMS {
 
         $this->bodyParser = new BodyParsingMiddleware();
 
-        $textFunction = new TwigFunction('text', function($context, $name, $defaultText = "") {
+        $this->twig->addFunction(new TwigFunction('text', function($context, $name, $defaultText = "") {
             $text = $this->findSnippet($context, $name, $defaultText);
             if ($this->authenticator->hasUser()) {
                 return '<span class="simplecms__editable" data-name="' . $name . '"  spellcheck="false">' . $text . '</span>';
             } else {
                 return $text;
             }
-        }, ["is_safe" => ["html"], "needs_context" => true]);
-        $this->twig->addFunction($textFunction);
+        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         if (isset($_ENV["BASE_URL"])) {
             $this->twig->addGlobal("BASE_URL", $_ENV["BASE_URL"]);
@@ -150,14 +149,14 @@ class SimpleCMS {
         );
 
         // TODO: throw error when environment variables are not set
-        $this->authenticator = new Authenticator($_ENV["secret"], $this->db);
+        $this->authenticator = new Authenticator($_ENV["SECRET_KEY"], $this->db);
 
         $this->createEditEndpoints();
     }
 
     public function page($path, $pageFile) {
         $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile) {
-            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page", [":page" => $pageFile]);
+            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page OR page = '__global__'", [":page" => $pageFile]);
 
             $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
             $response->getBody()->write($html);

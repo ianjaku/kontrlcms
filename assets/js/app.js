@@ -65,14 +65,14 @@ function debounce(func, wait, immediate) {
     };
 }
 
-const updateContent = debounce(function(name, value) {
+const updateContent = debounce(function(name, value, page = PAGE_NAME) {
     fetch('/simplecms/update', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            page: PAGE_NAME,
+            page,
             name,
             value
         })
@@ -114,81 +114,6 @@ function makeNonContentEditable() {
         el.contentEditable = "false";
     })
 }
-
-// let imageDropboxImageName = "";
-// let imageDropboxImageEl = "";
-// const imagePopupEl = document.querySelector(".simplecms__img-popup");
-// const imageDropboxEl = document.querySelector(".simplecms__img-popup__dropbox");
-// const fileInputEl = document.querySelector(".simplecms__img-popup__file-input");
-// const fileBrowserButtonEl = document.querySelector(".simplecms__img-popup__dropbox-button");
-// const imageDropboxBgEl = document.querySelector(".simplecms__img-popup__bg");
-//
-// const highlightClass = "simplecms__img-popup__dropbox--highlighted";
-// const showClass = "simplecms__img-popup--visible";
-//
-// function showImageDropbox(name, el) {
-//     imageDropboxImageName = name;
-//     imageDropboxImageEl = el;
-//     imagePopupEl.classList.add(showClass);
-//     document.body.classList.add("simplecms__no-scroll");
-// }
-//
-// function hideImageDropbox() {
-//     imagePopupEl.classList.remove(showClass)
-//     document.body.classList.remove("simplecms__no-scroll");
-// }
-//
-// function highlightDropbox() {
-//     imageDropboxEl.classList.add(highlightClass);
-// }
-//
-// function unhighlightDropbox() {
-//     imageDropboxEl.classList.remove(highlightClass);
-// }
-//
-// fileBrowserButtonEl.addEventListener("click", e => {
-//     fileInputEl.click();
-// });
-//
-// fileInputEl.addEventListener("change", e => {
-//     const files = e.target.files;
-//     if (files.length === 0) return;
-//
-//     uploadDropboxImage(files[0]);
-// });
-//
-// imageDropboxBgEl.addEventListener("click", () => {
-//     hideImageDropbox();
-// });
-//
-// imagePopupEl.addEventListener("dragenter", e => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     highlightDropbox();
-// }, false);
-// imagePopupEl.addEventListener("dragover", e => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     highlightDropbox();
-// }, false);
-// imagePopupEl.addEventListener("dravleave", e => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     unhighlightDropbox();
-// }, false);
-// imagePopupEl.addEventListener("drop", e => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     unhighlightDropbox();
-//
-//     let dataTransfer = e.dataTransfer;
-//     let files = dataTransfer.files;
-//
-//     if (files.length === 0) return;
-//
-//     uploadDropboxImage(files[0])
-//
-// }, false);
 
 const imageElements = document.querySelectorAll('[data-simplecms-img]');
 for (let el of imageElements) {

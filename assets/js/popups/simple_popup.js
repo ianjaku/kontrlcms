@@ -5,6 +5,7 @@ const rowsEl = document.querySelector(".simplecms__simple-popup__rows");
 const titleEl = document.querySelector(".simplecms__simple-popup__title");
 const subTitleEl = document.querySelector(".simplecms__simple-popup__sub-title");
 const formEl = document.querySelector(".simplecms__simple-popup__content");
+const bgEl = document.querySelector(".simplecms__simple-popup__bg");
 
 const activeClass = "simplecms__simple-popup--visible";
 
@@ -68,6 +69,10 @@ formEl.addEventListener("submit", e => {
     if (currentCallback == null) return;
     hidePopup();
     currentCallback(currentData);
+});
+
+bgEl.addEventListener("click", () => {
+    hidePopup();
 });
 
 /**
