@@ -5,6 +5,7 @@ namespace invacto\SimpleCMS;
 
 use Dotenv\Dotenv;
 use invacto\SimpleCMS\auth\Authenticator;
+use invacto\SimpleCMS\plugins\Plugin;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
@@ -52,6 +53,11 @@ class SimpleCMS {
      */
     private $bodyParser;
 
+    /**
+     * @var Plugin[]
+     */
+    private $plugins = [];
+
     public function __construct($appDir)
     {
         $this->appDir = $appDir;
@@ -65,14 +71,14 @@ class SimpleCMS {
 
         $this->bodyParser = new BodyParsingMiddleware();
 
-        $this->twig->addFunction(new TwigFunction('text', function($context, $name, $defaultText = "") {
-            $text = $this->findSnippet($context, $name, $defaultText);
-            if ($this->authenticator->hasUser()) {
-                return '<span class="simplecms__editable" data-name="' . $name . '"  spellcheck="false">' . $text . '</span>';
-            } else {
-                return $text;
-            }
-        }, ["is_safe" => ["html"], "needs_context" => true]));
+//        $this->twig->addFunction(new TwigFunction('text', function($context, $name, $defaultText = "") {
+//            $text = $this->findSnippet($context, $name, $defaultText);
+//            if ($this->authenticator->hasUser()) {
+//                return '<span class="simplecms__editable" data-name="' . $name . '"  spellcheck="false">' . $text . '</span>';
+//            } else {
+//                return $text;
+//            }
+//        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         if (isset($_ENV["BASE_URL"])) {
             $this->twig->addGlobal("BASE_URL", $_ENV["BASE_URL"]);
@@ -80,19 +86,19 @@ class SimpleCMS {
             $this->twig->addGlobal("BASE_URL", "");
         }
 
-        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
-            $src = $this->findSnippet($context, $name, null);
-            if ($src == null) {
-                $src = $defaultValue;
-            } else {
-                $src = '/storage/' . $src;
-            }
-            if ($this->authenticator->hasUser()) {
-                return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
-            } else {
-                return '<img src="'.$src.'" alt="'.$alt.'"">';
-            }
-        }, ["is_safe" => ["html"], "needs_context" => true]));
+//        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
+//            $src = $this->findSnippet($context, $name, null);
+//            if ($src == null) {
+//                $src = $defaultValue;
+//            } else {
+//                $src = '/storage/' . $src;
+//            }
+//            if ($this->authenticator->hasUser()) {
+//                return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
+//            } else {
+//                return '<img src="'.$src.'" alt="'.$alt.'"">';
+//            }
+//        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
             $src = $this->findSnippet($context, $name, null);
@@ -119,19 +125,33 @@ class SimpleCMS {
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('head', function($context) {
-            if (!$this->authenticator->hasUser()) return "";
+        	$content = "";
 
-            $pageFile = $context['__pageFile'];
-            return "
-                <script lang='js'>
-                    const PAGE_NAME = '$pageFile';
-                </script>
-                <link rel='stylesheet' href='/simplecms/style' type='text/css'>
-                <script src='/simplecms/script' defer></script>
+            if ($this->authenticator->hasUser()) {
+				$pageFile = $context['__pageFile'];
+				$content .= "
+					<script lang='js'>
+						const PAGE_NAME = '$pageFile';
+					</script>
+					<link rel='stylesheet' href='/simplecms/style' type='text/css'>
+					<script src='/simplecms/script' defer></script>
+					<link rel='stylesheet' href='/simplecms/admin/style' type='text/css'>
+					<script src='/simplecms/admin/script' defer></script>
+				";
+			}
+
+            $content .= "
+				  <link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
+				  <script src='/simplecms/base/script' defer></script>
             ";
+
+            return $content;
         }, ["is_safe" => ["html"], "needs_context" => true]));
 
-        $this->twig->addFunction(new TwigFunction("foot", function() {
+//		<link rel='stylesheet' href='/simplecms/style' type='text/css'>
+//		<script src='/simplecms/script' defer></script>
+
+	$this->twig->addFunction(new TwigFunction("foot", function() {
             if (!$this->authenticator->hasUser()) return "";
 
             $popupHtml = file_get_contents(__DIR__ . '/foot.html');
@@ -148,10 +168,66 @@ class SimpleCMS {
             $_ENV["DB_PASS"]
         );
 
+        $this->app->get("/simplecms/admin/script", function ($request, $response, $args) {
+            if ($this->authenticator->hasUser()) {
+                return $this->unauthorized($response);
+            }
+
+            $content = "";
+            foreach ($this->plugins as $plugin) {
+                foreach ($plugin->adminScriptFunctions as $scriptFunction) {
+                    $content .= "\n" . call_user_func($scriptFunction);
+                }
+            }
+            $response->getBody()->write($content);
+            return $response->withHeader('Content-Type', 'text/javascript');
+        });
+
+        $this->app->get("/simplecms/base/script", function ($request, $response, $args) {
+            $content = "";
+            foreach ($this->plugins as $plugin) {
+                foreach ($plugin->scriptFunctions as $scriptFunction) {
+                    $content .= "\n" . call_user_func($scriptFunction);
+                }
+            }
+            $response->getBody()->write($content);
+            return $response->withHeader('Content-Type', 'text/javascript');
+        });
+
+        $this->app->get("/simplecms/admin/style", function ($request, $response, $args) {
+            if ($this->authenticator->hasUser()) {
+                return $this->unauthorized($response);
+            }
+
+            $content = "";
+            foreach ($this->plugins as $plugin) {
+                foreach ($plugin->adminStyleFunctions as $styleFunction) {
+                    $content .= "\n" . call_user_func($styleFunction);
+                }
+            }
+            $response->getBody()->write($content);
+            return $response->withHeader('Content-Type', 'text/css');
+        });
+
+        $this->app->get("/simplecms/base/style", function ($request, $response, $args) {
+            $content = "";
+            foreach ($this->plugins as $plugin) {
+                foreach ($plugin->styleFunctions as $styleFunction) {
+                    $content .= "\n" . call_user_func($styleFunction);
+                }
+            }
+            $response->getBody()->write($content);
+            return $response->withHeader('Content-Type', 'text/css');
+        });
+
         // TODO: throw error when environment variables are not set
         $this->authenticator = new Authenticator($_ENV["SECRET_KEY"], $this->db);
 
         $this->createEditEndpoints();
+    }
+
+    public function addPlugin($plugin) {
+        $this->plugins[] = $plugin;
     }
 
     public function page($path, $pageFile) {
@@ -187,6 +263,18 @@ class SimpleCMS {
     }
 
     public function run() {
+
+        // Run all plugins
+        foreach ($this->plugins as $plugin) {
+            $plugin->authenticator = $this->authenticator;
+            $plugin->setup();
+            $pluginFunctions = $plugin->functions;
+            foreach ($pluginFunctions as $pluginFunction) {
+                call_user_func($pluginFunction, $this->twig);
+            }
+
+        }
+
         $this->app->run();
     }
 
