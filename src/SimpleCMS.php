@@ -100,20 +100,20 @@ class SimpleCMS {
 //            }
 //        }, ["is_safe" => ["html"], "needs_context" => true]));
 
-        $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
-            $src = $this->findSnippet($context, $name, null);
-            if ($src == null) {
-                $src = $defaultValue;
-            } else {
-                $src = '/storage/' . $src;
-            }
-
-            if ($this->authenticator->hasUser()) {
-                return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
-            } else {
-                return 'style="background-image: url(\''.$src.'\')"';
-            }
-        }, ["is_safe" => ["html"], "needs_context" => true]));
+//        $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
+//            $src = $this->findSnippet($context, $name, null);
+//            if ($src == null) {
+//                $src = $defaultValue;
+//            } else {
+//                $src = '/storage/' . $src;
+//            }
+//
+//            if ($this->authenticator->hasUser()) {
+//                return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
+//            } else {
+//                return 'style="background-image: url(\''.$src.'\')"';
+//            }
+//        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
             $text = $this->findSnippet($context, $name, $defaultValue);

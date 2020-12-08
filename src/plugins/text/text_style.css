@@ -16,7 +16,10 @@
     z-index: -1;
 }
 
-.simplecms--edit .simplecms__editable:focus::after {
-    border: 2px dashed #ddd;
+.simplecms--edit .simplecms__editable:hover::after {
+    border: 2px dashed #ccc;
 }
 
+.simplecms--edit .simplecms__editable:focus::after {
+    border: 3px dashed #ddd;
+}
