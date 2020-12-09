@@ -12,8 +12,8 @@ class TextPlugin extends Plugin
 
     public function setup()
     {
-    	$this->addStyleFile(__DIR__ . "/text_style.css");
-		$this->addScriptFile(__DIR__ . "/text_script.js");
+    	$this->addAdminStyleFile(__DIR__ . "/text_style.css");
+		$this->addAdminScriptFile(__DIR__ . "/text_script.js");
 
 		$this->addTemplateFunction("text", function (PluginContext $context, array $params) {
 			$name = $params[0];

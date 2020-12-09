@@ -1,22 +1,8 @@
-/*.simplecms--edit .simplecms__editable {*/
-/*    position: relative;*/
-/*    color: inherit;*/
-/*    display: block;*/
-/*    cursor: text;*/
-/*    outline: none;*/
-/*}*/
+.simplecms--edit .simplecms__image {
+    cursor: pointer;
+}
 
-/*.simplecms--edit .simplecms__editable::after {*/
-/*    content: '';*/
-/*    position: absolute;*/
-/*    top: -5px;*/
-/*    left: -5px;*/
-/*    width: calc(100% + 10px);*/
-/*    height: calc(100% + 10px);*/
-/*    z-index: -1;*/
-/*}*/
-
-/*.simplecms--edit .simplecms__editable:focus::after {*/
-/*    border: 2px dashed #ddd;*/
-/*}*/
+.simplecms--edit .simplecms__image:hover {
+    outline: 3px dashed #ddd;
+}
 

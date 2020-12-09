@@ -1,6 +1,5 @@
 <?php
 
-
 namespace invacto\SimpleCMS\plugins\img;
 
 
@@ -12,8 +11,8 @@ class ImgPlugin extends Plugin
 
 	public function setup()
 	{
-		$this->addStyleFile(__DIR__ . "/img_style.css");
-		$this->addScriptFile(__DIR__ . "/img_script.js");
+		$this->addAdminStyleFile(__DIR__ . "/img_style.css");
+		$this->addAdminScriptFile(__DIR__ . "/img_script.js");
 
 		$this->addTemplateFunction('img', function (PluginContext $context, array $params) {
 			$name = $params[0];

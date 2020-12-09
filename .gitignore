@@ -3,3 +3,4 @@ vendor
 assets/node_modules
 example/public/storage
 example/.env
+**node_modules**

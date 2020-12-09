@@ -132,17 +132,22 @@ class SimpleCMS {
 				$content .= "
 					<script lang='js'>
 						const PAGE_NAME = '$pageFile';
+						const __KONTRL_BASE_PLUGINS = [];
+						const __KONTRL_ADMIN_PLUGINS = [];
 					</script>
 					<link rel='stylesheet' href='/simplecms/style' type='text/css'>
-					<script src='/simplecms/script' defer></script>
 					<link rel='stylesheet' href='/simplecms/admin/style' type='text/css'>
 					<script src='/simplecms/admin/script' defer></script>
+					<script src='/simplecms/script' defer></script>
 				";
 			}
 
             $content .= "
-				  <link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
-				  <script src='/simplecms/base/script' defer></script>
+			   <link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
+			   <script>
+//			   	const __KONTRL_BASE_PLUGINS = [];
+			   </script>
+			   <script src='/simplecms/base/script' defer></script>
             ";
 
             return $content;
@@ -151,7 +156,7 @@ class SimpleCMS {
 //		<link rel='stylesheet' href='/simplecms/style' type='text/css'>
 //		<script src='/simplecms/script' defer></script>
 
-	$this->twig->addFunction(new TwigFunction("foot", function() {
+		$this->twig->addFunction(new TwigFunction("foot", function() {
             if (!$this->authenticator->hasUser()) return "";
 
             $popupHtml = file_get_contents(__DIR__ . '/foot.html');
@@ -169,10 +174,9 @@ class SimpleCMS {
         );
 
         $this->app->get("/simplecms/admin/script", function ($request, $response, $args) {
-            if ($this->authenticator->hasUser()) {
-                return $this->unauthorized($response);
-            }
-
+//            if ($this->authenticator->hasUser()) {
+//                return $this->unauthorized($response);
+//            }
             $content = "";
             foreach ($this->plugins as $plugin) {
                 foreach ($plugin->adminScriptFunctions as $scriptFunction) {
@@ -195,9 +199,9 @@ class SimpleCMS {
         });
 
         $this->app->get("/simplecms/admin/style", function ($request, $response, $args) {
-            if ($this->authenticator->hasUser()) {
-                return $this->unauthorized($response);
-            }
+//            if ($this->authenticator->hasUser()) {
+//                return $this->unauthorized($response);
+//            }
 
             $content = "";
             foreach ($this->plugins as $plugin) {

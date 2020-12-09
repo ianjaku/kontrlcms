@@ -1,6 +1,5 @@
 <?php
 
-
 namespace invacto\SimpleCMS\plugins\bg_img;
 
 
@@ -13,8 +12,8 @@ class BGImgPlugin extends Plugin
 
 	public function setup()
 	{
-		$this->addStyleFile(__DIR__ . "/bg_img_style.css");
-		$this->addScriptFile(__DIR__ . "/bg_img_script.js");
+		$this->addAdminStyleFile(__DIR__ . "/bg_img_style.css");
+		$this->addAdminScriptFile(__DIR__ . "/bg_img_script.js");
 
 		$this->addTemplateFunction("bgImg", function (PluginContext $context, array $args) {
 			$name = $args[0];
@@ -28,7 +27,7 @@ class BGImgPlugin extends Plugin
 			}
 
 			if ($this->authenticator->hasUser()) {
-				return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
+				return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'" data-simplecms-bg-src="'.$src.'"';
 			} else {
 				return 'style="background-image: url(\''.$src.'\')"';
 			}

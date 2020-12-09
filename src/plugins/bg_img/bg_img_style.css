@@ -1,22 +1,24 @@
-/*.simplecms--edit .simplecms__editable {*/
-/*    position: relative;*/
-/*    color: inherit;*/
-/*    display: block;*/
-/*    cursor: text;*/
-/*    outline: none;*/
-/*}*/
+.simplecms__bg-img-edit {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    padding: 10px 8px 10px 13px;
+    z-index: 10000;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background-color: #666;
+    cursor: pointer;
+    display: none;
+}
 
-/*.simplecms--edit .simplecms__editable::after {*/
-/*    content: '';*/
-/*    position: absolute;*/
-/*    top: -5px;*/
-/*    left: -5px;*/
-/*    width: calc(100% + 10px);*/
-/*    height: calc(100% + 10px);*/
-/*    z-index: -1;*/
-/*}*/
+body.simplecms--edit .simplecms__bg-img-edit {
+    display: block;
+}
 
-/*.simplecms--edit .simplecms__editable:focus::after {*/
-/*    border: 2px dashed #ddd;*/
-/*}*/
+.simplecms__bg-img-edit:hover {
+    background-color: #000;
+}
 
+.simplecms__bg-img-edit svg {
+    color: #fff;
+}
