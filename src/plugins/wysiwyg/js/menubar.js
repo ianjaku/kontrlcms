@@ -2,14 +2,12 @@ import {wrapItem, blockTypeItem, Dropdown, DropdownSubmenu, joinUpItem, liftItem
 import {NodeSelection} from "prosemirror-state"
 import {toggleMark} from "prosemirror-commands"
 import {wrapInList} from "prosemirror-schema-list"
-import {TextField, openPrompt} from "./prompt"
-import imagePopup from "../popups/image_popup";
-import {uploadAnyImage} from "../util/uploader";
-import simplePopup from "../popups/simple_popup";
 
 // import "prosemirror-menu/style/menu.css";
 
 // Helpers to create specific types of items
+
+let _kontrlContext = null;
 
 function canInsert(state, nodeType) {
     let $from = state.selection.$from
@@ -35,22 +33,16 @@ function insertImageItem(nodeType) {
             let {from, to} = state.selection, attrs = null
             if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
                 attrs = state.selection.node.attrs
-            // openPrompt({
-            //     title: "Insert image",
-            //     fields: {
-            //         src: new TextField({label: "Location", required: true, value: attrs && attrs.src}),
-            //         title: new TextField({label: "Title", value: attrs && attrs.title}),
-            //         alt: new TextField({label: "Description",
-            //             value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")})
-            //     },
-            //     callback(attrs) {
-            //         view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)))
-            //         view.focus()
-            //     }
-            // })
-            imagePopup((imgFile) => {
-                uploadAnyImage(imgFile, "wysiwyg", (url) => {
-                    const attrs = { src: url, alt: "" }
+            const { popups } = _kontrlContext;
+            const popup = new popups.GenericPopup({ title: "Choose Image" });
+            popup.addItem(new popups.InputItem({ name: "altVal", label: "Image description" }));
+            const imgItem = new popups.ImageItem({ name: "img", label: "Your image", value: attrs && attrs.src });
+            popup.addItem(imgItem);
+
+            popups.showPopup(popup).then((data) => {
+                if (data == null) return;
+                _kontrlContext.uploadAnyImage(data.content.img, "wysiwyg", (url) => {
+                    const attrs = { src: url, alt: data.content.altVal };
                     view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
                 });
             });
@@ -100,32 +92,16 @@ function linkItem(markType) {
                 toggleMark(markType)(state, dispatch)
                 return true
             }
-            // openPrompt({
-            //     title: "Create a link",
-            //     fields: {
-            //         href: new TextField({
-            //             label: "Link target",
-            //             required: true
-            //         }),
-            //         title: new TextField({label: "Title"})
-            //     },
-            //     callback(attrs) {
-            //         toggleMark(markType, attrs)(view.state, view.dispatch)
-            //         view.focus()
-            //     }
-            // })
-            simplePopup(
-                "Create link",
-                "Where would you like the link to redirect to",
-                [
-                    {type: "text", label: "Link location", name: "link"}
-                ],
-                ({link}) => {
-                    if (link === "") return;
-                    toggleMark(markType, { href: link, title: "" })(view.state, view.dispatch);
-                    view.focus();
-                }
-            );
+            const { popups } = _kontrlContext;
+            const popup = new popups.GenericPopup({ title: "Create link" });
+            popup.addItem(new popups.InputItem({ name: "link", label: "Link target", placeholder: "Link to?" }));
+
+            popups.showPopup(popup).then(data => {
+                if (data == null) return;
+
+                toggleMark(markType, { href: data.content.link, title: "" })(view.state, view.dispatch);
+                view.focus();
+            });
         }
     })
 }
@@ -192,7 +168,9 @@ function wrapListItem(nodeType, options) {
 // **`fullMenu`**`: [[MenuElement]]`
 //   : An array of arrays of menu elements for use as the full menu
 //     for, for example the [menu bar](https://github.com/prosemirror/prosemirror-menu#user-content-menubar).
-export function buildMenuItems(schema) {
+export function buildMenuItems(schema, kontrlContext) {
+    _kontrlContext = kontrlContext;
+
     let r = {}, type
     if (type = schema.marks.strong)
         r.toggleStrong = markItem(type, {

@@ -1,43 +1,15 @@
-import kontrlPopups from "kontrl-popups";
 import "kontrl-popups/style/dist/style.css";
+import kontrlPopups from "kontrl-popups";
+import { updateSnippet, uploadAnyImage, uploadSnippetImage } from "./repo";
 
 let _isEditing = false;
 
 const context = {
-	updateSnippet(name, value, page = PAGE_NAME) {
-		return fetch('/simplecms/update', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				page,
-				name,
-				value
-			})
-		})
-	},
-	uploadSnippetImage(name, imgFile, page = PAGE_NAME) {
-		return new Promise((resolve) => {
-		   const formData = new FormData();
-		   formData.append('file', imgFile);
-		   formData.append('page', page);
-		   formData.append('name', name);
-
-		   fetch(`/simplecms/upload`, {
-					   method: "POST",
-					   body: formData
-		   }).then(response => {
-					   response.json().then(response => {
-								 resolve(response.url)
-					   })
-		   }).catch(err => {
-					   // TODO: Show an error or something
-		   })
-		})
-	},
+	updateSnippet,
+	uploadAnyImage,
+	uploadSnippetImage,
 	debounce(func, wait, immediate) {
-		 let timeout;
+		let timeout;
 		 return function() {
 			let context = this, args = arguments;
 			let later = function() {

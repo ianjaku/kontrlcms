@@ -14,5 +14,6 @@ $cms->redirect("/login", "/simplecms/login");
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\text\TextPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\img\ImgPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\bg_img\BGImgPlugin());
+$cms->addPlugin(new \invacto\SimpleCMS\plugins\wysiwyg\WYSIWYGPlugin());
 
 $cms->run();

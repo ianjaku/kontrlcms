@@ -8,7 +8,6 @@ import {DOMParser, Schema} from "prosemirror-model";
 import {dropCursor} from "prosemirror-dropcursor";
 import {gapCursor} from "prosemirror-gapcursor";
 import {buildInputRules} from "./inputrules";
-import {BlockMenuPlugin} from "./blockmenu";
 import {AutoSavePlugin} from "./autosave";
 import {addListNodes} from "prosemirror-schema-list";
 import {buildKeymap} from "./keymap";
@@ -19,7 +18,7 @@ import changeImagePlugin from "./changeimageplugin";
 
 class Editor {
 
-    constructor(el) {
+    constructor(el, kontrlContext) {
         this.el = el;
         this.name = this.el.dataset.simplecmsName;
 
@@ -52,9 +51,9 @@ class Editor {
                 gapCursor(),
                 menuBar({
                     floating: true,
-                    content: buildMenuItems(mySchema)
+                    content: buildMenuItems(mySchema, kontrlContext)
                 }),
-                changeImagePlugin(),
+                changeImagePlugin(kontrlContext),
                 // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
                     fetch('/simplecms/update', {
