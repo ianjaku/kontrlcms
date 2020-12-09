@@ -115,14 +115,14 @@ class SimpleCMS {
 //            }
 //        }, ["is_safe" => ["html"], "needs_context" => true]));
 
-        $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
-            $text = $this->findSnippet($context, $name, $defaultValue);
-            if ($this->authenticator->hasUser()) {
-                return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
-            } else {
-                return $text;
-            }
-        }, ["is_safe" => ["html"], "needs_context" => true]));
+//        $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
+//            $text = $this->findSnippet($context, $name, $defaultValue);
+//            if ($this->authenticator->hasUser()) {
+//                return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
+//            } else {
+//                return $text;
+//            }
+//        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('head', function($context) {
         	$content = "";
