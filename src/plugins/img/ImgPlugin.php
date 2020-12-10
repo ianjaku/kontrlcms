@@ -29,7 +29,7 @@ class ImgPlugin extends Plugin
 			if ($this->authenticator->hasUser()) {
 				return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
 			} else {
-				return '<img src="'.$src.'" alt="'.$alt.'"">';
+				return '<img src="'.$src.'" alt="'.$alt.'" '.$other.'>';
 			}
 		});
 	}
