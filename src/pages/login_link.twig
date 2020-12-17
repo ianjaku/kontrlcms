@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="/simplecms/style">
+</head>
+<body>
+
+<div class="simplecms__auth-box">
+    <div class="simplecms__auth-box__box">
+        <h1 class="simplecms__auth-box__title">Select a user</h1>
+        {% if error %}
+            <div class="simplecms__auth-box__error">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form method="POST" action="/simplecms/login_token/new" class="simplecms__auth-box__form">
+            <div class="simplecms__auth-box__group">
+                <select name="user" id="user">
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.email }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="simplecms__auth-box__submit">Create Link</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

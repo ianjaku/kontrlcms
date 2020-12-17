@@ -130,6 +130,8 @@ class SimpleCMS {
             if ($this->authenticator->hasUser()) {
 				$pageFile = $context['__pageFile'];
 				$content .= "
+					<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\">
+					<link href=\"https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&display=swap\" rel=\"stylesheet\"> 
 					<script lang='js'>
 						const PAGE_NAME = '$pageFile';
 						const __KONTRL_BASE_PLUGINS = [];
@@ -143,18 +145,15 @@ class SimpleCMS {
 			}
 
             $content .= "
-			   <link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
-			   <script>
-//			   	const __KONTRL_BASE_PLUGINS = [];
-			   </script>
-			   <script src='/simplecms/base/script' defer></script>
             ";
+//			<script>
+//			   	const __KONTRL_BASE_PLUGINS = [];
+//			   </script>
+//			<link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
+//			<script src='/simplecms/base/script' defer></script>
 
             return $content;
         }, ["is_safe" => ["html"], "needs_context" => true]));
-
-//		<link rel='stylesheet' href='/simplecms/style' type='text/css'>
-//		<script src='/simplecms/script' defer></script>
 
 		$this->twig->addFunction(new TwigFunction("foot", function() {
             if (!$this->authenticator->hasUser()) return "";
@@ -174,9 +173,6 @@ class SimpleCMS {
         );
 
         $this->app->get("/simplecms/admin/script", function ($request, $response, $args) {
-//            if ($this->authenticator->hasUser()) {
-//                return $this->unauthorized($response);
-//            }
             $content = "";
             foreach ($this->plugins as $plugin) {
                 foreach ($plugin->adminScriptFunctions as $scriptFunction) {
@@ -199,10 +195,6 @@ class SimpleCMS {
         });
 
         $this->app->get("/simplecms/admin/style", function ($request, $response, $args) {
-//            if ($this->authenticator->hasUser()) {
-//                return $this->unauthorized($response);
-//            }
-
             $content = "";
             foreach ($this->plugins as $plugin) {
                 foreach ($plugin->adminStyleFunctions as $styleFunction) {
@@ -250,7 +242,7 @@ class SimpleCMS {
         });
     }
 
-    public function handleRequest(string $type, string $path, $callback) {
+	public function handleRequest(string $type, string $path, $callback) {
         $this->app->map(
             [strtoupper($type)],
             $path,
@@ -412,7 +404,7 @@ class SimpleCMS {
 
             // TODO: save authed user to cookie or something
 
-            return $this->sendRedirect($response, "/");
+            return $this->sendSeeOther($response, "/");
         })->add($this->bodyParser);
 
         $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
@@ -446,11 +438,11 @@ class SimpleCMS {
             $email = strtolower($params["admin_email"]);
             $this->authenticator->register($email, $params["admin_password"]);
 
-            return $this->sendRedirect($response, "/");
+            return $this->sendSeeOther($response, "/");
         })->add($this->bodyParser);
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
-            return $this->sendRedirect($response, "/");
+            return $this->sendSeeOther($response, "/");
         });
 
         $this->app->get("/simplecms/user_tokens/new", function (Request $request, Response $response, $args = []) {
@@ -476,7 +468,8 @@ class SimpleCMS {
 
             return $this->renderLibraryPage($response, "new_user.twig", ["token" => $token]);
         });
-        $this->app->post("/simplecms/users/new", function (Request $request, Response $response, $args) {
+
+		$this->app->post("/simplecms/users/new", function (Request $request, Response $response, $args) {
             $data = $request->getParsedBody();
 
             if ($data["password"] !== $data["re_password"]) {
@@ -487,18 +480,47 @@ class SimpleCMS {
                 );
             }
 
+            echo $data["token"];
+
             $params = [":token" => $data["token"]];
-            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token");
+            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
             if (!$tokenExists) {
                 return $this->unauthorized($response);
             }
 
-            $this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
+			$this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
 
-            $this->authenticator->register($params["email"], $params["password"]);
+			$this->authenticator->register($data["email"], $data["password"]);
 
-            return $this->sendRedirect($response, "/simplecms/login");
+            return $this->sendSeeOther($response, "/simplecms/login");
         })->add($this->bodyParser);
+
+		$this->app->get("/simplecms/login_token/new", function (Request $request, Response $response, $args) {
+			if (!$this->authenticator->hasUser()) {
+				return $this->unauthorized($response);
+			}
+
+			$users = $this->db->select("SELECT * FROM users");
+			return $this->renderLibraryPage($response, "login_link.twig", ["users" => $users]);
+		});
+
+		$this->app->post("/simplecms/login_token/new", function (Request $request, Response $response, $args) {
+			if (!$this->authenticator->hasUser()) {
+				return $this->unauthorized($response);
+			}
+
+			$params = $request->getParsedBody();
+
+			$token = $this->authenticator->createLoginTokenFor($params["user"]);
+			return $this->renderLibraryPage($response, "login_link_show.twig", ["token" => $token]);
+		})->add($this->bodyParser);
+
+		$this->app->get("/simplecms/login_token/authenticate/{token}", function (Request $request, Response $response, $args) {
+			$result = $this->authenticator->loginWithToken($args["token"]);
+//			return $this->renderLibraryPage($response, "login_link_show.twig", ["token" => "test"]);
+//			return $this->JSON($response, ["test" => $result]);
+			return $this->sendSeeOther($response, "/");
+		});
     }
 
     private function updateOrCreateSnippet(string $page, string $name, string $value) {
@@ -573,6 +595,12 @@ class SimpleCMS {
             ->withHeader('Location', $to)
             ->withStatus(302);
     }
+
+    private function sendSeeOther($response, $to) {
+    	return $response
+			->withHeader('Location', $to)
+			->withStatus(303);
+	}
 
     private function unauthorized(Response $response) {
         return $response

@@ -37,6 +37,12 @@ class RequestHelper
             ->withStatus(302);
     }
 
+    public function seeOther($to) {
+    	return $this->response
+			->withHeader('Location', $to)
+			->withStatus(303);
+	}
+
     public function text($text) {
         $this->response->getBody()->write($text);
         return $this->response;

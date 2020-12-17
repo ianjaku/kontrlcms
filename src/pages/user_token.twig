@@ -18,14 +18,12 @@
                 {{ error }}
             </div>
         {% endif %}
-        <form action="{{ BASE_URL }}/" method="GET" class="simplecms__auth-box__form">
+        <form class="simplecms__auth-box__form">
             <div class="simplecms__auth-box__group">
-                <a href="{{ BASE_URL }}/users/new/{{ token }}" class="simplecms__auth-box__label">
+                <a href="{{ BASE_URL }}/simplecms/users/new/{{ token }}" class="simplecms__auth-box__label">
                     Click here to create a new user
                 </a>
             </div>
-
-            <button type="submit" class="simplecms__auth-box__submit">Login</button>
         </form>
     </div>
 </div>

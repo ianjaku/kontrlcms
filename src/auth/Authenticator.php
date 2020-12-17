@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 // Set safer Cookie standards
 ini_set( 'session.cookie_httponly', 1 );
-ini_set( 'session.cookie_secure', 1 );
+//ini_set( 'session.cookie_secure', 1 );
 ini_set( 'session.cookie_samesite', "Strict" );
 
 class Authenticator {
@@ -87,12 +87,19 @@ class Authenticator {
 
             $_SESSION["username"] = $user->getUsername();
             $_SESSION["role"] = "ADMIN";
+//            $this->startSessionForUser($user->getUsername(), "ADMIN");
 
             return true;
         } catch (AuthenticationException $e) {
             return false;
         }
     }
+
+    private function startSessionForUser($username, $role) {
+    	session_start();
+    	$_SESSION["username"] = $username;
+    	$_SESSION["role"] = $role;
+	}
 
     public function getCurrentUser() {
         if ($this->currentUser !== null) return $this->currentUser;
@@ -120,7 +127,30 @@ class Authenticator {
         session_write_close();
     }
 
-    private function createEncoderFactory() {
+    public function loginWithToken($token) {
+    	$result = $this->db->select("SELECT * FROM login_tokens WHERE token = :token", [":token" => $token]);
+    	if (sizeof($result) <= 0) return false;
+    	$loginToken = $result[0];
+
+    	$users = $this->db->select("SELECT * FROM users WHERE id = :id", ["id" => $loginToken["user_id"]]);
+    	if (sizeof($users) <= 0) return false;
+    	$user = $users[0];
+
+    	$this->startSessionForUser($user["email"], "ADMIN");
+    	return true;
+	}
+
+    public function createLoginTokenFor($userId) {
+		$token = bin2hex(random_bytes(32));
+		$params = [
+			":token" => $token,
+			":user_id" => $userId
+		];
+    	$this->db->insert("INSERT INTO login_tokens (user_id, token) VALUES (:user_id, :token)", $params);
+		return $token;
+	}
+
+	private function createEncoderFactory() {
         $defaultEncoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
         $encoders = [
             User::class => $defaultEncoder
