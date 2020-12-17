@@ -1,39 +1,41 @@
-$ff: "-apple-system", "Helvetica", "Ubuntu", sans-serif;
+$ff: "Barlow", "-apple-system", "Helvetica", "Ubuntu", sans-serif;
 
 .simplecms__auth-box {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
-  max-width: 450px;
+  max-width: 320px;
   padding-top: 50px;
 }
 
 .simplecms__auth-box__box {
-  background-color: white;
+  //background-color: white;
 
   @media (min-width: 600px) {
     border-radius: 4px;
-    padding: 40px;
-    box-shadow: rgba(60, 66, 87, 0.12) 0 7px 14px 0, rgba(0, 0, 0, 0.12) 0 3px 6px 0;
+    //padding: 40px;
+    //box-shadow: rgba(60, 66, 87, 0.12) 0 7px 14px 0, rgba(0, 0, 0, 0.12) 0 3px 6px 0;
   }
 }
 
 .simplecms__auth-box__title {
-  font-size: 24px;
+  font-size: 36px;
+  letter-spacing: -0.2px;
+  line-height: 49px;
   font-weight: normal;
   margin: 0 0 25px;
   padding: 0;
-  color: #1a1f36;
+  color: #223550;
   font-family: $ff;
 }
 
 .simplecms__auth-box__sub-title {
-  font-size: 16px;
+  font-size: 18px;
+  line-height: 23px;
   font-weight: normal;
   font-family: $ff;
-  padding: 15px 0;
-  color: #1a1f36;
-  line-height: 140%;
+  padding: 5px 0;
+  color: #838E9D;
 }
 
 .simplecms__auth-box__form {
@@ -42,41 +44,62 @@ $ff: "-apple-system", "Helvetica", "Ubuntu", sans-serif;
 }
 
 .simplecms__auth-box__group {
+  position: relative;
   margin-top: 10px;
 }
 
 .simplecms__auth-box__label {
+  position: absolute;
+  top: 7px;
+  left: 16px;
   font-size: 14px;
   font-weight: bold;
-  color: #3c4257;
+  color: #B2C2D6;
+  text-transform: uppercase;
   font-family: $ff;
   display: block;
   padding-bottom: 3px;
+  letter-spacing: 0.9px;
 }
 
 .simplecms__auth-box__input {
-  color: #3c4257;
-  border: 1px solid rgba(#3c4257, 0.4);
+  color: #223550;
+  border: 1px solid #CCD4DB;
   border-radius: 4px;
+  //font-family: $ff;
   font-family: $ff;
   display: block;
   width: 100%;
-  padding: 8px 16px;
+  padding: 30px 16px 11px;
   box-sizing: border-box;
   overflow-x: auto;
+  font-weight: 500;
+  font-size: 16px;
+
+  &:focus {
+    border-color: #1E77F2;
+  }
 }
 
 .simplecms__auth-box__submit {
   border-radius: 4px;
-  background-color: #3854A6;
+  background-color: #1E77F2;
   color: white;
-  font-family: $ff;
+  //font-family: $ff;
   margin-top: 20px;
   width: 100%;
-  padding: 10px 20px;
+  padding: 19px 30px;
   border: none;
   outline: none;
   cursor: pointer;
+  transition: background-color 0.1s ease-in-out;
+  font-family: $ff;
+  font-weight: 500;
+  font-size: 18px;
+
+  &:hover {
+    background-color: #FA7035;
+  }
 }
 
 .simplecms__auth-box__hr {
