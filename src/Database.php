@@ -117,6 +117,7 @@ class Database {
                 value text NOT NULL,
                 PRIMARY KEY (id)
             );
+			CREATE INDEX snippets_page ON snippets(page);
 
             CREATE TABLE user_tokens (
                 id int NOT NULL AUTO_INCREMENT,
@@ -124,6 +125,14 @@ class Database {
                 inserted_at timestamp NOT NULL,
                 PRIMARY KEY (id)
             );
+
+			CREATE TABLE login_tokens (
+			    id int NOT NULL AUTO_INCREMENT,
+			    user_id int NOT NULL,
+			    token varchar(255) NOT NULL,
+			    FOREIGN KEY (user_id) REFERENCES users(id)
+			);
+			CREATE INDEX login_tokens_user_id ON login_tokens(user_id);
         ");
     }
 
