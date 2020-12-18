@@ -5,6 +5,7 @@ namespace invacto\SimpleCMS\plugins;
 
 use invacto\SimpleCMS\auth\Authenticator;
 use Twig\Environment;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 abstract class Plugin
@@ -90,6 +91,12 @@ abstract class Plugin
                 $pluginContext = new PluginContext($context, $this->authenticator);
                 return call_user_func($func, $pluginContext, $params);
             }, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
+
+            $twig->addFilter(new TwigFilter($name, function ($context, $content, array $params = []) use ($func) {
+            	$params[] = $content;
+				$pluginContext = new PluginContext($context, $this->authenticator);
+				return call_user_func($func, $pluginContext, $params);
+			}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
         };
     }
 
