@@ -26,7 +26,13 @@
                     </svg>
                 </a>
                 <div class="post__auto">
-                    {{ wysiwyg("page_text") }}
+{#                    {{ text("some-test-text", "normal") }}#}
+                    {% apply text("another-test-text") %}
+                        Please don't worry ;)
+                    {% endapply %}
+{#                    {% text namt = 3 %}#}
+{#                    {{ namt }}#}
+{#                    {{ wysiwyg("page_text") }}#}
                 </div>
             </div>
         </div>

@@ -124,6 +124,10 @@ class SimpleCMS {
 //            }
 //        }, ["is_safe" => ["html"], "needs_context" => true]));
 
+
+		$this->twig->addTokenParser(new TestTokenparser());
+
+
         $this->twig->addFunction(new TwigFunction('head', function($context) {
         	$content = "";
 
