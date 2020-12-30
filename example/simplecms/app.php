@@ -16,4 +16,6 @@ $cms->addPlugin(new \invacto\SimpleCMS\plugins\img\ImgPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\bg_img\BGImgPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\wysiwyg\WYSIWYGPlugin());
 
+//$cms->addComponent("components/myComponent.twig");
+
 $cms->run();

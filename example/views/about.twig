@@ -26,12 +26,97 @@
                     </svg>
                 </a>
                 <div class="post__auto">
-{#                    {{ text("some-test-text", "normal") }}#}
-                    {% apply text("another-test-text") %}
-                        Please don't worry ;)
-                    {% endapply %}
-{#                    {% text namt = 3 %}#}
-{#                    {{ namt }}#}
+
+{#                    {% apply component("myComponent") %}#}
+
+{#                    {% endapply %}#}
+
+{#                    In tokenparser get a list of all names that need to be looked up #}
+
+                    {{ text(local("SomeName")) }}
+                    {{ text(global("Test")) }}
+
+{#
+    use {% global text("Some Name") %}{% endglobal %}
+    or {% local text("Some Name") %}{% endlocal %}
+
+    When using {{ text("Some Name }} it is automatically local
+
+
+    {% k component("myComponent") %}
+        // Component goes here
+    {% endk %}
+
+    {% component "myComponent" %}
+        <h1>
+            {{ text("Title") }}
+        </h1>
+        <p>
+            {{ text("Content") }}
+        </p>
+    {% endComponent %}
+
+    {% list("myList") %}
+        {{ useComponent("myComponent", ["Title" => "My Title"]) }}
+    {% endList %}
+
+    {{
+        list(["myComponent"], [
+            ["Title" => "Test Title"],
+            ["Title" => "Test title2"],
+            ["Title" => "Test title3"]
+        ])
+     }}
+
+    OR
+
+
+    {% global %}
+
+        {% All code here will be global (reset path before and reset after) %}
+
+    {% endglobal %}
+
+    {% group "myGroup" %}
+
+    {% endGroup %}
+
+
+    <div {{ list("myList") }}>
+        <div {{ listItem("myList") }}>
+            Another one bites the dust
+        </div>
+    </div>
+
+#}
+
+
+{#                    {% apply group("partners") %}#}
+{#                    <div class="list" {{ list("partners") }}>#}
+{#                        <div class="list__item" {{ listItem("partners") }}>#}
+{#                            <h1 class="list__title">#}
+{#                                {{ text("title", "Card title") }}#}
+{#                                {{ textGroup("partners", "SomeName", "") }}#}
+{#                            </h1>#}
+{#                            <p class="list__desc">#}
+{#                                {{ text("text", "Card text goes here") }}#}
+{#                            </p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    {% endapply %}#}
+
+{#                    {{ component("my-component") }}#}
+
+{#                     {% apply group("some-group") %}#}
+{#                         This is some random group#}
+{#                         {{ text("Some text") }}#}
+{#                     {% endapply %}#}
+
+{#                    <form action="" {{ contact("my-form") }}>#}
+{#                        <input name="someName" type="text" {{ contactInput("my-form") }}>#}
+{#                        <button type="submit">Verzenden</button>#}
+{#                    </form>#}
+
 {#                    {{ wysiwyg("page_text") }}#}
                 </div>
             </div>

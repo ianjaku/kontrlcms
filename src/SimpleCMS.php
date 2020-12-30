@@ -14,7 +14,20 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Middleware\BodyParsingMiddleware;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
+
+class Be {
+	private $b = "";
+
+	public function setB($val) {
+		$this->b = $val;
+	}
+
+	public function getB() {
+		return $this->b;
+	}
+}
 
 class SimpleCMS {
 
@@ -85,6 +98,34 @@ class SimpleCMS {
         } else {
             $this->twig->addGlobal("BASE_URL", "");
         }
+
+        $this->twig->addGlobal("test", new TestClass());
+		$this->twig->addGlobal("test2", "test1");
+
+		$this->twig->addFunction(new TwigFunction(
+        	"list",
+			function(Environment $env, $context, $name) {
+        		$context["test"]->setValue("one");
+        		$context["test2"] = "test2";
+//        		$env->addGlobal("test", "test2");
+        		return "Hellew";
+        	},
+			["is_safe" => ["html"], "needs_context" => true, "needs_environment" => true])
+		);
+
+        $this->twig->addFunction(new TwigFunction(
+        	"listItem",
+			function(Environment $env, $context, $name) {
+        		print_r($context);
+//        		return "Hellleeeeew" . $context["test"];
+				return $context["test"]->getValue();
+			},
+			["is_safe" => ["html"], "needs_context" => true, "needs_environment" => true]
+		));
+
+        // Error Log
+//        error_log()
+
 
 //        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
 //            $src = $this->findSnippet($context, $name, null);
