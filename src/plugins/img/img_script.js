@@ -8,16 +8,16 @@ class ImagePlugin {
 	}
 
 	createPopup(baseValue) {
-			const { popups } = this.context;
-			const imgPopup = new popups.GenericPopup({ title: "Select your image"});
-			imgPopup.addItem(new popups.InputItem({ name: "alt", label: "Image description" }));
-			const imgItem = new popups.ImageItem({ name: "img", label: "Your image", value: baseValue });
-			imgPopup.addItem(imgItem);
+		const popups = this.context.popups;
+		const imgPopup = new popups.GenericPopup({ title: "Select your image"});
+		imgPopup.addItem(new popups.InputItem({ name: "alt", label: "Image description" }));
+		const imgItem = new popups.ImageItem({ name: "img", label: "Your image", value: baseValue });
+		imgPopup.addItem(imgItem);
 
-			return (baseValue) => {
-					imgItem.setValue(baseValue);
-					return popups.showPopup(imgPopup)
-			}
+		return (baseValue) => {
+				imgItem.setValue(baseValue);
+				return popups.showPopup(imgPopup)
+		}
 	}
 
 	setup(context) {
