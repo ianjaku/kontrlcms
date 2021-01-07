@@ -18,14 +18,11 @@ class WYSIWYGPlugin {
     }
 
     enable() {
-        console.log("Enable");
         this.editors.forEach(e => e.setReadOnly(true));
-        plugins.enable();
     }
 
     disable() {
         this.editors.forEach(e => e.setReadOnly(false));
-        plugins.disable();
     }
 }
 
