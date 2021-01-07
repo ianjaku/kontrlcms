@@ -69,7 +69,7 @@ class SimpleCMS {
         $this->imageDirectory = $appDir . "/public/storage";
         $fileSystemLoader = new FilesystemLoader($appDir . "/views");
         $this->twig = new Environment($fileSystemLoader, [
-        	"cache" => $appDir . "/cache"
+//        	"cache" => $appDir . "/cache"
 		]);
 
         $this->bodyParser = new BodyParsingMiddleware();

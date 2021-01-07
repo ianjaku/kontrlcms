@@ -243,6 +243,8 @@ function updateSnippet(name, value) {
       name: name,
       value: value
     })
+  }).then(function (response) {
+    return response.json();
   });
 }
 function uploadSnippetImage(name, imgFile) {
@@ -288,7 +290,9 @@ function uploadAnyImage(imgFile, purpose) {
 function fetchSnippets(data) {
   var jsonData = JSON.stringify(data);
   var snippetQuery = encodeURI(jsonData);
-  return fetch("/simplecms/snippets?snippets=" + snippetQuery);
+  return fetch("/simplecms/snippets?snippets=" + snippetQuery).then(function (r) {
+    return r.json();
+  });
 }
 /* harmony default export */ __webpack_exports__["default"] = ({
   uploadSnippetImage: uploadSnippetImage,

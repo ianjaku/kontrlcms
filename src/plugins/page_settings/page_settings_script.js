@@ -21,11 +21,7 @@ class PageSettingsPlugin {
 								{name: "page_title", page: this.context.pageName},
 								{name: "page_description", page: this.context.pageName},
 								{name: "page_keywords", page: this.context.pageName},
-						]).then(response => response.json())
-								.then(snippets => {
-										// resolve({ snippets });
-										console.log(snippets);
-										console.log(this);
+						]).then(snippets => {
 										const state = {
 												page_title: this.getSnippetValue(snippets, "page_title", this.context.pageName),
 												page_description: this.getSnippetValue(snippets, "page_description", this.context.pageName),

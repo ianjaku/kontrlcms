@@ -9,7 +9,7 @@ export function updateSnippet(name, value, page = PAGE_NAME) {
             name,
             value
         })
-    })
+    }).then(response => response.json())
 }
 
 export function uploadSnippetImage(name, imgFile, page = PAGE_NAME) {
@@ -59,7 +59,8 @@ export function uploadAnyImage(imgFile, purpose) {
 export function fetchSnippets(data) {
     const jsonData = JSON.stringify(data);
     const snippetQuery = encodeURI(jsonData);
-    return fetch("/simplecms/snippets?snippets=" + snippetQuery);
+    return fetch("/simplecms/snippets?snippets=" + snippetQuery)
+            .then(r => r.json());
 }
 
 export default {

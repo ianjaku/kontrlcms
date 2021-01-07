@@ -17,10 +17,11 @@ class ImgPlugin extends Plugin
 		$this->addTemplateFunction('img', function (PluginContext $context, array $params) {
 			$name = $params[0];
 			$defaultValue = isset($params[1]) ? $params[1] : "";
-			$alt = isset($params[2]) ? $params[2] : "";
+			$altDefault = isset($params[2]) ? $params[2] : "";
 			$other = isset($params[3]) ? $params[3] : "";
 
 			$src = $context->findSnippet($name, null);
+			$alt = $context->findSnippet($altDefault, $altDefault);
 			if ($src == null) {
 				$src = $defaultValue;
 			} else {
