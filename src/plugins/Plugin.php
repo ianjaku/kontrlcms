@@ -3,6 +3,7 @@
 namespace invacto\SimpleCMS\plugins;
 
 
+use invacto\SimpleCMS\AppContext;
 use invacto\SimpleCMS\auth\Authenticator;
 use Twig\Environment;
 use Twig\TwigFilter;
@@ -17,12 +18,18 @@ abstract class Plugin
     public $adminStyleFunctions = [];
 
     public $functions = [];
+
+	/**
+	 * @var array block strings in format (assuming head is a block) ["head" => ""]
+	 */
+    public $hooks = [];
+
     /**
      * @var Authenticator
      */
     public $authenticator = null;
 
-    public abstract function setup();
+	public abstract function setup();
 
 //    public function setup() {
 ////        $this->addScript(function() {
@@ -99,5 +106,13 @@ abstract class Plugin
 			}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
         };
     }
+
+    public function addHook(string $name, callable $callback) {
+    	if (!isset($this->hooks[$name])) {
+    		$this->hooks[$name] = [$callback];
+		} else {
+			$this->hooks[$name][] = $callback;
+		}
+	}
 
 }

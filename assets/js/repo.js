@@ -50,8 +50,21 @@ export function uploadAnyImage(imgFile, purpose) {
     });
 }
 
+/**
+ *
+ * @param data names & pages for the requered snippets format [{name: "", page: ""}]
+ * @returns {Promise<Response>} returns an array of found snippets of format [{name: "", page: "", value: "", id: ""}]
+ *                              if a snippet does not exist it is not shown in the list
+ */
+export function fetchSnippets(data) {
+    const jsonData = JSON.stringify(data);
+    const snippetQuery = encodeURI(jsonData);
+    return fetch("/simplecms/snippets?snippets=" + snippetQuery);
+}
+
 export default {
     uploadSnippetImage,
     uploadAnyImage,
-    updateSnippet
+    updateSnippet,
+    fetchSnippets
 }

@@ -58,6 +58,7 @@ class SimpleCMS {
      */
     private $plugins = [];
 
+
     public function __construct($appDir)
     {
         $this->appDir = $appDir;
@@ -67,7 +68,9 @@ class SimpleCMS {
 
         $this->imageDirectory = $appDir . "/public/storage";
         $fileSystemLoader = new FilesystemLoader($appDir . "/views");
-        $this->twig = new Environment($fileSystemLoader, []);
+        $this->twig = new Environment($fileSystemLoader, [
+        	"cache" => $appDir . "/cache"
+		]);
 
         $this->bodyParser = new BodyParsingMiddleware();
 
@@ -144,8 +147,15 @@ class SimpleCMS {
 				";
 			}
 
-            $content .= "
-            ";
+            $pageContext = new PageContext($context);
+            foreach ($this->plugins as $plugin) {
+            	if (!isset($plugin->hooks["head"])) continue;
+            	foreach ($plugin->hooks["head"] as $hook) {
+            		$content = $hook($content, $pageContext);
+				}
+			}
+
+            // TODO: Add base script & base style
 //			<script>
 //			   	const __KONTRL_BASE_PLUGINS = [];
 //			   </script>
@@ -340,7 +350,29 @@ class SimpleCMS {
             $response->getBody()->write($res);
             return $response->withHeader('Content-Type', 'application/json');
         })->add($this->bodyParser);
-//        })->add(new JsonBodyParserMiddleware());
+
+        $this->app->get("/simplecms/snippets", function (Request $request, Response $response, array $args) {
+        	$queryParams = $request->getQueryParams();
+        	if (!isset($queryParams["snippets"])) {
+				return $this->badRequest($response);
+			}
+        	$snippetRequests = json_decode($queryParams["snippets"]);
+        	$query = "SELECT * FROM snippets WHERE false";
+        	$params = [];
+
+			for ($i = 0; $i < sizeof($snippetRequests); $i++) {
+        		$data = $snippetRequests[$i];
+        		$nameKey = ":name$i";
+        		$pageKey = ":page$i";
+        		$query .= " OR (name = :name$i AND page = :page$i)";
+        		$params[$nameKey] = $data->name;
+				$params[$pageKey] = $data->page;
+			}
+
+        	$snippets = $this->db->select($query, $params);
+
+        	return $this->JSON($response, $snippets);
+		});
 
         $this->app->post("/simplecms/upload", function (Request $request, Response $response, $args = []) {
             if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
@@ -606,4 +638,9 @@ class SimpleCMS {
         return $response
             ->withStatus(401);
     }
+
+	private function badRequest(Response $response) {
+		return $response
+			->withStatus(400);
+	}
 }
