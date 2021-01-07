@@ -236,11 +236,19 @@ class SimpleCMS {
         $this->plugins[] = $plugin;
     }
 
-    public function page($path, $pageFile) {
-        $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile) {
+    public function page($path, $pageFile, $settings = []) {
+        $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile, $settings) {
             $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page OR page = '__global__'", [":page" => $pageFile]);
 
-            $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
+            $context = [];
+			$context["__pageFile"] = $pageFile;
+			$context["__snippets"] = $snippets;
+            if (isset($settings["beforeRender"])) {
+            	$context = $settings["beforeRender"]($context);
+			}
+
+//            $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
+            $html = $this->render($pageFile, $context);
             $response->getBody()->write($html);
             return $response;
         });
