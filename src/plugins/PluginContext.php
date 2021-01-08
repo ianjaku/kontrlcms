@@ -5,6 +5,7 @@ namespace invacto\SimpleCMS\plugins;
 
 
 use invacto\SimpleCMS\auth\Authenticator;
+use invacto\SimpleCMS\Util;
 
 class PluginContext
 {
@@ -26,15 +27,6 @@ class PluginContext
     }
 
     public function findSnippet($name, $valueIfNotFound = null) {
-        $snippets = $this->twigContext['__snippets'];
-
-        $value = $valueIfNotFound;
-        foreach ($snippets as $snippet) {
-            if ($snippet->name === $name) {
-                $value = $snippet->value;
-                break;
-            }
-        }
-        return $value;
+    	return Util::findSnippetInContext($this->twigContext, $name, $valueIfNotFound);
     }
 }

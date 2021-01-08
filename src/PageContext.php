@@ -19,16 +19,7 @@ class PageContext
 	}
 
 	public function findSnippet($name, $defaultValue) {
-		$snippets = $this->context['__snippets'];
-
-		$value = $defaultValue;
-		foreach ($snippets as $snippet) {
-			if ($snippet->name === $name) {
-				$value = $snippet->value;
-				break;
-			}
-		}
-		return $value;
+		return Util::findSnippetInContext($this->context, $name, $defaultValue);
 	}
 
 }
