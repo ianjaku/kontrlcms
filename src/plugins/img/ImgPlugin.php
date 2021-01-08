@@ -21,7 +21,7 @@ class ImgPlugin extends Plugin
 			$other = isset($params[3]) ? $params[3] : "";
 
 			$src = $context->findSnippet($name, null);
-			$alt = $context->findSnippet($altDefault, $altDefault);
+			$alt = $context->findSnippet($name . "__alt", $altDefault);
 			if ($src == null) {
 				$src = $defaultValue;
 			} else {
