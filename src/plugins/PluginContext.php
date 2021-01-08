@@ -30,8 +30,8 @@ class PluginContext
 
         $value = $valueIfNotFound;
         foreach ($snippets as $snippet) {
-            if ($snippet['name'] === $name) {
-                $value = $snippet['value'];
+            if ($snippet->name === $name) {
+                $value = $snippet->value;
                 break;
             }
         }

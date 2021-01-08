@@ -34,16 +34,17 @@ class UserProvider implements UserProviderInterface {
     */
     public function loadUserByUsername(string $username)
     {
-        $result = $this->db->select("SELECT * FROM users WHERE email = :email", [":email" => $username]);
-        if (sizeof($result) === 0) {
+//        $result = $this->db->select("SELECT * FROM users WHERE email = :email", [":email" => $username]);
+		$users = $this->db->table("users")->where("email", $username)->get();
+        if (sizeof($users) === 0) {
             throw new UsernameNotFoundException();
         }
-        $userData = $result[0];
+        $userData = $users[0];
 
         return new User(
-            $userData['email'],
-            $userData['password'],
-            $userData['salt']
+            $userData->email,
+            $userData->password,
+            $userData->salt
         );
     }
 

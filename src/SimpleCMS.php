@@ -4,6 +4,7 @@ namespace invacto\SimpleCMS;
 
 
 use Dotenv\Dotenv;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use invacto\SimpleCMS\auth\Authenticator;
 use invacto\SimpleCMS\plugins\Plugin;
 use Psr\Http\Message\UploadedFileInterface;
@@ -238,7 +239,11 @@ class SimpleCMS {
 
     public function page($path, $pageFile, $settings = []) {
         $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile, $settings) {
-            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page OR page = '__global__'", [":page" => $pageFile]);
+//            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page OR page = '__global__'", [":page" => $pageFile]);
+			$snippets = $this->db->table("snippets")
+				->where("page", $pageFile)
+				->orWhere("page", "__global__")
+				->get();
 
             $context = [];
 			$context["__pageFile"] = $pageFile;
@@ -365,19 +370,16 @@ class SimpleCMS {
 				return $this->badRequest($response);
 			}
         	$snippetRequests = json_decode($queryParams["snippets"]);
-        	$query = "SELECT * FROM snippets WHERE false";
-        	$params = [];
 
+        	$snippetsQuery = $this->db->table("snippets");
 			for ($i = 0; $i < sizeof($snippetRequests); $i++) {
         		$data = $snippetRequests[$i];
-        		$nameKey = ":name$i";
-        		$pageKey = ":page$i";
-        		$query .= " OR (name = :name$i AND page = :page$i)";
-        		$params[$nameKey] = $data->name;
-				$params[$pageKey] = $data->page;
+        		$snippetsQuery->orWhere([
+        			["name", "=", $data->name],
+					["page", "=", $data->page]
+				]);
 			}
-
-        	$snippets = $this->db->select($query, $params);
+			$snippets = $snippetsQuery->get();
 
         	return $this->JSON($response, $snippets);
 		});
@@ -448,38 +450,38 @@ class SimpleCMS {
         })->add($this->bodyParser);
 
         $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
-            try {
-                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
-                $existingUsersCount = $existingUsers[0]["count"];
-
-                if ((int)$existingUsersCount !== 0) {
-                    $response->getBody()->write("Page unavailable");
-                    return $response;
-                }
-            } catch (\PDOException $e) {
-            }
-
-            return $this->renderLibraryPage($response, "setup.twig");
+        	$existingUsersCount = $this->db->table("users")->count();
+			if ((int)$existingUsersCount !== 0) {
+				$response->getBody()->write("Page unavailable");
+				return $response;
+			}
+			return $this->renderLibraryPage($response, "setup.twig");
         })->add($this->bodyParser);
+
         $this->app->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
-            try {
-                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
-                $existingUsersCount = $existingUsers[0]["count"];
+            // TODO: Redo setup with migrations
 
-                if ((int)$existingUsersCount !== 0) {
+//            try {
+//                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
+//                $existingUsersCount = $existingUsers[0]["count"];
+				$existingUsersCount = $this->db->table("users")->count();
+
+
+				if ((int)$existingUsersCount !== 0) {
                     $response->getBody()->write("Page unavailable");
                     return $response;
                 }
-            } catch (\PDOException $e) {
-                $this->db->setup();
-            }
+//            } catch (\PDOException $e) {
+//                $this->db->setup();
+//            }
             $email = strtolower($params["admin_email"]);
             $this->authenticator->register($email, $params["admin_password"]);
 
             return $this->sendSeeOther($response, "/");
         })->add($this->bodyParser);
+
         $this->app->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
             $this->authenticator->logout();
             return $this->sendSeeOther($response, "/");
@@ -490,8 +492,12 @@ class SimpleCMS {
 
             // Create user token
             $token = bin2hex(random_bytes(32));
-            $params = [":token" => $token, ":inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")];
-            $this->db->insert("INSERT INTO user_tokens (token, inserted_at) VALUES (:token, :inserted_at)", $params);
+//            $params = [":token" => $token, ":inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")];
+//            $this->db->insert("INSERT INTO user_tokens (token, inserted_at) VALUES (:token, :inserted_at)", $params);
+			$this->db->table("user_tokens")->insert([
+				"token" => $token,
+				"inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")
+			]);
 
             return $this->renderLibraryPage($response, "user_token.twig", ["token" => $token]);
         });
@@ -499,8 +505,9 @@ class SimpleCMS {
             // Check if token exists
             $token = $args["token"];
 
-            $params = [":token" => $token];
-            $exists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
+//            $params = [":token" => $token];
+//            $exists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
+			$exists = $this->db->table("user_tokens")->where("token", $token)->exists();
 
             if (!$exists) {
                 return $this->unauthorized($response);
@@ -522,13 +529,15 @@ class SimpleCMS {
 
             echo $data["token"];
 
-            $params = [":token" => $data["token"]];
-            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
+//            $params = [":token" => $data["token"]];
+//            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
+			$tokenExists = $this->db->table("user_tokens")->where("token", $data["token"])->exists();
             if (!$tokenExists) {
                 return $this->unauthorized($response);
             }
 
-			$this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
+//			$this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
+			$this->db->table("user_tokens")->where("token", $data["token"])->delete();
 
 			$this->authenticator->register($data["email"], $data["password"]);
 
@@ -540,7 +549,8 @@ class SimpleCMS {
 				return $this->unauthorized($response);
 			}
 
-			$users = $this->db->select("SELECT * FROM users");
+//			$users = $this->db->select("SELECT * FROM users");
+			$users = $this->db->table("users")->get();
 			return $this->renderLibraryPage($response, "login_link.twig", ["users" => $users]);
 		});
 
@@ -564,30 +574,37 @@ class SimpleCMS {
     }
 
     private function updateOrCreateSnippet(string $page, string $name, string $value) {
-        $queryParams = [
-            ":name" => $name,
-            ":page" => $page
-        ];
-        $snippetExists = $this->db->exists("SELECT id FROM snippets WHERE name = :name AND page = :page LIMIT 1", $queryParams);
+//        $queryParams = [
+//            ":name" => $name,
+//            ":page" => $page
+//        ];
+//        $snippetExists = $this->db->exists("SELECT id FROM snippets WHERE name = :name AND page = :page LIMIT 1", $queryParams);
+//		$snippetExists = $this->db->table("snippets")->
 
-        $queryParams = [
-            ":name" => $name,
-            ":page" => $page,
-            ":value" => $value
-        ];
-        $stmt2 = null;
-        if (!$snippetExists) {
-            $this->db->insert("INSERT INTO snippets (name, page, value) VALUES (:name, :page, :value)", $queryParams);
-            return null;
-        } else {
-            $previousValues = $this->db->select(
-            "SELECT * FROM snippets where name = :name AND page = :page",
-                [":name" => $name, ":page" => $page]
-            );
-            $this->db->update("UPDATE snippets SET value = :value WHERE name = :name AND page = :page", $queryParams);
-            if (sizeof($previousValues) === 0) return null;
-            return $previousValues[0];
-        }
+//        $queryParams = [
+//            ":name" => $name,
+//            ":page" => $page,
+//            ":value" => $value
+//        ];
+        return $this->db->table("snippets")->updateOrInsert([
+        	"name" => $name,
+			"page" => $page
+		], [
+			"value" => $value
+		]);
+//        $stmt2 = null;
+//        if (!$snippetExists) {
+//            $this->db->insert("INSERT INTO snippets (name, page, value) VALUES (:name, :page, :value)", $queryParams);
+//            return null;
+//        } else {
+//            $previousValues = $this->db->select(
+//            "SELECT * FROM snippets where name = :name AND page = :page",
+//                [":name" => $name, ":page" => $page]
+//            );
+//            $this->db->update("UPDATE snippets SET value = :value WHERE name = :name AND page = :page", $queryParams);
+//            if (sizeof($previousValues) === 0) return null;
+//            return $previousValues[0];
+//        }
     }
 
     private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile, string $prefix = null)

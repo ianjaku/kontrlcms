@@ -23,8 +23,8 @@ class PageContext
 
 		$value = $defaultValue;
 		foreach ($snippets as $snippet) {
-			if ($snippet['name'] === $name) {
-				$value = $snippet['value'];
+			if ($snippet->name === $name) {
+				$value = $snippet->value;
 				break;
 			}
 		}

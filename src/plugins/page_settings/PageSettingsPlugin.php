@@ -1,6 +1,5 @@
 <?php
 
-
 namespace invacto\SimpleCMS\plugins\page_settings;
 
 

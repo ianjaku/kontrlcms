@@ -53,12 +53,17 @@ class Authenticator {
         $passwordHash = $encoder->encodePassword($password, $salt);
         $user->setPassword($passwordHash);
 
-        $params = [
-            ":email" => $user->getUsername(),
-            ":password" => $user->getPassword(),
-            "salt" => $salt
-        ];
-        $this->db->insert("INSERT INTO users (email, password, salt) VALUES (:email, :password, :salt)", $params);
+//        $params = [
+//            ":email" => $user->getUsername(),
+//            ":password" => $user->getPassword(),
+//            "salt" => $salt
+//        ];
+        $this->db->table("users")->insert([
+        	"email" => $user->getUsername(),
+			"password" => $user->getPassword(),
+			"salt" => $salt
+		]);
+//        $this->db->insert("INSERT INTO users (email, password, salt) VALUES (:email, :password, :salt)", $params);
     }
 
     public function login($username, $password) {
@@ -128,11 +133,13 @@ class Authenticator {
     }
 
     public function loginWithToken($token) {
-    	$result = $this->db->select("SELECT * FROM login_tokens WHERE token = :token", [":token" => $token]);
+//    	$result = $this->db->select("SELECT * FROM login_tokens WHERE token = :token", [":token" => $token]);
+    	$result = $this->db->table("login_tokesn")->where("token", $token)->get();
     	if (sizeof($result) <= 0) return false;
     	$loginToken = $result[0];
 
-    	$users = $this->db->select("SELECT * FROM users WHERE id = :id", ["id" => $loginToken["user_id"]]);
+//    	$users = $this->db->select("SELECT * FROM users WHERE id = :id", ["id" => $loginToken["user_id"]]);
+		$users = $this->db->table("users")->where("id", $loginToken["user_id"])->get();
     	if (sizeof($users) <= 0) return false;
     	$user = $users[0];
 
@@ -142,11 +149,15 @@ class Authenticator {
 
     public function createLoginTokenFor($userId) {
 		$token = bin2hex(random_bytes(32));
-		$params = [
-			":token" => $token,
-			":user_id" => $userId
-		];
-    	$this->db->insert("INSERT INTO login_tokens (user_id, token) VALUES (:user_id, :token)", $params);
+//		$params = [
+//			":token" => $token,
+//			":user_id" => $userId
+//		];
+//    	$this->db->insert("INSERT INTO login_tokens (user_id, token) VALUES (:user_id, :token)", $params);
+		$this->db->table("login_tokens")->insert([
+			"token" => $token,
+			"user_id" => $userId
+		]);
 		return $token;
 	}
 

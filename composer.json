@@ -24,6 +24,7 @@
     "ext-pdo": "*",
     "ext-json": "*",
     "symfony/security-core": "^5.1",
-    "vlucas/phpdotenv": "^5.2"
+    "vlucas/phpdotenv": "^5.2",
+    "illuminate/database": "^8.21"
   }
 }
