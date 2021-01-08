@@ -874,7 +874,7 @@ var Sidebar = /** @class */ (function () {
         var _this = this;
         var sidebarEl = document.createElement("div");
         sidebarEl.classList.add("kontrl-sidebars__sidebar");
-        if (this.initState) {
+        if (this.initState != null) {
             var loadingAnimation_1 = this.createLoadingEl();
             sidebarEl.append(loadingAnimation_1);
             Promise.resolve(this.initState()).then(function (state) {
@@ -1197,10 +1197,13 @@ var FormItem = /** @class */ (function (_super) {
         _this.items = params.items;
         _this.onSubmit = params.onSubmit;
         _this.submitText = params.submitText || "Save";
+        _this.altButtonText = params.altButtonText || null;
+        _this.onAltButton = params.onAltButton || null;
         return _this;
     }
     FormItem.prototype.createElement = function (state) {
         var _this = this;
+        this.state = state;
         var formEl = document.createElement("form");
         this.formEl = formEl;
         formEl.classList.add("kontrl-sidebars__form");
@@ -1215,11 +1218,28 @@ var FormItem = /** @class */ (function (_super) {
             rowEl.append.apply(rowEl, item.createElement(state));
             formEl.append(rowEl);
         });
+        var toolbelt = document.createElement("div");
+        toolbelt.classList.add("kontrl-sidebars__form__buttons");
+        formEl.append(toolbelt);
         var submitButton = document.createElement("button");
         submitButton.classList.add("kontrl-sidebars__form__button");
         submitButton.type = "submit";
         submitButton.innerHTML = this.submitText;
-        formEl.append(submitButton);
+        toolbelt.append(submitButton);
+        var onAltButton = this.onAltButton;
+        if (onAltButton != null) {
+            var altButton = document.createElement("button");
+            altButton.classList.add("kontrl-sidebars__form__button");
+            altButton.classList.add("kontrl-sidebars__form__button--alt");
+            altButton.type = "button";
+            altButton.innerHTML = this.altButtonText || "Clear";
+            altButton.addEventListener("click", function () {
+                var value = _this.getValue();
+                if (value != null)
+                    onAltButton(value, _this.validate.bind(_this), _this.state);
+            });
+            toolbelt.append(altButton);
+        }
         return [formEl];
     };
     FormItem.prototype.getValue = function () {
@@ -1235,7 +1255,7 @@ var FormItem = /** @class */ (function (_super) {
     FormItem.prototype.handleSubmit = function () {
         var value = this.getValue();
         if (value != null)
-            this.onSubmit(value, this.validate.bind(this));
+            this.onSubmit(value, this.validate.bind(this), this.state);
     };
     FormItem.prototype.validate = function () {
         var errors = this.items.reduce(function (result, item) {
@@ -1706,7 +1726,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Validation = exports.items = exports.CustomItem = exports.TitleItem = exports.FormItem = exports.RulerItem = exports.TextAreaItem = exports.SidebarItem = exports.InputItem = exports.SidebarSet = exports.Sidebar = void 0;
+exports.V = exports.Validation = exports.items = exports.CustomItem = exports.TitleItem = exports.FormItem = exports.RulerItem = exports.TextAreaItem = exports.SidebarItem = exports.InputItem = exports.SidebarSet = exports.Sidebar = void 0;
 var Sidebar_1 = __importDefault(__webpack_require__(/*! ./Sidebar */ "./node_modules/kontrl-sidebars/dist/Sidebar.js"));
 var SidebarSet_1 = __importDefault(__webpack_require__(/*! ./SidebarSet */ "./node_modules/kontrl-sidebars/dist/SidebarSet.js"));
 var SidebarItem_1 = __importDefault(__webpack_require__(/*! ./items/SidebarItem */ "./node_modules/kontrl-sidebars/dist/items/SidebarItem.js"));
@@ -1736,6 +1756,7 @@ exports.items = {
     CustomItem: exports.CustomItem
 };
 exports.Validation = Validation_1.default;
+exports.V = Validation_1.default;
 exports.default = {
     Sidebar: exports.Sidebar,
     SidebarSet: exports.SidebarSet,
@@ -1745,9 +1766,10 @@ exports.default = {
     RulerItem: exports.RulerItem,
     FormItem: exports.FormItem,
     TitleItem: exports.TitleItem,
-    Validation: exports.Validation,
     CustomItem: exports.CustomItem,
-    items: exports.items
+    items: exports.items,
+    Validation: exports.Validation,
+    V: exports.Validation,
 };
 //# sourceMappingURL=sidebars.js.map
 

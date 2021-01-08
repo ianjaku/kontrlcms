@@ -10,25 +10,28 @@ class SnippetRepo
 {
 
 	/**
-	 * @param $namesAndPages array in format [["name" => "", "page" => ""], ...]
-	 *                               StdClasses are also supported
+	 * @param $namesAndPages array in format [["name" => "", "page" => "", "globalFallback" => false], ...]
+	 *                              StdClasses are also supported
+	 * 								globalFallback is optional and false by default
 	 *
 	 * @return Collection
 	 */
 	public static function allByNamesAndPages($namesAndPages) {
 		$query = self::snippets();
 		foreach ($namesAndPages as $nameAndPage) {
-			if (is_object($nameAndPage)) {
-				$name = $nameAndPage->name;
-				$page = $nameAndPage->page;
-			} else {
-				$name = $nameAndPage["name"];
-				$page = $nameAndPage["page"];
-			}
+			$name = $nameAndPage["name"];
+			$page = $nameAndPage["page"];
 			$query->orWhere([
 				["name", "=", $name],
 				["page", "=", $page]
 			]);
+
+			if (isset($nameAndPage["globalFallback"]) && $nameAndPage["globalFallback"] === true) {
+				$query->orWhere([
+					["name", "=", $name],
+					["page", "=", "__global__"]
+				]);
+			}
 		}
 		return $query->get();
 	}

@@ -11,11 +11,12 @@ class PageSettingsPlugin extends Plugin
 	public function setup()
 	{
 		$this->addAdminScriptFile(__DIR__ .  "/page_settings_script.js");
+
 		$this->addHook("head", function ($headContent, PageContext $pageContext) {
 			$defaultValue = (isset($_ENV["APP_NAME"]) ? $_ENV["APP_NAME"] : "Kontrl CMS App");
-			$title = $pageContext->findSnippet("page_title", $defaultValue);
-			$desc = $pageContext->findSnippet("page_description", "");
-			$keywords = $pageContext->findSnippet("page_keywords", "");
+			$title = $pageContext->findSnippet("page_title", $defaultValue, true);
+			$desc = $pageContext->findSnippet("page_description", "", true);
+			$keywords = $pageContext->findSnippet("page_keywords", "", true);
 
 			return $headContent . "
 				<title>$title</title>
@@ -24,4 +25,5 @@ class PageSettingsPlugin extends Plugin
 			";
 		});
 	}
+
 }

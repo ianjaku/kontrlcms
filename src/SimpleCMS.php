@@ -291,7 +291,7 @@ class SimpleCMS {
 
             $params = $request->getParsedBody();
 
-			SnippetRepo::updateOrCreate($params["page"], $params["name"], $params["value"]);
+			SnippetRepo::updateOrCreate($params["name"], $params["page"], $params["value"]);
 
             $res = json_encode(["success" => true]);
             $response->getBody()->write($res);
@@ -303,7 +303,7 @@ class SimpleCMS {
         	if (!isset($queryParams["snippets"])) {
 				return $this->badRequest($response);
 			}
-        	$namesAndPages = json_decode($queryParams["snippets"]);
+        	$namesAndPages = json_decode($queryParams["snippets"], true);
 			$snippets = SnippetRepo::allByNamesAndPages($namesAndPages);
 
         	return $this->JSON($response, $snippets);

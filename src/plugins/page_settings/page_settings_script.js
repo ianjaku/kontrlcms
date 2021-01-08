@@ -18,9 +18,9 @@ class PageSettingsPlugin {
 		initSidebarState() {
 				return new Promise(resolve => {
 						this.context.fetchSnippets([
-								{name: "page_title", page: this.context.pageName},
-								{name: "page_description", page: this.context.pageName},
-								{name: "page_keywords", page: this.context.pageName},
+								{name: "page_title", page: this.context.pageName, globalFallback: true},
+								{name: "page_description", page: this.context.pageName, globalFallback: true},
+								{name: "page_keywords", page: this.context.pageName, globalFallback: true},
 						]).then(snippets => {
 										const state = {
 												page_title: this.getSnippetValue(snippets, "page_title", this.context.pageName),
@@ -40,6 +40,8 @@ class PageSettingsPlugin {
 						new items.FormItem({
 								name: "seo_settings",
 								onSubmit: this.handleFormSubmit.bind(this),
+								onAltButton: this.handleSetDefault.bind(this),
+								altButtonText: "Set as default",
 								items: [
 										new items.InputItem({
 												name: "page_title",
@@ -64,6 +66,14 @@ class PageSettingsPlugin {
 				]
 		}
 
+		handleSetDefault(values, validate) {
+				const errs = validate();
+				if (errs.length !== 0) return;
+				this.context.updateSnippet("page_title", values["page_title"], "__global__");
+				this.context.updateSnippet("page_description", values["page_description"], "__global__");
+				this.context.updateSnippet("page_keywords", values["page_keywords"], "__global__");
+		}
+
 		handleFormSubmit(values, validate) {
 				const errs = validate();
 				if (errs.length !== 0) return;
@@ -75,8 +85,9 @@ class PageSettingsPlugin {
 
 		getSnippetValue(snippets, name, page) {
 				const snippet = snippets.find(s => s.name === name && s.page === page);
-				if (snippet == null) return null;
-				return snippet.value;
+				if (snippet != null) return snippet.value;
+				const globalSnippet = snippets.find(s => s.name === name && s.page === "__global__");
+				return globalSnippet.value;
 		}
 
 		getIcon() {

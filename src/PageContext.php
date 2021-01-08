@@ -18,8 +18,8 @@ class PageContext
 		$this->context = $context;
 	}
 
-	public function findSnippet($name, $defaultValue) {
-		return Util::findSnippetInContext($this->context, $name, $defaultValue);
+	public function findSnippet($name, $defaultValue, $globalFallback = false) {
+		return Util::findSnippetInContext($this->context, $name, $defaultValue, $globalFallback);
 	}
 
 }
