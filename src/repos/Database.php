@@ -1,6 +1,6 @@
 <?php
 
-namespace invacto\SimpleCMS;
+namespace invacto\SimpleCMS\repos;
 
 use Exception;
 use Illuminate\Database\Capsule\Manager;
@@ -31,62 +31,9 @@ class Database {
 		$this->connect();
 	}
 
-	/**
-	 * @param string $query an SQL query with named parameters ex: "SELECT * FROM users WHERE id = :id"
-     * @param array $parameters an array of parameter names to parameter values ex: [":id" => 1]
-     * @return PDOStatement
-     */
-    public function query(string $query, array $parameters = [])
-    {
-        $this->ensureConnected();
-
-        $stmt = $this->db->prepare($query);
-        foreach ($parameters as $name => $value) {
-            $stmt->bindValue($name, $value);
-        }
-        $stmt->execute();
-        return $stmt;
-    }
-
     public function table($name) {
     	return Capsule::table($name);
 	}
-
-//    public function getDB() {
-////    	$this->ensureConnected();
-//    	return $this->db;
-//	}
-
-//    public function exists(string $query, array $parameters = [])
-//    {
-//        $stmt = $this->query($query, $parameters);
-//        return $stmt->rowCount() > 0;
-//    }
-//
-//    public function select(string $query, array $parameters = [])
-//    {
-//        $stmt = $this->query($query, $parameters);
-//        return $stmt->fetchAll();
-//    }
-//
-//    public function update(string $query, array $parameters = [])
-//    {
-//        $this->query($query, $parameters);
-//    }
-//
-//    public function insert(string $query, array $parameters = [])
-//    {
-//        $this->query($query, $parameters);
-//    }
-
-    public function testConnection() {
-        try {
-            $this->connect();
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
-    }
 
     private function connect() {
 		$this->db = new Manager();
@@ -102,21 +49,6 @@ class Database {
 		]);
 		$this->db->setAsGlobal();
     }
-
-    private function ensureConnected() {
-        if ($this->db === null) {
-            $this->connect();
-        }
-    }
-
-//    public function doTablesExist() {
-//        try {
-//            $this->db->query("SELECT * FROM users LIMIT 1");
-//            return true;
-//        } catch (PDOException $e) {
-//            return false;
-//        }
-//    }
 
 //    public function setup() {
 //        $this->ensureConnected();

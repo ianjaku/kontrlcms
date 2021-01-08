@@ -4,9 +4,11 @@ namespace invacto\SimpleCMS;
 
 
 use Dotenv\Dotenv;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use invacto\SimpleCMS\auth\Authenticator;
 use invacto\SimpleCMS\plugins\Plugin;
+use invacto\SimpleCMS\repos\SnippetRepo;
+use invacto\SimpleCMS\repos\UserRepo;
+use invacto\SimpleCMS\repos\UserTokenRepo;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
@@ -16,6 +18,7 @@ use Slim\Middleware\BodyParsingMiddleware;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
+use invacto\SimpleCMS\repos\Database;
 
 class SimpleCMS {
 
@@ -75,58 +78,11 @@ class SimpleCMS {
 
         $this->bodyParser = new BodyParsingMiddleware();
 
-//        $this->twig->addFunction(new TwigFunction('text', function($context, $name, $defaultText = "") {
-//            $text = $this->findSnippet($context, $name, $defaultText);
-//            if ($this->authenticator->hasUser()) {
-//                return '<span class="simplecms__editable" data-name="' . $name . '"  spellcheck="false">' . $text . '</span>';
-//            } else {
-//                return $text;
-//            }
-//        }, ["is_safe" => ["html"], "needs_context" => true]));
-
         if (isset($_ENV["BASE_URL"])) {
             $this->twig->addGlobal("BASE_URL", $_ENV["BASE_URL"]);
         } else {
             $this->twig->addGlobal("BASE_URL", "");
         }
-
-//        $this->twig->addFunction(new TwigFunction('img', function($context, $name, $defaultValue = "", $alt = "", $other = "") {
-//            $src = $this->findSnippet($context, $name, null);
-//            if ($src == null) {
-//                $src = $defaultValue;
-//            } else {
-//                $src = '/storage/' . $src;
-//            }
-//            if ($this->authenticator->hasUser()) {
-//                return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
-//            } else {
-//                return '<img src="'.$src.'" alt="'.$alt.'"">';
-//            }
-//        }, ["is_safe" => ["html"], "needs_context" => true]));
-
-//        $this->twig->addFunction(new TwigFunction('bgImg', function($context, $name, $defaultValue = "") {
-//            $src = $this->findSnippet($context, $name, null);
-//            if ($src == null) {
-//                $src = $defaultValue;
-//            } else {
-//                $src = '/storage/' . $src;
-//            }
-//
-//            if ($this->authenticator->hasUser()) {
-//                return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'"';
-//            } else {
-//                return 'style="background-image: url(\''.$src.'\')"';
-//            }
-//        }, ["is_safe" => ["html"], "needs_context" => true]));
-
-//        $this->twig->addFunction(new TwigFunction('wysiwyg', function ($context, $name, $defaultValue = "<h1>Your text</h1>") {
-//            $text = $this->findSnippet($context, $name, $defaultValue);
-//            if ($this->authenticator->hasUser()) {
-//                return '<div class="simplecms__editor" data-simplecms-name="'.$name.'">'.$text.'</div>';
-//            } else {
-//                return $text;
-//            }
-//        }, ["is_safe" => ["html"], "needs_context" => true]));
 
         $this->twig->addFunction(new TwigFunction('head', function($context) {
         	$content = "";
@@ -228,7 +184,7 @@ class SimpleCMS {
         });
 
         // TODO: throw error when environment variables are not set
-        $this->authenticator = new Authenticator($_ENV["SECRET_KEY"], $this->db);
+        $this->authenticator = new Authenticator($_ENV["SECRET_KEY"]);
 
         $this->createEditEndpoints();
     }
@@ -239,11 +195,7 @@ class SimpleCMS {
 
     public function page($path, $pageFile, $settings = []) {
         $this->app->get($path, function (Request $request, Response $response, array $args) use ($pageFile, $settings) {
-//            $snippets = $this->db->select("SELECT * FROM snippets WHERE page = :page OR page = '__global__'", [":page" => $pageFile]);
-			$snippets = $this->db->table("snippets")
-				->where("page", $pageFile)
-				->orWhere("page", "__global__")
-				->get();
+			$snippets = SnippetRepo::allForPage($pageFile);
 
             $context = [];
 			$context["__pageFile"] = $pageFile;
@@ -252,7 +204,6 @@ class SimpleCMS {
             	$context = $settings["beforeRender"]($context);
 			}
 
-//            $html = $this->render($pageFile, ["__pageFile" => $pageFile, "__snippets" => $snippets]);
             $html = $this->render($pageFile, $context);
             $response->getBody()->write($html);
             return $response;
@@ -322,19 +273,6 @@ class SimpleCMS {
 //        });
 //    }
 
-    private function findSnippet($context, $name, $defaultValue) {
-        $snippets = $context['__snippets'];
-
-        $value = $defaultValue;
-        foreach ($snippets as $snippet) {
-            if ($snippet['name'] === $name) {
-                $value = $snippet['value'];
-                break;
-            }
-        }
-        return $value;
-    }
-
     private function createEditEndpoints() {
         $this->app->get("/simplecms/style", function (Request $request, Response $response, array $args) {
             $styleData = file_get_contents(__DIR__ . '/../dist/style.css');
@@ -353,11 +291,7 @@ class SimpleCMS {
 
             $params = $request->getParsedBody();
 
-            $this->updateOrCreateSnippet(
-                $params['page'],
-                $params['name'],
-                $params['value']
-            );
+			SnippetRepo::updateOrCreate($params["page"], $params["name"], $params["value"]);
 
             $res = json_encode(["success" => true]);
             $response->getBody()->write($res);
@@ -369,17 +303,8 @@ class SimpleCMS {
         	if (!isset($queryParams["snippets"])) {
 				return $this->badRequest($response);
 			}
-        	$snippetRequests = json_decode($queryParams["snippets"]);
-
-        	$snippetsQuery = $this->db->table("snippets");
-			for ($i = 0; $i < sizeof($snippetRequests); $i++) {
-        		$data = $snippetRequests[$i];
-        		$snippetsQuery->orWhere([
-        			["name", "=", $data->name],
-					["page", "=", $data->page]
-				]);
-			}
-			$snippets = $snippetsQuery->get();
+        	$namesAndPages = json_decode($queryParams["snippets"]);
+			$snippets = SnippetRepo::allByNamesAndPages($namesAndPages);
 
         	return $this->JSON($response, $snippets);
 		});
@@ -415,6 +340,7 @@ class SimpleCMS {
             }
             return $this->JSON($response, ["error" => "Failed to upload file"]);
         })->add($this->bodyParser);
+
         $this->app->post("/simplecms/upload/{purpose}", function (Request $request, Response $response, $args = []) {
             if (!$this->authenticator->hasUser()) return $this->unauthorized($response);
 
@@ -450,7 +376,7 @@ class SimpleCMS {
         })->add($this->bodyParser);
 
         $this->app->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
-        	$existingUsersCount = $this->db->table("users")->count();
+        	$existingUsersCount = UserRepo::countAll();
 			if ((int)$existingUsersCount !== 0) {
 				$response->getBody()->write("Page unavailable");
 				return $response;
@@ -466,8 +392,7 @@ class SimpleCMS {
 //            try {
 //                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
 //                $existingUsersCount = $existingUsers[0]["count"];
-				$existingUsersCount = $this->db->table("users")->count();
-
+				$existingUsersCount = UserRepo::countAll();
 
 				if ((int)$existingUsersCount !== 0) {
                     $response->getBody()->write("Page unavailable");
@@ -492,27 +417,15 @@ class SimpleCMS {
 
             // Create user token
             $token = bin2hex(random_bytes(32));
-//            $params = [":token" => $token, ":inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")];
-//            $this->db->insert("INSERT INTO user_tokens (token, inserted_at) VALUES (:token, :inserted_at)", $params);
-			$this->db->table("user_tokens")->insert([
-				"token" => $token,
-				"inserted_at" => (new \DateTime())->format("Y-m-d\TH:i:s.u")
-			]);
+			UserTokenRepo::create($token);
 
             return $this->renderLibraryPage($response, "user_token.twig", ["token" => $token]);
         });
         $this->app->get("/simplecms/users/new/{token}", function (Request $request, Response $response, $args) {
-            // Check if token exists
             $token = $args["token"];
-
-//            $params = [":token" => $token];
-//            $exists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
-			$exists = $this->db->table("user_tokens")->where("token", $token)->exists();
-
-            if (!$exists) {
+            if (!UserTokenRepo::tokenExists($token)) {
                 return $this->unauthorized($response);
             }
-
             return $this->renderLibraryPage($response, "new_user.twig", ["token" => $token]);
         });
 
@@ -527,17 +440,10 @@ class SimpleCMS {
                 );
             }
 
-            echo $data["token"];
-
-//            $params = [":token" => $data["token"]];
-//            $tokenExists = $this->db->exists("SELECT * FROM user_tokens WHERE token = :token", $params);
-			$tokenExists = $this->db->table("user_tokens")->where("token", $data["token"])->exists();
-            if (!$tokenExists) {
+            if (!UserTokenRepo::tokenExists($data["token"])) {
                 return $this->unauthorized($response);
             }
-
-//			$this->db->query("DELETE FROM user_tokens WHERE token = :token", $params);
-			$this->db->table("user_tokens")->where("token", $data["token"])->delete();
+			UserTokenRepo::removeToken($data["token"]);
 
 			$this->authenticator->register($data["email"], $data["password"]);
 
@@ -549,8 +455,7 @@ class SimpleCMS {
 				return $this->unauthorized($response);
 			}
 
-//			$users = $this->db->select("SELECT * FROM users");
-			$users = $this->db->table("users")->get();
+			$users = UserRepo::all();
 			return $this->renderLibraryPage($response, "login_link.twig", ["users" => $users]);
 		});
 
@@ -566,45 +471,9 @@ class SimpleCMS {
 		})->add($this->bodyParser);
 
 		$this->app->get("/simplecms/login_token/authenticate/{token}", function (Request $request, Response $response, $args) {
-			$result = $this->authenticator->loginWithToken($args["token"]);
-//			return $this->renderLibraryPage($response, "login_link_show.twig", ["token" => "test"]);
-//			return $this->JSON($response, ["test" => $result]);
+			$this->authenticator->loginWithToken($args["token"]);
 			return $this->sendSeeOther($response, "/");
 		});
-    }
-
-    private function updateOrCreateSnippet(string $page, string $name, string $value) {
-//        $queryParams = [
-//            ":name" => $name,
-//            ":page" => $page
-//        ];
-//        $snippetExists = $this->db->exists("SELECT id FROM snippets WHERE name = :name AND page = :page LIMIT 1", $queryParams);
-//		$snippetExists = $this->db->table("snippets")->
-
-//        $queryParams = [
-//            ":name" => $name,
-//            ":page" => $page,
-//            ":value" => $value
-//        ];
-        return $this->db->table("snippets")->updateOrInsert([
-        	"name" => $name,
-			"page" => $page
-		], [
-			"value" => $value
-		]);
-//        $stmt2 = null;
-//        if (!$snippetExists) {
-//            $this->db->insert("INSERT INTO snippets (name, page, value) VALUES (:name, :page, :value)", $queryParams);
-//            return null;
-//        } else {
-//            $previousValues = $this->db->select(
-//            "SELECT * FROM snippets where name = :name AND page = :page",
-//                [":name" => $name, ":page" => $page]
-//            );
-//            $this->db->update("UPDATE snippets SET value = :value WHERE name = :name AND page = :page", $queryParams);
-//            if (sizeof($previousValues) === 0) return null;
-//            return $previousValues[0];
-//        }
     }
 
     private function moveUploadedFile(string $directory, UploadedFileInterface $uploadedFile, string $prefix = null)
@@ -647,13 +516,13 @@ class SimpleCMS {
         return $response->withHeader('Content-Type', $type);
     }
 
-    private function sendRedirect($response, $to) {
+    private function sendRedirect(Response $response, $to) {
         return $response
             ->withHeader('Location', $to)
             ->withStatus(302);
     }
 
-    private function sendSeeOther($response, $to) {
+    private function sendSeeOther(Response $response, $to) {
     	return $response
 			->withHeader('Location', $to)
 			->withStatus(303);

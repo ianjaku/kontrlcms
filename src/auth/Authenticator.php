@@ -2,7 +2,9 @@
 
 namespace invacto\SimpleCMS\auth;
 
-use invacto\SimpleCMS\Database;
+use invacto\SimpleCMS\repos\Database;
+use invacto\SimpleCMS\repos\LoginTokenRepo;
+use invacto\SimpleCMS\repos\UserRepo;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
@@ -29,18 +31,12 @@ class Authenticator {
      */
     private $secretKey;
 
-    /**
-     * @var Database
-     */
-    private $db;
-
     private $currentUser = null;
 
 
-    public function __construct(string $secretKey, Database $db)
+    public function __construct(string $secretKey)
     {
         $this->secretKey = $secretKey;
-        $this->db = $db;
     }
 
     public function register($username, $password) {
@@ -53,17 +49,7 @@ class Authenticator {
         $passwordHash = $encoder->encodePassword($password, $salt);
         $user->setPassword($passwordHash);
 
-//        $params = [
-//            ":email" => $user->getUsername(),
-//            ":password" => $user->getPassword(),
-//            "salt" => $salt
-//        ];
-        $this->db->table("users")->insert([
-        	"email" => $user->getUsername(),
-			"password" => $user->getPassword(),
-			"salt" => $salt
-		]);
-//        $this->db->insert("INSERT INTO users (email, password, salt) VALUES (:email, :password, :salt)", $params);
+        UserRepo::createUser($user->getPassword(), $user->getPassword(), $salt);
     }
 
     public function login($username, $password) {
@@ -73,7 +59,7 @@ class Authenticator {
             $this->secretKey
         );
 
-        $userProvider = new UserProvider($this->db);
+        $userProvider = new UserProvider();
         $userChecker = new UserChecker();
 
         $encoderFactory = $this->createEncoderFactory();
@@ -92,7 +78,6 @@ class Authenticator {
 
             $_SESSION["username"] = $user->getUsername();
             $_SESSION["role"] = "ADMIN";
-//            $this->startSessionForUser($user->getUsername(), "ADMIN");
 
             return true;
         } catch (AuthenticationException $e) {
@@ -133,15 +118,11 @@ class Authenticator {
     }
 
     public function loginWithToken($token) {
-//    	$result = $this->db->select("SELECT * FROM login_tokens WHERE token = :token", [":token" => $token]);
-    	$result = $this->db->table("login_tokesn")->where("token", $token)->get();
-    	if (sizeof($result) <= 0) return false;
-    	$loginToken = $result[0];
+		$loginToken = LoginTokenRepo::oneByToken($token);
+    	if ($loginToken == null) return false;
 
-//    	$users = $this->db->select("SELECT * FROM users WHERE id = :id", ["id" => $loginToken["user_id"]]);
-		$users = $this->db->table("users")->where("id", $loginToken["user_id"])->get();
-    	if (sizeof($users) <= 0) return false;
-    	$user = $users[0];
+		$user = UserRepo::oneById($loginToken["user_id"]);
+    	if ($user == null) return false;
 
     	$this->startSessionForUser($user["email"], "ADMIN");
     	return true;
@@ -149,15 +130,7 @@ class Authenticator {
 
     public function createLoginTokenFor($userId) {
 		$token = bin2hex(random_bytes(32));
-//		$params = [
-//			":token" => $token,
-//			":user_id" => $userId
-//		];
-//    	$this->db->insert("INSERT INTO login_tokens (user_id, token) VALUES (:user_id, :token)", $params);
-		$this->db->table("login_tokens")->insert([
-			"token" => $token,
-			"user_id" => $userId
-		]);
+		LoginTokenRepo::create($token, $userId);
 		return $token;
 	}
 

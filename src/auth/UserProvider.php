@@ -3,7 +3,7 @@
 namespace invacto\SimpleCMS\auth;
 
 
-use invacto\SimpleCMS\Database;
+use invacto\SimpleCMS\repos\UserRepo;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -11,16 +11,6 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 
 class UserProvider implements UserProviderInterface {
-
-    /**
-     * @var Database
-     */
-    private $db;
-
-    public function __construct(Database $db)
-    {
-        $this->db = $db;
-    }
 
     /**
     * Loads the user for the given username.
@@ -34,12 +24,10 @@ class UserProvider implements UserProviderInterface {
     */
     public function loadUserByUsername(string $username)
     {
-//        $result = $this->db->select("SELECT * FROM users WHERE email = :email", [":email" => $username]);
-		$users = $this->db->table("users")->where("email", $username)->get();
-        if (sizeof($users) === 0) {
+		$userData = UserRepo::oneByEmail($username);
+        if ($userData == null) {
             throw new UsernameNotFoundException();
         }
-        $userData = $users[0];
 
         return new User(
             $userData->email,
