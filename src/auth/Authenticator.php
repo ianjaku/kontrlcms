@@ -49,7 +49,7 @@ class Authenticator {
         $passwordHash = $encoder->encodePassword($password, $salt);
         $user->setPassword($passwordHash);
 
-        UserRepo::createUser($user->getPassword(), $user->getPassword(), $salt);
+        UserRepo::create($user->getPassword(), $user->getPassword(), $salt);
     }
 
     public function login($username, $password) {
