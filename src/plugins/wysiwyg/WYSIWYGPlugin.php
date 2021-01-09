@@ -16,7 +16,7 @@ class WYSIWYGPlugin extends Plugin
 
 		$this->addTemplateFunction("wysiwyg", function (PluginContext $context, $args) {
 			$name = $args[0];
-			$defaultValue = $args[1] || "";
+			$defaultValue = (sizeof($args) > 1 ? $args[1] : "");
 
 			$text = $context->findSnippet($name, $defaultValue);
 			if ($context->isLoggedIn()) {

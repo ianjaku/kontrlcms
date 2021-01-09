@@ -27,7 +27,7 @@ class ImgPlugin extends Plugin
 			} else {
 				$src = '/storage/' . $src;
 			}
-			if ($this->authenticator->hasUser()) {
+			if ($this->isLoggedIn()) {
 				return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
 			} else {
 				return '<img src="'.$src.'" alt="'.$alt.'" '.$other.'>';

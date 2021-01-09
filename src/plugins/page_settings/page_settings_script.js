@@ -1,3 +1,7 @@
+const PAGE_TITLE = "__page-settings.page_title";
+const PAGE_DESC = "__page-settings.page_description";
+const PAGE_KEYS = "__page-settings.page_keywords";
+
 class PageSettingsPlugin {
 
 		constructor(context) {
@@ -18,14 +22,14 @@ class PageSettingsPlugin {
 		initSidebarState() {
 				return new Promise(resolve => {
 						this.context.fetchSnippets([
-								{name: "page_title", page: this.context.pageName, globalFallback: true},
-								{name: "page_description", page: this.context.pageName, globalFallback: true},
-								{name: "page_keywords", page: this.context.pageName, globalFallback: true},
+								{name: PAGE_TITLE, page: this.context.pageName, globalFallback: true},
+								{name: PAGE_DESC, page: this.context.pageName, globalFallback: true},
+								{name: PAGE_KEYS, page: this.context.pageName, globalFallback: true},
 						]).then(snippets => {
 										const state = {
-												page_title: this.getSnippetValue(snippets, "page_title", this.context.pageName),
-												page_description: this.getSnippetValue(snippets, "page_description", this.context.pageName),
-												page_keywords: this.getSnippetValue(snippets, "page_keywords", this.context.pageName)
+												page_title: this.getSnippetValue(snippets, PAGE_TITLE, this.context.pageName),
+												page_description: this.getSnippetValue(snippets, PAGE_DESC, this.context.pageName),
+												page_keywords: this.getSnippetValue(snippets, PAGE_KEYS, this.context.pageName)
 										};
 										resolve(state);
 								});
@@ -69,24 +73,25 @@ class PageSettingsPlugin {
 		handleSetDefault(values, validate) {
 				const errs = validate();
 				if (errs.length !== 0) return;
-				this.context.updateSnippet("page_title", values["page_title"], "__global__");
-				this.context.updateSnippet("page_description", values["page_description"], "__global__");
-				this.context.updateSnippet("page_keywords", values["page_keywords"], "__global__");
+				this.context.updateSnippet(PAGE_TITLE, values["page_title"], "__global__");
+				this.context.updateSnippet(PAGE_DESC, values["page_description"], "__global__");
+				this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], "__global__");
 		}
 
 		handleFormSubmit(values, validate) {
 				const errs = validate();
 				if (errs.length !== 0) return;
 				document.title = values["page_title"];
-				this.context.updateSnippet("page_title", values["page_title"], this.context.pageName);
-				this.context.updateSnippet("page_description", values["page_description"], this.context.pageName);
-				this.context.updateSnippet("page_keywords", values["page_keywords"], this.context.pageName);
+				this.context.updateSnippet(PAGE_TITLE, values["page_title"], this.context.pageName);
+				this.context.updateSnippet(PAGE_DESC, values["page_description"], this.context.pageName);
+				this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], this.context.pageName);
 		}
 
 		getSnippetValue(snippets, name, page) {
 				const snippet = snippets.find(s => s.name === name && s.page === page);
 				if (snippet != null) return snippet.value;
 				const globalSnippet = snippets.find(s => s.name === name && s.page === "__global__");
+				if (!globalSnippet) return null;
 				return globalSnippet.value;
 		}
 

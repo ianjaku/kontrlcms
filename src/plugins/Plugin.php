@@ -5,6 +5,7 @@ namespace invacto\SimpleCMS\plugins;
 
 use invacto\SimpleCMS\AppContext;
 use invacto\SimpleCMS\auth\Authenticator;
+use invacto\SimpleCMS\PageContext;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -19,34 +20,19 @@ abstract class Plugin
 
     public $functions = [];
 
+    public $handledRequests = [];
+
 	/**
 	 * @var array block strings in format (assuming head is a block) ["head" => ""]
 	 */
     public $hooks = [];
 
-    /**
-     * @var Authenticator
-     */
-    public $authenticator = null;
+	/**
+	 * @var AppContext
+	 */
+    public $appContext;
 
 	public abstract function setup();
-
-//    public function setup() {
-////        $this->addScript(function() {
-////            return $this->readFile(__DIR__ . "/testscript.js");
-////        });
-//        $this->addScriptFile(__DIR__ . "/testscript.js");
-//        $this->addStyleFile(__DIR__ . "/teststyle.css");
-//
-////        $this->addScriptFile(__DIR__ . "/testscript.js");
-//        $this->registerTemplateFunction("checkLogin", function (PluginContext $context, array $params) {
-//            if ($context->isLoggedIn()) {
-//                return 'Logged in';
-//            } else {
-//                return 'Not Logged in';
-//            }
-//        });
-//    }
 
     public function addStyle(callable $styleFunction) {
         $this->styleFunctions[] = $styleFunction;
@@ -92,20 +78,28 @@ abstract class Plugin
         });
     }
 
+    public function handleRequest(string $type, string $path, callable $callback) {
+    	$this->handledRequests[] = [$type, $path, $callback];
+	}
+
     public function addTemplateFunction(string $name, $func) {
         $this->functions[] = function (Environment $twig) use ($name, $func) {
             $twig->addFunction(new TwigFunction($name, function ($context, array $params = []) use ($func) {
-                $pluginContext = new PluginContext($context, $this->authenticator);
+                $pluginContext = new PluginContext($context, $this->appContext);
                 return call_user_func($func, $pluginContext, $params);
             }, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
 
             $twig->addFilter(new TwigFilter($name, function ($context, $content, array $params = []) use ($func) {
             	$params[] = $content;
-				$pluginContext = new PluginContext($context, $this->authenticator);
+				$pluginContext = new PluginContext($context, $this->appContext);
 				return call_user_func($func, $pluginContext, $params);
 			}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
         };
     }
+
+    public function isLoggedIn() {
+    	return $this->appContext->getAuthenticator()->hasUser();
+	}
 
     public function addHook(string $name, callable $callback) {
     	if (!isset($this->hooks[$name])) {

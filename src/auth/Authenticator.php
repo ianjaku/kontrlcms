@@ -74,9 +74,9 @@ class Authenticator {
         try {
             $user = $daoProvider->authenticate($unauthenticatedToken);
 
-            session_start();
+            $this->startSession();
 
-            $_SESSION["username"] = $user->getUsername();
+			$_SESSION["username"] = $user->getUsername();
             $_SESSION["role"] = "ADMIN";
 
             return true;
@@ -86,7 +86,7 @@ class Authenticator {
     }
 
     private function startSessionForUser($username, $role) {
-    	session_start();
+    	$this->startSession();
     	$_SESSION["username"] = $username;
     	$_SESSION["role"] = $role;
 	}
@@ -96,7 +96,7 @@ class Authenticator {
 
         if (!isset($_COOKIE["PHPSESSID"])) return false;
 
-        session_start();
+        $this->startSession();
 
         if ($_SESSION["role"] !== "ADMIN") return false;
 
@@ -141,6 +141,12 @@ class Authenticator {
         ];
         return new EncoderFactory($encoders);
     }
+
+    private function startSession() {
+    	if (!isset($_SESSION)) {
+    		session_start();
+		}
+	}
 
 }
 

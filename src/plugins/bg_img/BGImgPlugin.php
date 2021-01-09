@@ -26,7 +26,7 @@ class BGImgPlugin extends Plugin
 				$src = '/storage/' . $src;
 			}
 
-			if ($this->authenticator->hasUser()) {
+			if ($this->isLoggedIn()) {
 				return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'" data-simplecms-bg-src="'.$src.'"';
 			} else {
 				return 'style="background-image: url(\''.$src.'\')"';

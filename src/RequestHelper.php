@@ -4,8 +4,10 @@ namespace invacto\SimpleCMS;
 
 
 use Exception;
+use invacto\SimpleCMS\repos\SnippetRepo;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Twig\Environment;
 
 class RequestHelper
 {
@@ -19,10 +21,22 @@ class RequestHelper
      */
     private $response;
 
-    public function __construct(Request $request, Response $response)
+	/**
+	 * @var array url args
+	 */
+    private $args;
+
+	/**
+	 * @var Environment twig environment
+	 */
+    private $twig;
+
+    public function __construct(Request $request, Response $response, $args, Environment $twig)
     {
         $this->request = $request;
         $this->response = $response;
+        $this->args = $args;
+        $this->twig = $twig;
     }
 
     public function json($data) {
@@ -55,4 +69,8 @@ class RequestHelper
     public function getResponse() {
         return $this->response;
     }
+
+    public function getUrlParameters() {
+    	return $this->args;
+	}
 }

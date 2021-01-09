@@ -2,6 +2,7 @@ import "kontrl-popups/style/dist/style.css";
 import kontrlPopups from "kontrl-popups";
 import { updateSnippet, uploadAnyImage, uploadSnippetImage, fetchSnippets } from "./repo";
 import kontrlSidebars from "./sidebars";
+import { v4 as uuidv4 } from "uuid";
 
 let _isEditing = false;
 
@@ -23,6 +24,20 @@ const context = {
 						 timeout = setTimeout(later, wait);
 						 if (callNow) func.apply(context, args);
 				};
+		},
+		addButtonRight(text) {
+				const buttonsEl = document.querySelector(".simplecms__adminbar__user-buttons--right");
+				if (buttonsEl == null) return;
+
+				const buttonEl = document.createElement("button");
+				buttonEl.classList.add("simplecms__adminbar__button");
+				buttonEl.innerText = text;
+				buttonsEl.appendChild(buttonEl);
+
+				return buttonEl;
+		},
+		generateId() {
+				return uuidv4().replace(/-/g, "");
 		},
 		sidebars: kontrlSidebars.sidebars,
 		addSidebar: kontrlSidebars.addSidebar,

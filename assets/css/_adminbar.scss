@@ -31,6 +31,17 @@
   align-items: center;
 }
 
+.simplecms__adminbar__user-buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  &--right {
+    margin-right: 15px;
+  }
+}
+
 .simplecms__adminbar__button {
   padding: 5px 15px;
   color: white;

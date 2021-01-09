@@ -1,0 +1,37 @@
+{% extends "layouts/layout.twig" %}
+
+{% block hero %}
+
+    <h1 class="hero__title">
+        {{ text("hero__title", "Your mind is a powerful thing. When you fill it with positive thoughts your life will begin to change") }}
+        {#        <span class="nobr">to change!</span>#}
+    </h1>
+    <p class="hero__text">
+        So, choose your thoughts, focus and take action!
+    </p>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <main class="main main--high container">
+
+        <div class="post">
+            <div class="post__content">
+                <a href="/" class="post__home">
+                    Home
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L6.5 6.5L1 12" stroke="black"/>
+                    </svg>
+                </a>
+                <div class="post__auto">
+                    <h1>{{ text("post_title", "Titel") }}</h1>
+                    {{ wysiwyg("post_text") }}
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+{% endblock %}

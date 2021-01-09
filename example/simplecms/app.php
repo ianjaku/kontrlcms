@@ -8,13 +8,33 @@ $cms = new SimpleCMS(__DIR__ . "/..");
 
 $cms->page("/", "home.twig");
 $cms->page("/about", "about.twig");
-//
+
 $cms->redirect("/login", "/simplecms/login");
-//
+
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\text\TextPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\img\ImgPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\bg_img\BGImgPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\wysiwyg\WYSIWYGPlugin());
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\page_settings\PageSettingsPlugin());
-//
+
+$cms->addPlugin(new \invacto\SimpleCMS\plugins\posts\PostsPlugin([
+	[
+		"name" => "blog",
+		"view" => "post.twig"
+	]
+]));
+
+//$cms->addPlugin(new BlogPlugin([
+//	"posts" => [
+//		"createButton" => "Post",
+//		"requireBeforeCreate" => ["post_title"],
+//		"snippets" => [
+//			"post_slug" => "slug",
+//			"post_title" => "title",
+//			"post_description" => "text",
+//			"post_text" => "text"
+//		]
+//	]
+//]));
+
 $cms->run();

@@ -1,29 +1,28 @@
 <?php
 
-
 namespace invacto\SimpleCMS\plugins;
 
 
-use invacto\SimpleCMS\auth\Authenticator;
+use invacto\SimpleCMS\AppContext;
 use invacto\SimpleCMS\Util;
 
 class PluginContext
 {
     private $twigContext;
 
-    /**
-     * @var Authenticator
-     */
-    private $authenticator;
+	/**
+	 * @var AppContext
+	 */
+    private $appContext;
 
-    public function __construct($twigContext, Authenticator $authenticator)
+    public function __construct($twigContext, AppContext $appContext)
     {
         $this->twigContext = $twigContext;
-        $this->authenticator = $authenticator;
+        $this->appContext = $appContext;
     }
 
     public function isLoggedIn() {
-        return $this->authenticator->hasUser();
+        return $this->appContext->getAuthenticator()->hasUser();
     }
 
     public function findSnippet($name, $valueIfNotFound = null) {

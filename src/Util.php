@@ -27,7 +27,8 @@ class Util
 				if ($snippet->page === "__global__") {
 					$globalValue = $snippet->value;
 				} else {
-					$value = $snippet->value;
+					return $snippet->value;
+//					$value = $snippet->value;
 				}
 				break;
 			}
