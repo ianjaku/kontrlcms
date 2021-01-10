@@ -69,6 +69,7 @@ class Database {
 //                page varchar(255) NOT NULL,
 //                name varchar(255) NOT NULL,
 //                value text NOT NULL,
+//				  !Created at & Inserted at
 //                PRIMARY KEY (id)
 //            );
 //			CREATE INDEX snippets_page ON snippets(page);

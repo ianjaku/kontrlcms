@@ -61,16 +61,35 @@ class SnippetRepo
 	 * @return bool
 	 */
 	public static function updateOrCreate($name, $page, $value) {
-		return self::snippets()->updateOrInsert([
+		$exists = self::snippets()->where("name", $name)->where("page", $page)->exists();
+
+		if ($exists) {
+			return self::snippets()->limit(1)->update([
+				"page" => $page,
+				"name" => $name,
+				"value" => $value,
+				"updated_at" => self::now(),
+			]);
+		}
+
+		return self::snippets()->insert([
+			"page" => $page,
 			"name" => $name,
-			"page" => $page
-		], [
-			"value" => $value
+			"value" => $value,
+			"updated_at" => self::now(),
+			"inserted_at" => self::now()
 		]);
+	}
+
+	public static function customQuery() {
+		return self::snippets();
 	}
 
 	private static function snippets() {
 		return Capsule::table("snippets");
 	}
 
+	private static function now() {
+		return (new \DateTime())->format("Y-m-d\TH:i:s.u");
+	}
 }

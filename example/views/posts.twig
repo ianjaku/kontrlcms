@@ -1,0 +1,25 @@
+{% extends "layouts/layout.twig" %}
+
+{% block hero %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    <main class="main main--high container">
+
+        <ul>
+            {% for post in recent_posts("blog") %}
+                <li>
+                    {{ post_value(post, "post_title") }}
+                    <div>
+                        <a href="{{ post_url(post) }}">Some post</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    </main>
+
+{% endblock %}

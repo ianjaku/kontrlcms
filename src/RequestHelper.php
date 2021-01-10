@@ -73,4 +73,9 @@ class RequestHelper
     public function getUrlParameters() {
     	return $this->args;
 	}
+
+	public function notFound() {
+		// TODO: have an actual 404 page
+		return $this->text("Not Found");
+	}
 }

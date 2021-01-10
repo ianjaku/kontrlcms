@@ -9,6 +9,8 @@ $cms = new SimpleCMS(__DIR__ . "/..");
 $cms->page("/", "home.twig");
 $cms->page("/about", "about.twig");
 
+$cms->page("/blog", "posts.twig");
+
 $cms->redirect("/login", "/simplecms/login");
 
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\text\TextPlugin());
@@ -20,7 +22,8 @@ $cms->addPlugin(new \invacto\SimpleCMS\plugins\page_settings\PageSettingsPlugin(
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\posts\PostsPlugin([
 	[
 		"name" => "blog",
-		"view" => "post.twig"
+		"view" => "post.twig",
+		"slug" => "post_title"
 	]
 ]));
 
