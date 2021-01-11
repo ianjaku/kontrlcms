@@ -273,6 +273,7 @@ function uploadSnippetImage(name, imgFile) {
       body: formData
     }).then(function (response) {
       response.json().then(function (response) {
+        console.log("test2");
         resolve(response.url);
       });
     })["catch"](function (err) {// TODO: Show an error or something

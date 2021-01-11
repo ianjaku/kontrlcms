@@ -182,16 +182,17 @@ class SimpleCMS {
         foreach ($this->appContext->getPlugins() as $plugin) {
             $plugin->appContext = $this->appContext;
             $plugin->setup();
-            $pluginFunctions = $plugin->functions;
-            foreach ($pluginFunctions as $pluginFunction) {
-                call_user_func($pluginFunction, $this->appContext->getTwig());
-            }
+//            $pluginFunctions = $plugin->functions;
+//            foreach ($pluginFunctions as $pluginFunction) {
+//                call_user_func($pluginFunction, $this->appContext->getTwig());
+//            }
             foreach ($plugin->handledRequests as $handledRequest) {
             	$this->handleRequest($handledRequest[0], $handledRequest[1], $handledRequest[2]);
 			}
         }
 
-        $this->addErrorHandler();
+		$this->addGlobalFunction();
+		$this->addErrorHandler();
 
         $this->appContext->getApp()->run();
     }
@@ -199,7 +200,7 @@ class SimpleCMS {
 	public function renderErrorPage($statusCode, $errorMessage = "") {
 		$page = $this->appContext->getErrorPage();
 		if ($page == null) {
-			return "404 Not Found.";
+			return $statusCode . ":" . $errorMessage;
 		} else {
 			$pageData = $this->appContext->fetchPageContext($page, ["statusCode" => $statusCode, "errorMessage" => $errorMessage]);
 			return $this->appContext->renderPage($page, $pageData);
@@ -284,19 +285,36 @@ class SimpleCMS {
             if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
                 $filename = $this->moveUploadedFile($this->appContext->getImageDir(), $uploadedFile);
 
-                $existingImageSnippet = $this->updateOrCreateSnippet(
-                    $page,
-                    $name,
-                    $filename
-                );
+                $existingImageSnippet = SnippetRepo::single($name, $page);
 
-                if ($existingImageSnippet !== null) {
-                    $previousFileName = $existingImageSnippet["value"];
-                    $totalPath = $this->appContext->getImageDir() . "/" . $previousFileName;
-                    if (file_exists($totalPath)) {
-                        unlink($totalPath);
-                    }
-                }
+                if ($existingImageSnippet == null) {
+                	SnippetRepo::insert($name, $page, $filename);
+				} else {
+                	SnippetRepo::update($name, $page, $filename);
+
+                	// Remove previous image
+					$previousFileName = $existingImageSnippet->value;
+					$totalPath = $this->appContext->getImageDir() . "/" . $previousFileName;
+					if (file_exists($totalPath)) {
+						unlink($totalPath);
+					}
+				}
+
+//                SnippetRepo::updateOrCreate($name, $page, $filename);
+
+//                $existingImageSnippet = $this->updateOrCreateSnippet(
+//                    $page,
+//                    $name,
+//                    $filename
+//                );
+
+//                if ($existingImageSnippet !== null) {
+//                    $previousFileName = $existingImageSnippet["value"];
+//                    $totalPath = $this->appContext->getImageDir() . "/" . $previousFileName;
+//                    if (file_exists($totalPath)) {
+//                        unlink($totalPath);
+//                    }
+//                }
 
                 return $this->JSON($response, ["fileName" => $filename, "url" => "/storage/$filename"]);
             }
@@ -516,4 +534,16 @@ class SimpleCMS {
 		$errorMiddleware = $this->appContext->getApp()->addErrorMiddleware(true, true, true);
 		$errorMiddleware->setDefaultErrorHandler($customErrorHandler);
 	}
+
+	private function addGlobalFunction() {
+    	$this->appContext->getTwig()->addFunction(new TwigFunction("start_global", function () {
+    		$this->appContext->setGlobalNames(true);
+    		return "";
+		}, ["is_safe" => ["html"]]));
+		$this->appContext->getTwig()->addFunction(new TwigFunction("end_global", function () {
+			$this->appContext->setGlobalNames(false);
+			return "";
+		}, ["is_safe" => ["html"]]));
+	}
+
 }

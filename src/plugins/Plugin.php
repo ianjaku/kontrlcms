@@ -4,9 +4,6 @@ namespace invacto\SimpleCMS\plugins;
 
 
 use invacto\SimpleCMS\AppContext;
-use Twig\Environment;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
 
 abstract class Plugin
 {
@@ -15,8 +12,6 @@ abstract class Plugin
 
     public $styleFunctions = [];
     public $adminStyleFunctions = [];
-
-    public $functions = [];
 
     public $handledRequests = [];
 
@@ -76,18 +71,7 @@ abstract class Plugin
 	}
 
     public function addTemplateFunction(string $name, $func) {
-        $this->functions[] = function (Environment $twig) use ($name, $func) {
-            $twig->addFunction(new TwigFunction($name, function ($context, array $params = []) use ($func) {
-                $pluginContext = new PluginContext($context, $this->appContext);
-                return call_user_func($func, $pluginContext, $params);
-            }, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
-
-            $twig->addFilter(new TwigFilter($name, function ($context, $content, array $params = []) use ($func) {
-            	$params[] = $content;
-				$pluginContext = new PluginContext($context, $this->appContext);
-				return call_user_func($func, $pluginContext, $params);
-			}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
-        };
+    	$this->appContext->addTemplateFunction($name, $func);
     }
 
     public function isLoggedIn() {

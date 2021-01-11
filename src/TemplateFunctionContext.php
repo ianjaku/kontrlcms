@@ -1,10 +1,7 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins;
+namespace invacto\SimpleCMS;
 
-
-use invacto\SimpleCMS\AppContext;
-use invacto\SimpleCMS\Util;
 
 class TemplateFunctionContext
 {
@@ -34,5 +31,12 @@ class TemplateFunctionContext
 
     public function findGlobalSnippet($name, $valueIfNotFound = null) {
     	return Util::findGlobalSnippetInContext($this->twigContext, $name, $valueIfNotFound);
+	}
+
+	public function getPageName() {
+    	if ($this->appContext->areNamesGlobal()) {
+    		return "__global__";
+		}
+    	return $this->twigContext["__pageFile"];
 	}
 }

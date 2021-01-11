@@ -19,7 +19,8 @@ class TextPlugin {
 			});
 			el.addEventListener('input', e => {
 				const name = e.target.dataset.name;
-				const type = e.target.dataset.type;
+				// const type = e.target.dataset.type;
+				const page = e.target.dataset.page;
 
 				let value;
 				if (e.target.innerText) {
@@ -27,7 +28,7 @@ class TextPlugin {
 				} else {
 					value = e.target.innerHTML;
 				}
-				this.context.updateSnippet(name, value);
+				this.context.updateSnippet(name, value, page);
 			});
 		}
 	}

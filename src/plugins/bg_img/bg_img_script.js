@@ -21,9 +21,10 @@ class BGImagePlugin {
     }
 
     setup() {
-        const bgImageEls = document.querySelectorAll("[data-simplecms-bg-image]");
+        const bgImageEls = document.querySelectorAll("[data-simplecms-bg-img]");
         bgImageEls.forEach(bgImageEl => {
-            const name = bgImageEl.dataset.simplecmsBgImage;
+            const name = bgImageEl.dataset.name;
+            const page = bgImageEl.dataset.page;
 
             const newItem = document.createElement("div");
             newItem.classList.add("simplecms__bg-img-edit");
@@ -34,9 +35,10 @@ class BGImagePlugin {
 
             newItem.addEventListener("click", () => {
                 console.log(bgImageEl.dataset);
-                this.popup(bgImageEl.dataset.simplecmsBgSrc).then(data => {
+                this.popup(bgImageEl.dataset.src).then(data => {
                     if (data == null) return;
-                    this.context.uploadSnippetImage(name, data.content.img).then(url => {
+                    console.log(name, data.content.img, page);
+                    this.context.uploadSnippetImage(name, data.content.img, page).then(url => {
                         console.log("Finish");
                         bgImageEl.style.backgroundImage = `url('${url}')`;
                     });

@@ -27,18 +27,19 @@ class ImagePlugin {
 								if (!context.isEditing()) return;
 								e.preventDefault();
 								e.stopPropagation();
-								const name = e.target.dataset['simplecmsImg'];
+								const name = e.target.dataset.name;
+								const page = e.target.dataset.page;
 								const el = e.target;
 
 								this.popup(el.src).then(data => {
 										if (data == null) return;
 										console.log(data);
 										// TODO: do something with ALT tag
-										context.updateSnippet(name + "__alt", data.content.alt).then(() => {
+										context.updateSnippet(name + "__alt", data.content.alt, page).then(() => {
 												el.alt = data.content.alt;
 										});
 										if (!(typeof data.content.img === "string")) {
-												context.uploadSnippetImage(name, data.content.img)
+												context.uploadSnippetImage(name, data.content.img, page)
 														.then(url => el.src = url);
 										}
 								})

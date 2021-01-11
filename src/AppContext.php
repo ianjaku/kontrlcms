@@ -5,6 +5,7 @@ namespace invacto\SimpleCMS;
 
 use invacto\SimpleCMS\auth\Authenticator;
 use invacto\SimpleCMS\plugins\Plugin;
+use invacto\SimpleCMS\TemplateFunctionContext;
 use invacto\SimpleCMS\repos\Database;
 use invacto\SimpleCMS\repos\SnippetRepo;
 use Slim\App;
@@ -14,6 +15,8 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class AppContext
 {
@@ -54,6 +57,13 @@ class AppContext
 	 * @var string
 	 */
 	private $errorPage = null;
+
+	/**
+	 * @var bool Make all snippets global
+	 */
+	private $globalNames = false;
+
+	private $twigFunctions = [];
 
 	public function __construct($appDir)
 	{
@@ -163,6 +173,29 @@ class AppContext
 
 	public function getHooksFor($name){
 		return $this->hooks[$name];
+	}
+
+	public function addTemplateFunction(string $name, $func) {
+//		$this->twigFunctions[] = function (Environment $twig) use ($name, $func) {
+		$this->twig->addFunction(new TwigFunction($name, function ($context, array $params = []) use ($func) {
+			 $pluginContext = new TemplateFunctionContext($context, $this);
+			 return call_user_func($func, $pluginContext, $params);
+		}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
+
+		$this->twig->addFilter(new TwigFilter($name, function ($context, $content, array $params = []) use ($func) {
+			 $params[] = $content;
+			 $pluginContext = new TemplateFunctionContext($context, $this);
+			 return call_user_func($func, $pluginContext, $params);
+		}, ["is_safe" => ["html"], "needs_context" => true, "is_variadic" => true]));
+//		};
+	}
+
+	public function setGlobalNames(bool $val) {
+		$this->globalNames = $val;
+	}
+
+	public function areNamesGlobal() {
+		return $this->globalNames;
 	}
 
 }

@@ -24,6 +24,7 @@ export function uploadSnippetImage(name, imgFile, page = PAGE_NAME) {
             body: formData
         }).then(response => {
             response.json().then(response => {
+                console.log("test2");
                 resolve(response.url)
             })
         }).catch(err => {
