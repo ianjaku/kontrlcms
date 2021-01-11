@@ -6,7 +6,7 @@ namespace invacto\SimpleCMS\plugins\posts;
 
 use Exception;
 use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\plugins\PluginContext;
+use invacto\SimpleCMS\TemplateFunctionContext;
 use invacto\SimpleCMS\repos\SnippetRepo;
 use invacto\SimpleCMS\RequestHelper;
 
@@ -64,7 +64,7 @@ class PostsPlugin extends Plugin
 		 * 	1: Max Post Count (default: 20) "blog"
 		 */
 		$settings = $this->settings;
-		$this->addTemplateFunction("recent_posts", function (PluginContext $context, $params = []) use ($settings) {
+		$this->addTemplateFunction("recent_posts", function (TemplateFunctionContext $context, $params = []) use ($settings) {
 			if (sizeof($params) < 1) {
 				throw new Exception("Requires at least 1 parameter to the 'recent_posts' function");
 			}
@@ -92,7 +92,7 @@ class PostsPlugin extends Plugin
 		 * 1: Name (like "post_title")
 		 * 2: Default value (optional)
 		 */
-		$this->addTemplateFunction("post_value", function (PluginContext $context, $params = []) {
+		$this->addTemplateFunction("post_value", function (TemplateFunctionContext $context, $params = []) {
 			if (sizeof($params) < 2) {
 				throw new Exception("The 'post_value' requires at least 2 parameters 'post' and 'name'.");
 			}
@@ -107,7 +107,7 @@ class PostsPlugin extends Plugin
 			return "";
 		});
 
-		$this->addTemplateFunction("post_url", function (PluginContext $context, $params = []) {
+		$this->addTemplateFunction("post_url", function (TemplateFunctionContext $context, $params = []) {
 			if (sizeof($params) < 1) {
 				throw new Exception("The 'post_link' requires at least 1 parameters 'post'.");
 			}

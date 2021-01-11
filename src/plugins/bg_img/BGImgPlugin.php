@@ -4,8 +4,7 @@ namespace invacto\SimpleCMS\plugins\bg_img;
 
 
 use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\plugins\PluginContext;
-use Twig\TwigFunction;
+use invacto\SimpleCMS\TemplateFunctionContext;
 
 class BGImgPlugin extends Plugin
 {
@@ -15,7 +14,7 @@ class BGImgPlugin extends Plugin
 		$this->addAdminStyleFile(__DIR__ . "/bg_img_style.css");
 		$this->addAdminScriptFile(__DIR__ . "/bg_img_script.js");
 
-		$this->addTemplateFunction("bgImg", function (PluginContext $context, array $args) {
+		$this->addTemplateFunction("bgImg", function (TemplateFunctionContext $context, array $args) {
 			$name = $args[0];
 			$defaultValue = $args[1];
 
@@ -27,7 +26,12 @@ class BGImgPlugin extends Plugin
 			}
 
 			if ($this->isLoggedIn()) {
-				return 'style="background-image: url(\''.$src.'\')" data-simplecms-bg-image="'.$name.'" data-simplecms-bg-src="'.$src.'"';
+				$res = 'style="background-image: url(\''.$src.'\')"';
+				$res .= ' data-page="'.$context->getPageName().'"';
+				$res .= ' data-name="'.$name.'"';
+				$res .= ' data-simplecms-bg-img';
+				$res .= ' data-src="'.$src.'"';
+				return $res;
 			} else {
 				return 'style="background-image: url(\''.$src.'\')"';
 			}

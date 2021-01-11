@@ -61,17 +61,16 @@ class SnippetRepo
 	 * @return bool
 	 */
 	public static function updateOrCreate($name, $page, $value) {
-		$exists = self::snippets()->where("name", $name)->where("page", $page)->exists();
+		$exists = self::exists($name, $page);
 
 		if ($exists) {
-			return self::snippets()->limit(1)->update([
-				"page" => $page,
-				"name" => $name,
-				"value" => $value,
-				"updated_at" => self::now(),
-			]);
+			return self::update($name, $page, $value);
 		}
 
+		return self::insert($name, $page, $value);
+	}
+
+	public static function insert($name, $page, $value) {
 		return self::snippets()->insert([
 			"page" => $page,
 			"name" => $name,
@@ -79,6 +78,23 @@ class SnippetRepo
 			"updated_at" => self::now(),
 			"inserted_at" => self::now()
 		]);
+	}
+
+	public static function update($name, $page, $value) {
+		return self::snippets()->limit(1)->update([
+			"page" => $page,
+			"name" => $name,
+			"value" => $value,
+			"updated_at" => self::now(),
+		]);
+	}
+
+	public static function single($name, $page) {
+		return self::snippets()->where("name", $name)->where("page", $page)->first();
+	}
+
+	public static function exists($name, $page) {
+		return self::snippets()->where("name", $name)->where("page", $page)->exists();
 	}
 
 	public static function customQuery() {

@@ -39,4 +39,14 @@ class Util
 		return $value;
 	}
 
+	public static function findGlobalSnippetInContext($context, $name, $defaultValue = null) {
+		$snippets = $context["__snippets"];
+		foreach ($snippets as $snippet) {
+			if ($snippet->page === "__global__" && $snippet->name === $name) {
+				return $snippet->value;
+			}
+		}
+		return $defaultValue;
+	}
+
 }

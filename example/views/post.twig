@@ -7,7 +7,9 @@
         {#        <span class="nobr">to change!</span>#}
     </h1>
     <p class="hero__text">
-        So, choose your thoughts, focus and take action!
+        {{ start_global() }}
+            {{ text("post.twig/hero__text", "So, choose your thoughts, focus and take action!") }}
+        {{ end_global() }}
     </p>
 
 {% endblock %}

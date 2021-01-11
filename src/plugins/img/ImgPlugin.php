@@ -4,7 +4,7 @@ namespace invacto\SimpleCMS\plugins\img;
 
 
 use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\plugins\PluginContext;
+use invacto\SimpleCMS\TemplateFunctionContext;
 
 class ImgPlugin extends Plugin
 {
@@ -14,7 +14,7 @@ class ImgPlugin extends Plugin
 		$this->addAdminStyleFile(__DIR__ . "/img_style.css");
 		$this->addAdminScriptFile(__DIR__ . "/img_script.js");
 
-		$this->addTemplateFunction('img', function (PluginContext $context, array $params) {
+		$this->addTemplateFunction('img', function (TemplateFunctionContext $context, array $params) {
 			$name = $params[0];
 			$defaultValue = isset($params[1]) ? $params[1] : "";
 			$altDefault = isset($params[2]) ? $params[2] : "";
@@ -28,7 +28,7 @@ class ImgPlugin extends Plugin
 				$src = '/storage/' . $src;
 			}
 			if ($this->isLoggedIn()) {
-				return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img="'.$name.'" '.$other.'>';
+				return '<img src="'.$src.'" alt="'.$alt.'" data-simplecms-img data-page="'.$context->getPageName().'" data-name="'.$name.'" '.$other.'>';
 			} else {
 				return '<img src="'.$src.'" alt="'.$alt.'" '.$other.'>';
 			}
