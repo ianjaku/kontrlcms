@@ -74,6 +74,8 @@ class AppContext
 		$this->db = $this->createDb();
 		$this->authenticator = new Authenticator($_ENV["SECRET_KEY"]);
 		$this->plugins = [];
+
+		$this->db->setup();
 	}
 
 	public function getTwig() {

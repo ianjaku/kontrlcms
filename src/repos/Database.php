@@ -4,6 +4,8 @@ namespace invacto\SimpleCMS\repos;
 
 use Exception;
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Fluent;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -50,6 +52,36 @@ class Database {
 		$this->db->setAsGlobal();
     }
 
+    public function setup() {
+    	Capsule::schema()->create("users", function (Blueprint $table) {
+    		$table->increments("id");
+    		$table->string("email")->unique();
+    		$table->string("password");
+    		$table->string("salt");
+		});
+
+    	Capsule::schema()->create("snippets", function (Blueprint $table) {
+    		$table->increments("id");
+    		$table->string("page")->index();
+    		$table->string("name");
+    		$table->text("value");
+    		$table->timestamp("inserted_at")->index();
+    		$table->timestamp("updated_at")->index();
+		});
+
+    	Capsule::schema()->create("user_tokens", function (Blueprint $table) {
+    		$table->increments("id");
+    		$table->string("token");
+    		$table->timestamp("inserted_at");
+		});
+
+    	Capsule::schema()->create("login_tokens", function (Blueprint $table) {
+    		$table->increments("id");
+    		$table->string("token");
+    		$table->unsignedInteger("user_id");
+    		$table->foreign("user_id")->references("id")->on("users");
+		});
+	}
 //    public function setup() {
 //        $this->ensureConnected();
 //        if ($this->doTablesExist()) {
