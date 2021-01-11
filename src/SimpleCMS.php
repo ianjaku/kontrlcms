@@ -140,14 +140,6 @@ class SimpleCMS {
         $this->createEditEndpoints();
     }
 
-    public function setFavicon($faviconUrl) {
-    	$this->appContext->addHook("head", function ($content) use ($faviconUrl) {
-    		return $content . "
-    			<link rel=\"shortcut icon\" href=\"$faviconUrl\" type=\"image/x-icon\"/>
-    		";
-		});
-	}
-
     public function addPlugin($plugin) {
     	$this->appContext->addPlugin($plugin);
     }
