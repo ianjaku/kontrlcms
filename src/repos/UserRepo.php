@@ -6,6 +6,7 @@ namespace invacto\SimpleCMS\repos;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 
 class UserRepo
@@ -61,6 +62,17 @@ class UserRepo
 	 */
 	public static function countAll() {
 		return self::users()->count();
+	}
+
+	public static function doesTableExist() {
+		try {
+			UserRepo::countAll();
+		} catch (QueryException $e) {
+			if ($e->getCode() === "42S02") {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static function users() {

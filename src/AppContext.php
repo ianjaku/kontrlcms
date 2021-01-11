@@ -211,4 +211,8 @@ class AppContext
 		return $this->logger;
 	}
 
+	public function getDB() {
+		return $this->db;
+	}
+
 }

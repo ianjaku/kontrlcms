@@ -52,7 +52,7 @@ class Database {
 		$this->db->setAsGlobal();
     }
 
-    public function setup() {
+    public function createTables() {
     	Capsule::schema()->create("users", function (Blueprint $table) {
     		$table->increments("id");
     		$table->string("email")->unique();

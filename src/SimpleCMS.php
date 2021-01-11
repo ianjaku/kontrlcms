@@ -4,6 +4,7 @@ namespace invacto\SimpleCMS;
 
 
 use Dotenv\Dotenv;
+use Illuminate\Database\QueryException;
 use invacto\SimpleCMS\repos\SnippetRepo;
 use invacto\SimpleCMS\repos\UserRepo;
 use invacto\SimpleCMS\repos\UserTokenRepo;
@@ -355,32 +356,26 @@ class SimpleCMS {
             return $this->sendSeeOther($response, "/");
         })->add($this->bodyParser);
 
-        $this->appContext->getApp()->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
-        	$existingUsersCount = UserRepo::countAll();
-			if ((int)$existingUsersCount !== 0) {
-				$response->getBody()->write("Page unavailable");
-				return $response;
+		$this->appContext->getApp()->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
+			$tableExists = UserRepo::doesTableExist();
+			if ($tableExists) {
+				$existingUsersCount = UserRepo::countAll();
+				if ($existingUsersCount !== 0) return $this->unauthorized($response);
 			}
 			return $this->renderLibraryPage($response, "setup.twig");
-        })->add($this->bodyParser);
+		})->add($this->bodyParser);
 
         $this->appContext->getApp()->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
-            // TODO: Redo setup with migrations
-
-//            try {
-//                $existingUsers = $this->db->select("SELECT COUNT(*) as count FROM users");
-//                $existingUsersCount = $existingUsers[0]["count"];
+			$tableExists = UserRepo::doesTableExist();
+			if ($tableExists) {
 				$existingUsersCount = UserRepo::countAll();
+				if ($existingUsersCount !== 0) return $this->unauthorized($response);
+			} else {
+				$this->appContext->getDB()->createTables();
+			}
 
-				if ((int)$existingUsersCount !== 0) {
-                    $response->getBody()->write("Page unavailable");
-                    return $response;
-                }
-//            } catch (\PDOException $e) {
-//                $this->db->setup();
-//            }
             $email = strtolower($params["admin_email"]);
             $this->appContext->getAuthenticator()->register($email, $params["admin_password"]);
 
