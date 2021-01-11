@@ -7,6 +7,7 @@ use Exception;
 use invacto\SimpleCMS\repos\SnippetRepo;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Exception\HttpNotFoundException;
 use Twig\Environment;
 
 class RequestHelper
@@ -75,7 +76,6 @@ class RequestHelper
 	}
 
 	public function notFound() {
-		// TODO: have an actual 404 page
-		return $this->text("Not Found.");
+		throw new HttpNotFoundException($this->request);
 	}
 }
