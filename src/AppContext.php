@@ -8,6 +8,8 @@ use invacto\SimpleCMS\plugins\Plugin;
 use invacto\SimpleCMS\TemplateFunctionContext;
 use invacto\SimpleCMS\repos\Database;
 use invacto\SimpleCMS\repos\SnippetRepo;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Slim\App;
 use Slim\Factory\AppFactory;
 use Twig\Environment;
@@ -63,7 +65,12 @@ class AppContext
 	 */
 	private $globalNames = false;
 
-	private $twigFunctions = [];
+//	private $twigFunctions = [];
+
+	/**
+	 * @var Logger
+	 */
+	private $logger;
 
 	public function __construct($appDir)
 	{
@@ -74,8 +81,8 @@ class AppContext
 		$this->db = $this->createDb();
 		$this->authenticator = new Authenticator($_ENV["SECRET_KEY"]);
 		$this->plugins = [];
-
-		$this->db->setup();
+		$this->logger = new Logger("general");
+		$this->logger->pushHandler(new StreamHandler($appDir . "/errors.log", Logger::WARNING));
 	}
 
 	public function getTwig() {
@@ -198,6 +205,10 @@ class AppContext
 
 	public function areNamesGlobal() {
 		return $this->globalNames;
+	}
+
+	public function getLogger() {
+		return $this->logger;
 	}
 
 }

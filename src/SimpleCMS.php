@@ -531,7 +531,7 @@ class SimpleCMS {
 			$response->getBody()->write($this->renderErrorPage($exception->getCode(), $exception->getMessage()));
 			return $response;
 		};
-		$errorMiddleware = $this->appContext->getApp()->addErrorMiddleware(true, true, true);
+		$errorMiddleware = $this->appContext->getApp()->addErrorMiddleware(true, true, true, $this->appContext->getLogger());
 		$errorMiddleware->setDefaultErrorHandler($customErrorHandler);
 	}
 
