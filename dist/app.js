@@ -1208,6 +1208,7 @@ var FormItem = /** @class */ (function (_super) {
     function FormItem(params) {
         var _this = _super.call(this, params) || this;
         _this.formEl = null;
+        _this.submitButtonEl = null;
         _this.items = params.items;
         _this.onSubmit = params.onSubmit;
         _this.submitText = params.submitText || "Save";
@@ -1236,23 +1237,28 @@ var FormItem = /** @class */ (function (_super) {
         toolbelt.classList.add("kontrl-sidebars__form__buttons");
         formEl.append(toolbelt);
         var submitButton = document.createElement("button");
+        this.submitButtonEl = submitButton;
         submitButton.classList.add("kontrl-sidebars__form__button");
         submitButton.type = "submit";
         submitButton.innerHTML = this.submitText;
         toolbelt.append(submitButton);
         var onAltButton = this.onAltButton;
         if (onAltButton != null) {
-            var altButton = document.createElement("button");
-            altButton.classList.add("kontrl-sidebars__form__button");
-            altButton.classList.add("kontrl-sidebars__form__button--alt");
-            altButton.type = "button";
-            altButton.innerHTML = this.altButtonText || "Clear";
-            altButton.addEventListener("click", function () {
+            var altButton_1 = document.createElement("button");
+            altButton_1.classList.add("kontrl-sidebars__form__button");
+            altButton_1.classList.add("kontrl-sidebars__form__button--alt");
+            altButton_1.type = "button";
+            altButton_1.innerHTML = this.altButtonText || "Clear";
+            altButton_1.addEventListener("click", function () {
                 var value = _this.getValue();
-                if (value != null)
-                    onAltButton(value, _this.validate.bind(_this), _this.state);
+                if (value == null)
+                    return;
+                var result = onAltButton(value, _this.validate.bind(_this), _this.state);
+                if (result == null)
+                    return;
+                _this.buttonLoadingAnimation(altButton_1, Promise.resolve(result));
             });
-            toolbelt.append(altButton);
+            toolbelt.append(altButton_1);
         }
         return [formEl];
     };
@@ -1268,8 +1274,24 @@ var FormItem = /** @class */ (function (_super) {
     };
     FormItem.prototype.handleSubmit = function () {
         var value = this.getValue();
-        if (value != null)
-            this.onSubmit(value, this.validate.bind(this), this.state);
+        if (value == null)
+            return;
+        var result = this.onSubmit(value, this.validate.bind(this), this.state);
+        if (result == null || this.submitButtonEl == null)
+            return;
+        this.buttonLoadingAnimation(this.submitButtonEl, Promise.resolve(result));
+    };
+    FormItem.prototype.buttonLoadingAnimation = function (el, promise) {
+        el.disabled = true;
+        el.classList.add("kontrl-sidebars__form__button--loading");
+        promise.then(function () {
+            el.disabled = false;
+            el.classList.remove("kontrl-sidebars__form__button--loading");
+            el.classList.add("kontrl-sidebars__form__button--finished");
+            setTimeout(function () {
+                el.classList.remove("kontrl-sidebars__form__button--finished");
+            }, 500);
+        });
     };
     FormItem.prototype.validate = function () {
         var errors = this.items.reduce(function (result, item) {

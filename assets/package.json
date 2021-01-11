@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "kontrl-popups": "^1.0.3",
-    "kontrl-sidebars": "^1.2.0",
+    "kontrl-sidebars": "^1.2.1",
     "lodash": "^4.17.20",
     "prosemirror-commands": "^1.1.4",
     "prosemirror-dropcursor": "^1.3.2",

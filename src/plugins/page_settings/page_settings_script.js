@@ -50,19 +50,19 @@ class PageSettingsPlugin {
 										new items.InputItem({
 												name: "page_title",
 												label: "Page Title",
-												validator: Validation.exists(),
+												// validator: Validation.exists(),
 												valueFromState: (state => state.page_title || "")
 										}),
 										new items.InputItem({
 												name: "page_keywords",
 												label: "Page Keywords",
-												validator: Validation.exists(),
+												// validator: Validation.exists(),
 												valueFromState: (state => state.page_keywords || "")
 										}),
 										new items.TextAreaItem({
 												name: "page_description",
 												label: "Page Description",
-												validator: Validation.exists(),
+												// validator: Validation.exists(),
 												valueFromState: (state => state.page_description || "")
 										})
 								]
@@ -73,18 +73,20 @@ class PageSettingsPlugin {
 		handleSetDefault(values, validate) {
 				const errs = validate();
 				if (errs.length !== 0) return;
-				this.context.updateSnippet(PAGE_TITLE, values["page_title"], "__global__");
-				this.context.updateSnippet(PAGE_DESC, values["page_description"], "__global__");
-				this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], "__global__");
+				const p1 = this.context.updateSnippet(PAGE_TITLE, values["page_title"], "__global__");
+				const p2 = this.context.updateSnippet(PAGE_DESC, values["page_description"], "__global__");
+				const p3 = this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], "__global__");
+				return Promise.all([p1, p2, p3]);
 		}
 
 		handleFormSubmit(values, validate) {
 				const errs = validate();
 				if (errs.length !== 0) return;
 				document.title = values["page_title"];
-				this.context.updateSnippet(PAGE_TITLE, values["page_title"], this.context.pageName);
-				this.context.updateSnippet(PAGE_DESC, values["page_description"], this.context.pageName);
-				this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], this.context.pageName);
+				const p1 = this.context.updateSnippet(PAGE_TITLE, values["page_title"], this.context.pageName);
+				const p2 = this.context.updateSnippet(PAGE_DESC, values["page_description"], this.context.pageName);
+				const p3 = this.context.updateSnippet(PAGE_KEYS, values["page_keywords"], this.context.pageName);
+				return Promise.all([p1, p2, p3]);
 		}
 
 		getSnippetValue(snippets, name, page) {
