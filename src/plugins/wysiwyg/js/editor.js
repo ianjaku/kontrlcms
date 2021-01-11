@@ -20,7 +20,8 @@ class Editor {
 
     constructor(el, kontrlContext) {
         this.el = el;
-        this.name = this.el.dataset.simplecmsName;
+        this.name = this.el.dataset.name;
+        this.page = this.el.dataset.page;
 
         const contentEl = document.createElement("div");
         contentEl.innerHTML = this.el.innerHTML;
@@ -62,7 +63,7 @@ class Editor {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            page: PAGE_NAME,
+                            page: this.page,
                             name: this.name,
                             value: data
                         })
