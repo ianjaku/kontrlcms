@@ -1,5 +1,5 @@
 {
-  "name": "invacto/simplecms",
+  "name": "invacto/kontrlcms",
   "description": "A simple hello world composer package",
   "type": "library",
   "license": "MIT",
@@ -12,8 +12,8 @@
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "invacto\\SimpleCMS\\": "src/",
-      "invacto\\SimpleCMSExample\\": "example/"
+      "invacto\\KontrlCMS\\": "src/",
+      "invacto\\KontrlCMSExample\\": "example/"
     }
   },
   "require": {

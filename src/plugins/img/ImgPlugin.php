@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\img;
+namespace invacto\KontrlCMS\plugins\img;
 
 
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
 
 class ImgPlugin extends Plugin
 {

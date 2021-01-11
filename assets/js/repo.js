@@ -1,6 +1,6 @@
 
 export function updateSnippet(name, value, page = PAGE_NAME) {
-    return fetch('/simplecms/update', {
+    return fetch('/kontrlcms/update', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -20,7 +20,7 @@ export function uploadSnippetImage(name, imgFile, page = PAGE_NAME) {
         formData.append('page', page);
         formData.append('name', name);
 
-        fetch(`/simplecms/upload`, {
+        fetch(`/kontrlcms/upload`, {
             method: "POST",
             body: formData
         }).then(response => {
@@ -39,7 +39,7 @@ export function uploadAnyImage(imgFile, purpose) {
         const formData = new FormData();
         formData.append('file', imgFile);
 
-        fetch(`/simplecms/upload/${purpose}`, {
+        fetch(`/kontrlcms/upload/${purpose}`, {
             method: "POST",
             body: formData
         }).then(response => {
@@ -61,7 +61,7 @@ export function uploadAnyImage(imgFile, purpose) {
 export function fetchSnippets(data) {
     const jsonData = JSON.stringify(data);
     const snippetQuery = encodeURI(jsonData);
-    return fetch("/simplecms/snippets?snippets=" + snippetQuery)
+    return fetch("/kontrlcms/snippets?snippets=" + snippetQuery)
             .then(r => r.json());
 }
 

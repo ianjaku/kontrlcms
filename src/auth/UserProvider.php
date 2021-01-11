@@ -1,9 +1,9 @@
 <?php
 
-namespace invacto\SimpleCMS\auth;
+namespace invacto\KontrlCMS\auth;
 
 
-use invacto\SimpleCMS\repos\UserRepo;
+use invacto\KontrlCMS\repos\UserRepo;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

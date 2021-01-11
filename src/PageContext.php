@@ -1,6 +1,6 @@
 <?php
 
-namespace invacto\SimpleCMS;
+namespace invacto\KontrlCMS;
 
 
 /**

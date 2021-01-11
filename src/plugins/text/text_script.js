@@ -28,7 +28,6 @@ class TextPlugin {
 				} else {
 					value = e.target.innerHTML;
 				}
-				console.log(name, value, page);
 				this.context.updateSnippet(name, value, page);
 			}, 200));
 		}

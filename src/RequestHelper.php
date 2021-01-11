@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS;
+namespace invacto\KontrlCMS;
 
 
 use Exception;
-use invacto\SimpleCMS\repos\SnippetRepo;
+use invacto\KontrlCMS\repos\SnippetRepo;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\HttpNotFoundException;

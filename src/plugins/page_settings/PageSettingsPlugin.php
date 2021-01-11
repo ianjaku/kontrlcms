@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\page_settings;
+namespace invacto\KontrlCMS\plugins\page_settings;
 
 
-use invacto\SimpleCMS\PageContext;
-use invacto\SimpleCMS\plugins\Plugin;
+use invacto\KontrlCMS\PageContext;
+use invacto\KontrlCMS\plugins\Plugin;
 
 class PageSettingsPlugin extends Plugin
 {

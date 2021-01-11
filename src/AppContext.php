@@ -1,13 +1,13 @@
 <?php
 
-namespace invacto\SimpleCMS;
+namespace invacto\KontrlCMS;
 
 
-use invacto\SimpleCMS\auth\Authenticator;
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
-use invacto\SimpleCMS\repos\Database;
-use invacto\SimpleCMS\repos\SnippetRepo;
+use invacto\KontrlCMS\auth\Authenticator;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\repos\Database;
+use invacto\KontrlCMS\repos\SnippetRepo;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Slim\App;

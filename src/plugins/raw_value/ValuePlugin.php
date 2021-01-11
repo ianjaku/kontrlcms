@@ -1,11 +1,11 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\raw_value;
+namespace invacto\KontrlCMS\plugins\raw_value;
 
 
 use Exception;
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
 
 class ValuePlugin extends Plugin
 {

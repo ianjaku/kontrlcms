@@ -1,6 +1,6 @@
 <?php
 
-namespace invacto\SimpleCMS\repos;
+namespace invacto\KontrlCMS\repos;
 
 use Exception;
 use Illuminate\Database\Capsule\Manager;

@@ -33,7 +33,6 @@ class ImagePlugin {
 
 								this.popup(el.src).then(data => {
 										if (data == null) return;
-										console.log(data);
 										// TODO: do something with ALT tag
 										context.updateSnippet(name + "__alt", data.content.alt, page).then(() => {
 												el.alt = data.content.alt;

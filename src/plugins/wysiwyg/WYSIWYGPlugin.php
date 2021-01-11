@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\wysiwyg;
+namespace invacto\KontrlCMS\plugins\wysiwyg;
 
 
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
 
 class WYSIWYGPlugin extends Plugin
 {

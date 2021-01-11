@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\bg_img;
+namespace invacto\KontrlCMS\plugins\bg_img;
 
 
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
 
 class BGImgPlugin extends Plugin
 {

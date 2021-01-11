@@ -1,11 +1,11 @@
 <?php
 
 
-namespace invacto\SimpleCMS\plugins\text;
+namespace invacto\KontrlCMS\plugins\text;
 
 
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
 
 class TextPlugin extends Plugin
 {

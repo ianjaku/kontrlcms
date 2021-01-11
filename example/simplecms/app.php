@@ -2,22 +2,22 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use invacto\SimpleCMS\SimpleCMS;
+use invacto\KontrlCMS\KontrlCMS;
 
-$cms = new SimpleCMS(__DIR__ . "/..");
+$cms = new KontrlCMS(__DIR__ . "/..");
 
 $cms->page("/", "home.twig");
 $cms->page("/about", "about.twig");
 $cms->page("/blog", "posts.twig");
 
-$cms->redirect("/login", "/simplecms/login");
+$cms->redirect("/login", "/kontrlcms/login");
 
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\text\TextPlugin());
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\img\ImgPlugin());
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\bg_img\BGImgPlugin());
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\wysiwyg\WYSIWYGPlugin());
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\page_settings\PageSettingsPlugin());
-$cms->addPlugin(new \invacto\SimpleCMS\plugins\posts\PostsPlugin([
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\text\TextPlugin());
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\img\ImgPlugin());
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\bg_img\BGImgPlugin());
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\wysiwyg\WYSIWYGPlugin());
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\page_settings\PageSettingsPlugin());
+$cms->addPlugin(new \invacto\KontrlCMS\plugins\posts\PostsPlugin([
 	[
 		"name" => "blog",
 		"view" => "post.twig",

@@ -1,6 +1,6 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins\posts;
+namespace invacto\KontrlCMS\plugins\posts;
 
 
 class PostsSettings

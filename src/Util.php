@@ -1,7 +1,7 @@
 <?php
 
 
-namespace invacto\SimpleCMS;
+namespace invacto\KontrlCMS;
 
 
 class Util

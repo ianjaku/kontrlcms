@@ -1,13 +1,12 @@
 <?php
 
-namespace invacto\SimpleCMS;
+namespace invacto\KontrlCMS;
 
 
 use Dotenv\Dotenv;
-use Illuminate\Database\QueryException;
-use invacto\SimpleCMS\repos\SnippetRepo;
-use invacto\SimpleCMS\repos\UserRepo;
-use invacto\SimpleCMS\repos\UserTokenRepo;
+use invacto\KontrlCMS\repos\SnippetRepo;
+use invacto\KontrlCMS\repos\UserRepo;
+use invacto\KontrlCMS\repos\UserTokenRepo;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -19,7 +18,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
-class SimpleCMS {
+class KontrlCMS {
 
     /**
      * @var BodyParsingMiddleware
@@ -59,10 +58,10 @@ class SimpleCMS {
 						const __KONTRL_BASE_PLUGINS = [];
 						const __KONTRL_ADMIN_PLUGINS = [];
 					</script>
-					<link rel='stylesheet' href='/simplecms/style' type='text/css'>
-					<link rel='stylesheet' href='/simplecms/admin/style' type='text/css'>
-					<script src='/simplecms/admin/script' defer></script>
-					<script src='/simplecms/script' defer></script>
+					<link rel='stylesheet' href='/kontrlcms/style' type='text/css'>
+					<link rel='stylesheet' href='/kontrlcms/admin/style' type='text/css'>
+					<script src='/kontrlcms/admin/script' defer></script>
+					<script src='/kontrlcms/script' defer></script>
 				";
 			}
 
@@ -81,8 +80,8 @@ class SimpleCMS {
 //			<script>
 //			   	const __KONTRL_BASE_PLUGINS = [];
 //			   </script>
-//			<link rel='stylesheet' href='/simplecms/base/style' type='text/css'>
-//			<script src='/simplecms/base/script' defer></script>
+//			<link rel='stylesheet' href='/kontrlcms/base/style' type='text/css'>
+//			<script src='/kontrlcms/base/script' defer></script>
 
             return $content;
         }, ["is_safe" => ["html"], "needs_context" => true]));
@@ -94,7 +93,7 @@ class SimpleCMS {
             return $popupHtml;
         }, ["is_safe" => ["html"]]));
 
-        $this->appContext->getApp()->get("/simplecms/admin/script", function ($request, $response, $args) {
+        $this->appContext->getApp()->get("/kontrlcms/admin/script", function ($request, $response, $args) {
             $content = "";
             foreach ($this->appContext->getPlugins() as $plugin) {
                 foreach ($plugin->adminScriptFunctions as $scriptFunction) {
@@ -105,7 +104,7 @@ class SimpleCMS {
             return $response->withHeader('Content-Type', 'text/javascript');
         });
 
-        $this->appContext->getApp()->get("/simplecms/base/script", function ($request, $response, $args) {
+        $this->appContext->getApp()->get("/kontrlcms/base/script", function ($request, $response, $args) {
             $content = "";
             foreach ($this->appContext->getPlugins() as $plugin) {
                 foreach ($plugin->scriptFunctions as $scriptFunction) {
@@ -116,7 +115,7 @@ class SimpleCMS {
             return $response->withHeader('Content-Type', 'text/javascript');
         });
 
-        $this->appContext->getApp()->get("/simplecms/admin/style", function ($request, $response, $args) {
+        $this->appContext->getApp()->get("/kontrlcms/admin/style", function ($request, $response, $args) {
             $content = "";
             foreach ($this->appContext->getPlugins() as $plugin) {
                 foreach ($plugin->adminStyleFunctions as $styleFunction) {
@@ -127,7 +126,7 @@ class SimpleCMS {
             return $response->withHeader('Content-Type', 'text/css');
         });
 
-        $this->appContext->getApp()->get("/simplecms/base/style", function ($request, $response, $args) {
+        $this->appContext->getApp()->get("/kontrlcms/base/style", function ($request, $response, $args) {
             $content = "";
             foreach ($this->appContext->getPlugins() as $plugin) {
                 foreach ($plugin->styleFunctions as $styleFunction) {
@@ -238,19 +237,19 @@ class SimpleCMS {
 //    }
 
     private function createEditEndpoints() {
-        $this->appContext->getApp()->get("/simplecms/style", function (Request $request, Response $response, array $args) {
+        $this->appContext->getApp()->get("/kontrlcms/style", function (Request $request, Response $response, array $args) {
             $styleData = file_get_contents(__DIR__ . '/../dist/style.css');
             $response->getBody()->write($styleData);
             return $response->withHeader('Content-Type', 'text/css');
         });
 
-        $this->appContext->getApp()->get("/simplecms/script", function (Request $request, Response $response, array $args) {
+        $this->appContext->getApp()->get("/kontrlcms/script", function (Request $request, Response $response, array $args) {
             $styleData = file_get_contents(__DIR__ . '/../dist/app.js');
             $response->getBody()->write($styleData);
             return $response->withHeader('Content-Type', 'text/javascript');
         });
 
-        $this->appContext->getApp()->post("/simplecms/update", function (Request $request, Response $response, array $args) {
+        $this->appContext->getApp()->post("/kontrlcms/update", function (Request $request, Response $response, array $args) {
             if (!$this->appContext->getAuthenticator()->hasUser()) return "";
 
             $params = $request->getParsedBody();
@@ -262,7 +261,7 @@ class SimpleCMS {
             return $response->withHeader('Content-Type', 'application/json');
         })->add($this->bodyParser);
 
-        $this->appContext->getApp()->get("/simplecms/snippets", function (Request $request, Response $response, array $args) {
+        $this->appContext->getApp()->get("/kontrlcms/snippets", function (Request $request, Response $response, array $args) {
         	$queryParams = $request->getQueryParams();
         	if (!isset($queryParams["snippets"])) {
 				return $this->badRequest($response);
@@ -273,7 +272,7 @@ class SimpleCMS {
         	return $this->JSON($response, $snippets);
 		});
 
-        $this->appContext->getApp()->post("/simplecms/upload", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->post("/kontrlcms/upload", function (Request $request, Response $response, $args = []) {
             if (!$this->appContext->getAuthenticator()->hasUser()) return $this->unauthorized($response);
 
             $params = $request->getParsedBody();
@@ -322,7 +321,7 @@ class SimpleCMS {
             return $this->JSON($response, ["error" => "Failed to upload file"]);
         })->add($this->bodyParser);
 
-        $this->appContext->getApp()->post("/simplecms/upload/{purpose}", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->post("/kontrlcms/upload/{purpose}", function (Request $request, Response $response, $args = []) {
             if (!$this->appContext->getAuthenticator()->hasUser()) return $this->unauthorized($response);
 
             $files = $request->getUploadedFiles();
@@ -336,10 +335,10 @@ class SimpleCMS {
             return $this->JSON($response, ["error" => "Failed to upload file"]);
         })->add($this->bodyParser);
 
-        $this->appContext->getApp()->get("/simplecms/login", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->get("/kontrlcms/login", function (Request $request, Response $response, $args = []) {
             return $this->renderLibraryPage($response, "login.twig");
         });
-        $this->appContext->getApp()->post("/simplecms/login", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->post("/kontrlcms/login", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
             $email = strtolower($params['email']);
@@ -356,7 +355,7 @@ class SimpleCMS {
             return $this->sendSeeOther($response, "/");
         })->add($this->bodyParser);
 
-		$this->appContext->getApp()->get("/simplecms/setup", function (Request $request, Response $response, $args = []) {
+		$this->appContext->getApp()->get("/kontrlcms/setup", function (Request $request, Response $response, $args = []) {
 			$tableExists = UserRepo::doesTableExist();
 			if ($tableExists) {
 				$existingUsersCount = UserRepo::countAll();
@@ -365,7 +364,7 @@ class SimpleCMS {
 			return $this->renderLibraryPage($response, "setup.twig");
 		})->add($this->bodyParser);
 
-        $this->appContext->getApp()->post("/simplecms/setup", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->post("/kontrlcms/setup", function (Request $request, Response $response, $args = []) {
             $params = $request->getParsedBody();
 
 			$tableExists = UserRepo::doesTableExist();
@@ -379,15 +378,15 @@ class SimpleCMS {
             $email = strtolower($params["admin_email"]);
             $this->appContext->getAuthenticator()->register($email, $params["admin_password"]);
 
-            return $this->sendSeeOther($response, "/");
+            return $this->sendSeeOther($response, "/kontrlcms/login");
         })->add($this->bodyParser);
 
-        $this->appContext->getApp()->get("/simplecms/logout", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->get("/kontrlcms/logout", function (Request $request, Response $response, $args = []) {
             $this->appContext->getAuthenticator()->logout();
             return $this->sendSeeOther($response, "/");
         });
 
-        $this->appContext->getApp()->get("/simplecms/user_tokens/new", function (Request $request, Response $response, $args = []) {
+        $this->appContext->getApp()->get("/kontrlcms/user_tokens/new", function (Request $request, Response $response, $args = []) {
             if (!$this->appContext->getAuthenticator()->hasUser()) return $this->unauthorized($response);
 
             // Create user token
@@ -396,7 +395,7 @@ class SimpleCMS {
 
             return $this->renderLibraryPage($response, "user_token.twig", ["token" => $token]);
         });
-        $this->appContext->getApp()->get("/simplecms/users/new/{token}", function (Request $request, Response $response, $args) {
+        $this->appContext->getApp()->get("/kontrlcms/users/new/{token}", function (Request $request, Response $response, $args) {
             $token = $args["token"];
             if (!UserTokenRepo::tokenExists($token)) {
                 return $this->unauthorized($response);
@@ -404,7 +403,7 @@ class SimpleCMS {
             return $this->renderLibraryPage($response, "new_user.twig", ["token" => $token]);
         });
 
-		$this->appContext->getApp()->post("/simplecms/users/new", function (Request $request, Response $response, $args) {
+		$this->appContext->getApp()->post("/kontrlcms/users/new", function (Request $request, Response $response, $args) {
             $data = $request->getParsedBody();
 
             if ($data["password"] !== $data["re_password"]) {
@@ -422,10 +421,10 @@ class SimpleCMS {
 
 			$this->appContext->getAuthenticator()->register($data["email"], $data["password"]);
 
-            return $this->sendSeeOther($response, "/simplecms/login");
+            return $this->sendSeeOther($response, "/kontrlcms/login");
         })->add($this->bodyParser);
 
-		$this->appContext->getApp()->get("/simplecms/login_token/new", function (Request $request, Response $response, $args) {
+		$this->appContext->getApp()->get("/kontrlcms/login_token/new", function (Request $request, Response $response, $args) {
 			if (!$this->appContext->getAuthenticator()->hasUser()) {
 				return $this->unauthorized($response);
 			}
@@ -434,7 +433,7 @@ class SimpleCMS {
 			return $this->renderLibraryPage($response, "login_link.twig", ["users" => $users]);
 		});
 
-		$this->appContext->getApp()->post("/simplecms/login_token/new", function (Request $request, Response $response, $args) {
+		$this->appContext->getApp()->post("/kontrlcms/login_token/new", function (Request $request, Response $response, $args) {
 			if (!$this->appContext->getAuthenticator()->hasUser()) {
 				return $this->unauthorized($response);
 			}
@@ -445,7 +444,7 @@ class SimpleCMS {
 			return $this->renderLibraryPage($response, "login_link_show.twig", ["token" => $token]);
 		})->add($this->bodyParser);
 
-		$this->appContext->getApp()->get("/simplecms/login_token/authenticate/{token}", function (Request $request, Response $response, $args) {
+		$this->appContext->getApp()->get("/kontrlcms/login_token/authenticate/{token}", function (Request $request, Response $response, $args) {
 			$this->appContext->getAuthenticator()->loginWithToken($args["token"]);
 			return $this->sendSeeOther($response, "/");
 		});

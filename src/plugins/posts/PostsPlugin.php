@@ -1,14 +1,14 @@
 <?php
 
 
-namespace invacto\SimpleCMS\plugins\posts;
+namespace invacto\KontrlCMS\plugins\posts;
 
 
 use Exception;
-use invacto\SimpleCMS\plugins\Plugin;
-use invacto\SimpleCMS\TemplateFunctionContext;
-use invacto\SimpleCMS\repos\SnippetRepo;
-use invacto\SimpleCMS\RequestHelper;
+use invacto\KontrlCMS\plugins\Plugin;
+use invacto\KontrlCMS\TemplateFunctionContext;
+use invacto\KontrlCMS\repos\SnippetRepo;
+use invacto\KontrlCMS\RequestHelper;
 
 class PostsPlugin extends Plugin
 {

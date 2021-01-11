@@ -1,10 +1,10 @@
 <?php
 
-namespace invacto\SimpleCMS\auth;
+namespace invacto\KontrlCMS\auth;
 
-use invacto\SimpleCMS\repos\Database;
-use invacto\SimpleCMS\repos\LoginTokenRepo;
-use invacto\SimpleCMS\repos\UserRepo;
+use invacto\KontrlCMS\repos\Database;
+use invacto\KontrlCMS\repos\LoginTokenRepo;
+use invacto\KontrlCMS\repos\UserRepo;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
@@ -49,7 +49,7 @@ class Authenticator {
         $passwordHash = $encoder->encodePassword($password, $salt);
         $user->setPassword($passwordHash);
 
-        UserRepo::create($user->getPassword(), $user->getPassword(), $salt);
+        UserRepo::create($user->getUsername(), $user->getPassword(), $salt);
     }
 
     public function login($username, $password) {

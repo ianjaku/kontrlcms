@@ -1,9 +1,9 @@
 <?php
 
-namespace invacto\SimpleCMS\plugins;
+namespace invacto\KontrlCMS\plugins;
 
 
-use invacto\SimpleCMS\AppContext;
+use invacto\KontrlCMS\AppContext;
 
 abstract class Plugin
 {

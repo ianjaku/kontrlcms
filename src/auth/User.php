@@ -1,6 +1,6 @@
 <?php
 
-namespace invacto\SimpleCMS\auth;
+namespace invacto\KontrlCMS\auth;
 
 
 use Symfony\Component\Security\Core\User\UserInterface;

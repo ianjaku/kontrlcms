@@ -57,7 +57,7 @@ class Editor {
                 changeImagePlugin(kontrlContext),
                 // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
-                    fetch('/simplecms/update', {
+                    fetch('/kontrlcms/update', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
