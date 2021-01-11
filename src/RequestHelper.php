@@ -77,5 +77,6 @@ class RequestHelper
 
 	public function notFound() {
 		throw new HttpNotFoundException($this->request);
+		return null;
 	}
 }

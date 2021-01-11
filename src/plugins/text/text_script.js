@@ -3,10 +3,10 @@ class TextPlugin {
 
 	constructor(context) {
 		this.context = context;
-		this.setup();
+		this.setup(context);
 	}
 
-	setup() {
+	setup(context) {
 		this.elements = Array.from(document.getElementsByClassName('simplecms__editable'));
 
 		for (let el of this.elements) {
@@ -17,7 +17,7 @@ class TextPlugin {
 					e.target.focus();
 				}
 			});
-			el.addEventListener('input', e => {
+			el.addEventListener('input', context.debounce(e => {
 				const name = e.target.dataset.name;
 				// const type = e.target.dataset.type;
 				const page = e.target.dataset.page;
@@ -28,8 +28,9 @@ class TextPlugin {
 				} else {
 					value = e.target.innerHTML;
 				}
+				console.log(name, value, page);
 				this.context.updateSnippet(name, value, page);
-			});
+			}, 200));
 		}
 	}
 

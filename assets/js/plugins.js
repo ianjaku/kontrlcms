@@ -3,28 +3,30 @@ import kontrlPopups from "kontrl-popups";
 import { updateSnippet, uploadAnyImage, uploadSnippetImage, fetchSnippets } from "./repo";
 import kontrlSidebars from "./sidebars";
 import { v4 as uuidv4 } from "uuid";
+import {debounce} from "lodash";
 
 let _isEditing = false;
 
 const context = {
+		debounce,
 		updateSnippet,
 		uploadAnyImage,
 		uploadSnippetImage,
 		fetchSnippets,
-		debounce(func, wait, immediate) {
-				let timeout;
-				return function() {
-						 let context = this, args = arguments;
-						 let later = function() {
-									timeout = null;
-									if (!immediate) func.apply(context, args);
-						 };
-						 let callNow = immediate && !timeout;
-						 clearTimeout(timeout);
-						 timeout = setTimeout(later, wait);
-						 if (callNow) func.apply(context, args);
-				};
-		},
+		// debounce(func, wait, immediate) {
+		// 		let timeout;
+		// 		return function() {
+		// 				 let context = this, args = arguments;
+		// 				 let later = function() {
+		// 							timeout = null;
+		// 							if (!immediate) func.apply(context, args);
+		// 				 };
+		// 				 let callNow = immediate && !timeout;
+		// 				 clearTimeout(timeout);
+		// 				 timeout = setTimeout(later, wait);
+		// 				 if (callNow) func.apply(context, args);
+		// 		};
+		// },
 		addButtonRight(text) {
 				const buttonsEl = document.querySelector(".simplecms__adminbar__user-buttons--right");
 				if (buttonsEl == null) return;

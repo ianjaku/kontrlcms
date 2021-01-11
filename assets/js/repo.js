@@ -1,3 +1,4 @@
+
 export function updateSnippet(name, value, page = PAGE_NAME) {
     return fetch('/simplecms/update', {
         method: 'POST',

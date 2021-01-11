@@ -11,7 +11,7 @@
 
         <ul>
             {% for post in recent_posts("blog") %}
-                <li>
+                <li style="list-style: none; width: 400px; display: block; background: white; padding: 40px; border-radius: 20px; margin-bottom: 20px;">
                     {{ post_value(post, "post_title") }}
                     <div>
                         <a href="{{ post_url(post) }}">Some post</a>

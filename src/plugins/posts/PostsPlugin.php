@@ -107,6 +107,10 @@ class PostsPlugin extends Plugin
 			return "";
 		});
 
+		/**
+		 * Params:
+		 * 0: Post (from recent_posts for example)
+		 */
 		$this->addTemplateFunction("post_url", function (TemplateFunctionContext $context, $params = []) {
 			if (sizeof($params) < 1) {
 				throw new Exception("The 'post_link' requires at least 1 parameters 'post'.");
@@ -151,6 +155,8 @@ class PostsPlugin extends Plugin
 			$params = $helper->getUrlParameters();
 			$postId = $params["id"];
 			$pageName = $settings->getPageName($postId);
+//			var_dump($postId);
+//			var_dump($pageName);
 
 			$pageData = [
 				"__post__.id" => $postId,
@@ -158,6 +164,7 @@ class PostsPlugin extends Plugin
 				"__post__.settings" => $settings
 			];
 			$context = $appContext->fetchPageContext($pageName, $pageData, ["customPageName" => $pageName]);
+//			var_dump($context);
 
 			if (!$this->isLoggedIn() && sizeof($context["snippets"]) === 0) {
 				return $helper->notFound();

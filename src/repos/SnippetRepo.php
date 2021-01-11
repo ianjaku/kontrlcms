@@ -81,12 +81,16 @@ class SnippetRepo
 	}
 
 	public static function update($name, $page, $value) {
-		return self::snippets()->limit(1)->update([
-			"page" => $page,
-			"name" => $name,
-			"value" => $value,
-			"updated_at" => self::now(),
-		]);
+		return self::snippets()
+			->where("name", $name)
+			->where("page", $page)
+			->limit(1)->update([
+				"page" => $page,
+				"name" => $name,
+				"value" => $value,
+				"updated_at" => self::now(),
+			]
+		);
 	}
 
 	public static function single($name, $page) {
