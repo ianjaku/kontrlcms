@@ -7,10 +7,13 @@ use Dotenv\Dotenv;
 use invacto\SimpleCMS\repos\SnippetRepo;
 use invacto\SimpleCMS\repos\UserRepo;
 use invacto\SimpleCMS\repos\UserTokenRepo;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Log\LoggerInterface;
 use Slim\Middleware\BodyParsingMiddleware;
+use Throwable;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
@@ -172,10 +175,8 @@ class SimpleCMS {
     }
 
     public function run() {
-
         // Run all plugins
         foreach ($this->appContext->getPlugins() as $plugin) {
-//            $plugin->authenticator = $this->appContext->getAuthenticator();
             $plugin->appContext = $this->appContext;
             $plugin->setup();
             $pluginFunctions = $plugin->functions;
@@ -187,16 +188,32 @@ class SimpleCMS {
 			}
         }
 
+        $this->addErrorHandler();
+
         $this->appContext->getApp()->run();
     }
 
-    public function setTemplateVariable(string $name, $value) {
+	public function renderErrorPage($statusCode, $errorMessage = "") {
+		$page = $this->appContext->getErrorPage();
+		if ($page == null) {
+			return "404 Not Found.";
+		} else {
+			$pageData = $this->appContext->fetchPageContext($page, ["statusCode" => $statusCode, "errorMessage" => $errorMessage]);
+			return $this->appContext->renderPage($page, $pageData);
+		}
+	}
+
+	public function setTemplateVariable(string $name, $value) {
         $this->appContext->getTwig()->addGlobal($name, $value);
     }
 
     public function loadTemplate(string $templatePath, $context = []) {
         return $this->appContext->getTwig()->load($templatePath)->render($context);
     }
+
+    public function errorPage($pageFile) {
+    	$this->appContext->setErrorPage($pageFile);
+	}
 
 //    public function generateSiteMap() {
 //        $this->appContext->getApp()->get("/robots.txt", function (Request $request, Response $response, $args = []) {
@@ -478,5 +495,22 @@ class SimpleCMS {
 	private function badRequest(Response $response) {
 		return $response
 			->withStatus(400);
+	}
+
+	private function addErrorHandler() {
+		$customErrorHandler = function(
+			ServerRequestInterface $request,
+			Throwable $exception,
+			bool $displayErrorDetails,
+			bool $logErrors,
+			bool $logErrorDetails,
+			?LoggerInterface $logger = null
+		) {
+			$response = $this->appContext->getApp()->getResponseFactory()->createResponse();
+			$response->getBody()->write($this->renderErrorPage($exception->getCode(), $exception->getMessage()));
+			return $response;
+		};
+		$errorMiddleware = $this->appContext->getApp()->addErrorMiddleware(true, true, true);
+		$errorMiddleware->setDefaultErrorHandler($customErrorHandler);
 	}
 }

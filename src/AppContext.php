@@ -45,6 +45,11 @@ class AppContext
 	 */
 	private $plugins;
 
+	/**
+	 * @var string
+	 */
+	private $errorPage = null;
+
 	public function __construct($appDir)
 	{
 		$this->appDir = $appDir;
@@ -116,6 +121,14 @@ class AppContext
 		$context["__snippets"] = $snippets;
 
 		return array_merge($context, $extraContext);
+	}
+
+	public function setErrorPage($errorPage) {
+		$this->errorPage = $errorPage;
+	}
+
+	public function getErrorPage() {
+		return $this->errorPage;
 	}
 
 	private function createTwig($appDir) {

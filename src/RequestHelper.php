@@ -76,6 +76,6 @@ class RequestHelper
 
 	public function notFound() {
 		// TODO: have an actual 404 page
-		return $this->text("Not Found");
+		return $this->text("Not Found.");
 	}
 }
