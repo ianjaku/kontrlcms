@@ -10,6 +10,8 @@ $cms->page("/", "home.twig");
 $cms->page("/about", "about.twig");
 $cms->page("/blog", "posts.twig");
 
+$cms->setFavicon("/favicon.ico");
+
 $cms->redirect("/login", "/simplecms/login");
 
 $cms->addPlugin(new \invacto\SimpleCMS\plugins\text\TextPlugin());

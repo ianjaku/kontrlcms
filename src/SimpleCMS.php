@@ -66,12 +66,15 @@ class SimpleCMS {
 			}
 
             $pageContext = new PageContext($context);
-            foreach ($this->appContext->getPlugins() as $plugin) {
-            	if (!isset($plugin->hooks["head"])) continue;
-            	foreach ($plugin->hooks["head"] as $hook) {
-            		$content = $hook($content, $pageContext);
-				}
+            foreach ($this->appContext->getHooksFor("head") as $hook) {
+				$content = $hook($content, $pageContext);
 			}
+//			foreach ($this->appContext->getPlugins() as $plugin) {
+//            	if (!isset($plugin->hooks["head"])) continue;
+//            	foreach ($plugin->hooks["head"] as $hook) {
+//					$content = $hook($content, $pageContext);
+//				}
+//			}
 
             // TODO: Add base script & base style
 //			<script>
@@ -136,6 +139,14 @@ class SimpleCMS {
 
         $this->createEditEndpoints();
     }
+
+    public function setFavicon($faviconUrl) {
+    	$this->appContext->addHook("head", function ($content) use ($faviconUrl) {
+    		return $content . "
+    			<link rel=\"shortcut icon\" href=\"$faviconUrl\" type=\"image/x-icon\"/>
+    		";
+		});
+	}
 
     public function addPlugin($plugin) {
     	$this->appContext->addPlugin($plugin);

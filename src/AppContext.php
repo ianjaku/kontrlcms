@@ -21,6 +21,11 @@ class AppContext
 	private $imageDirectory;
 
 	/**
+	 * @var array block strings in format (assuming head is a block) ["head" => ""]
+	 */
+	public $hooks = [];
+
+	/**
 	 * @var Environment Twig environment
 	 */
 	private $twig;
@@ -146,6 +151,18 @@ class AppContext
             $_ENV["DB_USER"],
             $_ENV["DB_PASS"]
         );
+	}
+
+	public function addHook(string $name, callable $callback) {
+		if (!isset($this->hooks[$name])) {
+			$this->hooks[$name] = [$callback];
+		} else {
+			$this->hooks[$name][] = $callback;
+		}
+	}
+
+	public function getHooksFor($name){
+		return $this->hooks[$name];
 	}
 
 }

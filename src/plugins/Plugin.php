@@ -4,8 +4,6 @@ namespace invacto\SimpleCMS\plugins;
 
 
 use invacto\SimpleCMS\AppContext;
-use invacto\SimpleCMS\auth\Authenticator;
-use invacto\SimpleCMS\PageContext;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -21,11 +19,6 @@ abstract class Plugin
     public $functions = [];
 
     public $handledRequests = [];
-
-	/**
-	 * @var array block strings in format (assuming head is a block) ["head" => ""]
-	 */
-    public $hooks = [];
 
 	/**
 	 * @var AppContext
@@ -102,11 +95,7 @@ abstract class Plugin
 	}
 
     public function addHook(string $name, callable $callback) {
-    	if (!isset($this->hooks[$name])) {
-    		$this->hooks[$name] = [$callback];
-		} else {
-			$this->hooks[$name][] = $callback;
-		}
+    	$this->appContext->addHook($name, $callback);
 	}
 
 }
