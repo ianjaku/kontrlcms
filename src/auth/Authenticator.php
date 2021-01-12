@@ -121,7 +121,7 @@ class Authenticator {
 		$loginToken = LoginTokenRepo::oneByToken($token);
     	if ($loginToken == null) return false;
 
-		$user = UserRepo::oneById($loginToken["user_id"]);
+		$user = UserRepo::oneById($loginToken->user_id);
     	if ($user == null) return false;
 
     	$this->startSessionForUser($user["email"], "ADMIN");
