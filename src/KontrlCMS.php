@@ -521,6 +521,10 @@ class KontrlCMS {
 			bool $logErrorDetails,
 			?LoggerInterface $logger = null
 		) {
+			$this->appContext->getLogger()->error($exception->getMessage(), [
+				"code" => $exception->getCode(),
+				"stackTrace" => $exception->getTraceAsString()
+			]);
 			$response = $this->appContext->getApp()->getResponseFactory()->createResponse();
 			$response->getBody()->write($this->renderErrorPage($exception->getCode(), $exception->getMessage()));
 			return $response;

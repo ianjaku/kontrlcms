@@ -124,7 +124,7 @@ class Authenticator {
 		$user = UserRepo::oneById($loginToken->user_id);
     	if ($user == null) return false;
 
-    	$this->startSessionForUser($user["email"], "ADMIN");
+		$this->startSessionForUser($user->email, "ADMIN");
     	return true;
 	}
 
