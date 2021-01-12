@@ -18,13 +18,6 @@ class TextPlugin extends Plugin
 		$this->addTemplateFunction("text", function (TemplateFunctionContext $context, array $params) {
 			$name = $params[0];
 			$defaultValue = (isset($params[1]) ? $params[1] : "");
-//			$global = isset($params[2]) && $params[2];
-
-//			if ($global) {
-//				$text = $context->findGlobalSnippet($name, $defaultValue);
-////				$text = $context->findSnippet($name, $defaultValue);
-//			} else
-//			}
 			$text = $context->findSnippet($name, $defaultValue);
 			if ($context->isLoggedIn()) {
                 return '<span

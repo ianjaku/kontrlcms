@@ -1,7 +1,7 @@
 .simplecms--edit .simplecms__editable {
     position: relative;
     color: inherit;
-    display: block;
+    /*display: block;*/
     cursor: text;
     outline: none;
 }
