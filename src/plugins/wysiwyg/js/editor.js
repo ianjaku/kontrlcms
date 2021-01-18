@@ -57,17 +57,18 @@ class Editor {
                 changeImagePlugin(kontrlContext),
                 // BlockMenuPlugin(this.readonlyListeners),
                 AutoSavePlugin(data => {
-                    fetch('/kontrlcms/update', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            page: this.page,
-                            name: this.name,
-                            value: data
-                        })
-                    })
+                    kontrlContext.updateSnippet(this.name, data, this.page);
+                    // fetch('/kontrlcms/update', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json'
+                    //     },
+                    //     body: JSON.stringify({
+                    //         page: this.page,
+                    //         name: this.name,
+                    //         value: data
+                    //     })
+                    // })
                 })
             ],
             doc: DOMParser.fromSchema(mySchema).parse(contentEl)

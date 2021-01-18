@@ -19,6 +19,9 @@ class PageSettingsPlugin extends Plugin
 			$keywords = $pageContext->findSnippet("__page-settings.page_keywords", "", true);
 
 			return $headContent . "
+				<meta property=\"og:title\" content=\"$title\" />
+				<meta property=\"og:type\" content=\"website\" />
+				<meta property=\"og:description\" content=\"$desc\" />
 				<title>$title</title>
 				<meta name=\"description\" content=\"$desc\">
 				<meta name=\"keywords\" content=\"$keywords\">
