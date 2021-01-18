@@ -70,7 +70,8 @@ class PostsPlugin extends Plugin
 			}
 
 			$postType = $params[0];
-			$count = (isset($params[1]) ? intval($params[2]) : 20);
+//			TODO: find a way to limit blogpost count because otherwise you're just counting snippets not posts
+//			$count = (isset($params[1]) ? intval($params[1]) : 20);
 
 			$postTypeSettings = $settings->getSettingsFor($postType);
 			if ($postTypeSettings == null) {
@@ -80,7 +81,7 @@ class PostsPlugin extends Plugin
 			$snippets = SnippetRepo::customQuery()
 				->where("page", "LIKE", $normalizedPostType . "%")
 				->orderBy("inserted_at", "desc")
-				->limit($count)
+//				->limit($count)
 				->get();
 
 			return $this->postsFromSnippets($snippets, $postTypeSettings);
