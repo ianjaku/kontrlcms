@@ -35,14 +35,15 @@ function insertImageItem(nodeType) {
                 attrs = state.selection.node.attrs
             const { popups } = _kontrlContext;
             const popup = new popups.GenericPopup({ title: "Choose Image" });
-            popup.addItem(new popups.InputItem({ name: "altVal", label: "Image description" }));
+            popup.addItem(new popups.InputItem({ name: "alt", label: "Image description" }));
             const imgItem = new popups.ImageItem({ name: "img", label: "Your image", value: attrs && attrs.src });
             popup.addItem(imgItem);
 
             popups.showPopup(popup).then((data) => {
+                console.log("test", data);
                 if (data == null) return;
-                _kontrlContext.uploadAnyImage(data.content.img, "wysiwyg", (url) => {
-                    const attrs = { src: url, alt: data.content.altVal };
+                _kontrlContext.uploadAnyImage(data.content.img, "wysiwyg").then((url) => {
+                    const attrs = { src: url, alt: data.content.alt };
                     view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
                 });
             });
