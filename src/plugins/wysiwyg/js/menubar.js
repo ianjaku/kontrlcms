@@ -50,6 +50,40 @@ function insertImageItem(nodeType) {
     })
 }
 
+function insertYoutubeItem(nodeType) {
+    return new MenuItem({
+        title: "Insert Youtube Video",
+        // icon: '<svg aria-hidden="true" width="10px" heihgt="10px" focusable="false" data-prefix="fas" data-icon="images" class="svg-inline--fa fa-images fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M480 416v16c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V176c0-26.51 21.49-48 48-48h16v208c0 44.112 35.888 80 80 80h336zm96-80V80c0-26.51-21.49-48-48-48H144c-26.51 0-48 21.49-48 48v256c0 26.51 21.49 48 48 48h384c26.51 0 48-21.49 48-48zM256 128c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-96 144l55.515-55.515c4.686-4.686 12.284-4.686 16.971 0L272 256l135.515-135.515c4.686-4.686 12.284-4.686 16.971 0L512 208v112H160v-48z"></path></svg>',
+        icon: {
+            path: 'M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z',
+            width: 576,
+            height: 512,
+        },
+        label: "Video",
+        enable(state) { return canInsert(state, nodeType) },
+        run(state, _, view) {
+            let {from, to} = state.selection, attrs = null
+            if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
+                attrs = state.selection.node.attrs
+            const { popups } = _kontrlContext;
+            const popup = new popups.GenericPopup({ title: "Insert Youtube video" });
+            popup.addItem(new popups.InputItem({ name: "src", label: "Youtube video URL" }));
+            // const imgItem = new popups.ImageItem({ name: "img", label: "Your image", value: attrs && attrs.src });
+            // popup.addItem(imgItem);
+
+            popups.showPopup(popup).then((data) => {
+                if (data == null) return;
+                let url = data.content.src
+                if (!url.includes("embed")) {
+                    url = url.replace("youtube.com/", "youtube.com/embed/");
+                }
+                const attrs = { src: url }
+                view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)));
+            });
+        }
+    })
+}
+
 function cmdItem(cmd, options) {
     let passedOptions = {
         label: options.title,
@@ -197,6 +231,14 @@ export function buildMenuItems(schema, kontrlContext) {
 
     if (type = schema.nodes.image)
         r.insertImage = insertImageItem(type)
+
+    if (type = schema.nodes.youtube) {
+    		r.insertYoutube = insertYoutubeItem(type)
+        // r.youtube = blockTypeItem(type, {
+        //     url: "https://www.youtube.com/embed/KdQbb3FXSEI"
+        // })
+    }
+
     if (type = schema.nodes.bullet_list)
         r.wrapBulletList = wrapListItem(type, {
             title: "Wrap in bullet list",
@@ -259,6 +301,7 @@ export function buildMenuItems(schema, kontrlContext) {
         [r.typeMenu],
         [r.toggleStrong, r.toggleEm, r.toggleLink],
         [r.insertImage],
-        [r.wrapBlockQuote, r.wrapBulletList, r.wrapOrderedList]
+        [r.wrapBlockQuote, r.wrapBulletList, r.wrapOrderedList],
+        [r.insertYoutube]
     ];
 }

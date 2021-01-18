@@ -101,8 +101,30 @@ export const nodes = {
         selectable: false,
         parseDOM: [{tag: "br"}],
         toDOM() { return brDOM }
+    },
+
+    // Embedded youtube player
+    youtube: {
+        inline: true,
+        attrs: {
+            src: {}
+        },
+        group: "inline",
+        draggable: true,
+        parseDOM: [
+            {
+                tag: "iframe[src]", getAttrs(dom) {
+                    return {
+                        src: dom.getAttribute("src")
+                    }
+                }
+            }
+        ],
+        toDOM(node) {
+            return ["iframe", {src: node.attrs.src, frameborder: "0", allowfullscreen: "true"}]
+        }
     }
-}
+};
 
 const emDOM = ["em", 0], strongDOM = ["strong", 0], codeDOM = ["code", 0]
 
