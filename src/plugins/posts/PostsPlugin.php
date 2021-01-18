@@ -164,7 +164,7 @@ class PostsPlugin extends Plugin
 			];
 			$context = $appContext->fetchPageContext($pageName, $pageData, ["customPageName" => $pageName]);
 
-			if (!$this->isLoggedIn() && sizeof($context["snippets"]) === 0) {
+			if ((!$this->isLoggedIn()) && sizeof($context["__snippets"]) === 0) {
 				return $helper->notFound();
 			}
 			return $appContext->renderPage($settings->getView(), $context);

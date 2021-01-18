@@ -234,9 +234,6 @@ export function buildMenuItems(schema, kontrlContext) {
 
     if (type = schema.nodes.youtube) {
     		r.insertYoutube = insertYoutubeItem(type)
-        // r.youtube = blockTypeItem(type, {
-        //     url: "https://www.youtube.com/embed/KdQbb3FXSEI"
-        // })
     }
 
     if (type = schema.nodes.bullet_list)
