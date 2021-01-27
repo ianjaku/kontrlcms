@@ -30,7 +30,8 @@ class BGImagePlugin {
             newItem.classList.add("simplecms__bg-img-edit");
             const boundingBox = bgImageEl.getBoundingClientRect();
             newItem.style.top = this.elementTopOffset(bgImageEl) + 'px';
-            newItem.style.right = boundingBox.right - boundingBox.width + 'px';
+            // newItem.style.right = boundingBox.right - boundingBox.width + 'px';
+            newItem.style.right = (boundingBox.right - 41) + "px";
             newItem.innerHTML = this.editIcon();
 
             newItem.addEventListener("click", () => {
@@ -39,7 +40,6 @@ class BGImagePlugin {
                     if (data == null) return;
                     console.log(name, data.content.img, page);
                     this.context.uploadSnippetImage(name, data.content.img, page).then(url => {
-                        console.log("Finish");
                         bgImageEl.style.backgroundImage = `url('${url}')`;
                     });
                 });
@@ -71,7 +71,8 @@ class BGImagePlugin {
         this.iconEls.forEach(icon => {
             const boundingBox = icon.imageEl.getBoundingClientRect();
             icon.iconEl.style.top = this.elementTopOffset(icon.imageEl) + 'px';
-            icon.iconEl.style.right = boundingBox.right - boundingBox.width + 'px';
+            // icon.iconEl.style.right = boundingBox.right - boundingBox.width + 'px';
+            icon.iconEl.style.right = (boundingBox.right - 41) + "px";
         })
     }
 
