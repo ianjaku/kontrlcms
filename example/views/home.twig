@@ -37,7 +37,12 @@
         </section>
 
         <section class="info-block">
-            <!-- <div class="info-block__image" style="background-image: url('img/mission.jpg')"></div> -->
+            <style>
+            .info-block__image {
+                z-index: 1;
+            }
+            </style>
+            <div class="info-block__image" {{ bgImg("testino", "/img/mission.jpg") }}></div>
             <!-- <div class="info-block__overlay"></div> -->
             <div class="info-block__bg-color"></div>
             <div class="info-block__center-text">
@@ -57,7 +62,7 @@
 
     <section class="info-block info-block--free">
 {#      style="background-image: url('/img/orange.jpg')"  #}
-        <div class="info-block__image" {{ bgImg("ending_image", "/img/orange.jpg") }} ></div>
+        {# <div class="info-block__image" {{ bgImg("ending_image", "/img/orange.jpg") }} ></div> #}
 
         <!-- <div class="info-block__overlay"></div> -->
         <div class="info-block__ending">

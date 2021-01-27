@@ -29,9 +29,10 @@ class BGImagePlugin {
             const newItem = document.createElement("div");
             newItem.classList.add("simplecms__bg-img-edit");
             const boundingBox = bgImageEl.getBoundingClientRect();
+            console.log(bgImageEl, boundingBox, newItem);
             newItem.style.top = this.elementTopOffset(bgImageEl) + 'px';
             // newItem.style.right = boundingBox.right - boundingBox.width + 'px';
-            newItem.style.right = (boundingBox.right - 41) + "px";
+            newItem.style.left = (boundingBox.right - 41) + "px";
             newItem.innerHTML = this.editIcon();
 
             newItem.addEventListener("click", () => {
@@ -72,13 +73,13 @@ class BGImagePlugin {
             const boundingBox = icon.imageEl.getBoundingClientRect();
             icon.iconEl.style.top = this.elementTopOffset(icon.imageEl) + 'px';
             // icon.iconEl.style.right = boundingBox.right - boundingBox.width + 'px';
-            icon.iconEl.style.right = (boundingBox.right - 41) + "px";
+            icon.iconEl.style.left = (boundingBox.right - 41) + "px";
         })
     }
 
     elementTopOffset(el) {
         const boundingBox = el.getBoundingClientRect();
-        return boundingBox.top + window.pageYOffset + (boundingBox.height / 2) - 10;
+        return boundingBox.top + window.pageYOffset + (boundingBox.height / 2) - 20;
     }
 
     editIcon(theClass = "") {
