@@ -152,6 +152,19 @@ class PostsPlugin extends Plugin
 
 	private function initResource(PostSettings $settings) {
 		$appContext = $this->appContext;
+		$this->handleRequest("GET", "/kontrlcms/posts/remove/{id}", function (RequestHelper $helper) use ($settings, $appContext) {
+			if (!$appContext->getAuthenticator()->hasUser()) {
+				return;
+			}
+
+			$id = $helper->getUrlParameters()["id"];
+			$name = $settings->getName();
+
+			$pageName = "__posts." . $name . "." . $id;
+			$appContext->getDB()->table("snippets")->where("page", $pageName)->delete();
+
+			return $helper->redirect("/");
+		});
 		$this->handleRequest("GET", $settings->getPageUrl(), function (RequestHelper $helper) use ($settings, $appContext) {
 			$params = $helper->getUrlParameters();
 			$postId = $params["id"];
@@ -167,6 +180,16 @@ class PostsPlugin extends Plugin
 			if ((!$this->isLoggedIn()) && sizeof($context["__snippets"]) === 0) {
 				return $helper->notFound();
 			}
+
+			$this->addHook("head", function ($content) use ($postId) {
+				// $test = ""
+				return $content . "
+					<script>
+						const _POST_ID = `$postId`;
+					</script>
+				";
+			});
+			
 			return $appContext->renderPage($settings->getView(), $context);
 		});
 
